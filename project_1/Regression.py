@@ -21,7 +21,10 @@ class Regression:
     
     @classmethod
     def from_2D(cls, x1, x2, y, verbose = False):
-        instance = cls(data)
+        """
+            Constructor for 2D regression with additional x2
+        """
+        instance = cls(x1, y, verbose)
         instance.x2 = x2
         return instance
 
