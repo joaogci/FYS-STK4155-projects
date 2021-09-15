@@ -8,10 +8,12 @@ class Regression:
         Parameters for 1D regression: 
             x1 (vector): data points for fitting
             y (vector): data set for fitting
+            verbose (boolean): If true, will print intermediate results to the console as applicable 
         
         Parameters for 2D regression:
             x1, x2 (vector): data points for fitting
             y (matrix): data set for fitting
+            verbose (boolean): If true, will print intermediate results to the console as applicable 
     """
     
     def __init__(self, x1, y, verbose = False):
@@ -30,7 +32,7 @@ class Regression:
 
     def design_matrix(self, degree):
         """
-            Create the design matris in the form of a Vandermonde matrix for one 
+            Create the design matrix in the form of a Vandermonde matrix for one 
             dimensional data set. The matrix is of the form
 
             [[1 x_1 x_1^2 ... x_1^(degree)]
@@ -60,7 +62,7 @@ class Regression:
     
     def design_matrix_2D(self, degree):
         """
-            Create the design matris in the form of a Vandermonde matrix for two 
+            Create the design matrix in the form of a Vandermonde matrix for two 
             dimensional data set. The matrix is of the form
             
             [[1 x_1 y_1 x_1^2 x_1y_1 y_1^2 ... y_1^(degree)]
