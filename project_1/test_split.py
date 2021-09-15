@@ -19,6 +19,11 @@ pred_train, beta = linreg.ols(X_train, y_train, pseudo_inverse=True)
 pred_test = X_test @ beta
 pred_full = X @ beta
 
+# Show errors
+print('MSE Train:',     linreg.mse(y_train, pred_train))
+print('MSE Test:',      linreg.mse(y_test, pred_test))
+print('MSE Overall:',   linreg.mse(y, pred_full))
+
 # Show data & prediction
 plt.plot(X_train[:,1], y_train ,'k+', label='Training data')
 plt.plot(X_test[:,1], y_test ,'r+', label='Testing data')

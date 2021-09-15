@@ -23,7 +23,7 @@ class Models(Regression):
     @returns {float} The computed R2 score, which hopefully approaches 1
     """
     def r2(self, y_data, y_model):
-        return 1 - np.sum((y_data - y_model) ** 2) / np.sum((y_data - np.mean(y_data)) ** 2)
+        return 1 - np.sum(np.power(y_data - y_model, 2)) / np.sum(np.power(y_data - np.mean(y_data), 2))
     
     """
     Compute Mean Squared Error
@@ -32,7 +32,7 @@ class Models(Regression):
     @returns {float} The computed Mean Squared Error, which hopefully approaches 0
     """
     def mse(self, y_data, y_model):
-        return np.sum((y_data-y_model)**2) / np.size(y_model)
+        return np.sum(np.power(y_data-y_model, 2)) / np.size(y_model)
     
 
 
