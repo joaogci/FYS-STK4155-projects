@@ -59,12 +59,8 @@ class Regression:
         for i in range(0, len(X)):
             r = rng.normal()
             if r < split:
-                
-
-        return X_train, X_test
-
-
-        
+                ...
+        return 0 
     
     def standard_scaler(self, X_train, X_test): 
         
@@ -74,6 +70,8 @@ class Regression:
             
             X_train[:, i] = (X_train[:, i] - mean_value) / standard_deviation
             X_test[:, i] = (X_test[:, i] - mean_value) / standard_deviation 
+        
+        return X_train, X_test
     
     def min_max_scaler(self, X_train, X_test):
         
