@@ -43,9 +43,6 @@ class Models(Regression):
             
             Parameters:
                 pseudo_inverse (boolean): Whether to use numpy.linalg.pinv (SVD-based) instead of numpy.linalg.inv
-            
-            Returns:
-                (vector, matrix) Returns the training prediction and the regression parameters vector (beta) (only returned if from_svd is False)
         """
 
         # Pick the design matrix and data set - either the full set if tt_split hasn't been called,
@@ -77,9 +74,6 @@ class Models(Regression):
             print("R2 score:", self.r2(self.y, self.prediction))
             print("Prediction:", self.prediction, "\n")
 
-        # Return results
-        return self.prediction, self.beta
-
 
     def ols_svd(self, compute_beta = False):
         """
@@ -87,9 +81,6 @@ class Models(Regression):
         
             Parameters:
                 compute_beta (boolean): Whether to compute and return beta; slower than simply doing the prediction by itself
-
-            Returns:
-                (vector, matrix|None) Returns the training prediction and the regression parameters vector (beta) (only returned if from_svd is False)
         """
 
         # Pick the design matrix and data set - either the full set if tt_split hasn't been called,
@@ -128,6 +119,3 @@ class Models(Regression):
             print("MSE:", self.mse(self.y, self.prediction))
             print("R2 score:", self.r2(self.y, self.prediction))
             print("Prediction:\n", self.prediction, "\n")
-        
-        # Return results
-        return self.prediction, self.beta
