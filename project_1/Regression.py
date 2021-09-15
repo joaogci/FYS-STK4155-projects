@@ -7,10 +7,6 @@ class Regression:
     """
     
     def design_matrix(self, x,degree):
-        # Flatten measure points if they are not 1 dim
-        if len(x.shape) > 1:
-            x = np.ravel(x)
-
         design_mat = np.ones((len(x),degree+1)) # First column of design matrix is 1
 
         for i in range(1,degree+1): # First column is 1, so we skip it
@@ -69,9 +65,6 @@ class Regression:
 
         # Return the split data as matrices
         return np.asmatrix(X_train), np.asmatrix(X_test), np.asmatrix(y_train), np.asmatrix(y_test)
-
-
-        
     
     def standard_scaler(self, X_train, X_test): 
         
@@ -81,6 +74,8 @@ class Regression:
             
             X_train[:, i] = (X_train[:, i] - mean_value) / standard_deviation
             X_test[:, i] = (X_test[:, i] - mean_value) / standard_deviation 
+        
+        return X_train, X_test
     
     def min_max_scaler(self, X_train, X_test):
         
