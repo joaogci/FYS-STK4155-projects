@@ -1,4 +1,4 @@
-import Regression
+from Regression import Regression
 
 class Resampling(Regression):
     """
