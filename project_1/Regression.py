@@ -8,10 +8,12 @@ class Regression:
         Parameters for 1D regression: 
             x1 (vector): data points for fitting
             y (vector): data set for fitting
+            verbose (boolean): If true, will print intermediate results to the console as applicable 
         
         Parameters for 2D regression:
             x1, x2 (vector): data points for fitting
             y (matrix): data set for fitting
+            verbose (boolean): If true, will print intermediate results to the console as applicable 
     """
     
     def __init__(self, x1, y, verbose = False):

@@ -4,9 +4,6 @@ import numpy as np
 class Models(Regression):
     """
         Initialises a Models instance with some optional settings
-        
-        Parameters: 
-           verbose (boolean): If true, will print intermediate results to the console as applicable 
     """
 
     def r2(self, y_data, y_model):
@@ -23,6 +20,7 @@ class Models(Regression):
         
         return 1 - np.sum(np.power(y_data - y_model, 2)) / np.sum(np.power(y_data - np.mean(y_data), 2))
     
+
     def mse(self, y_data, y_model):
         """
             Compute Mean Squared Error
@@ -37,6 +35,8 @@ class Models(Regression):
         
         return np.sum(np.power(y_data-y_model, 2)) / np.size(y_model)
     
+
+
     def ols(self, X, y, pseudo_inverse = True):
         """
             Ordinary Least Squares
@@ -68,6 +68,7 @@ class Models(Regression):
 
         # Return results
         return pred, beta
+
 
     def ols_svd(self, X, y, include_beta = False):
         """
