@@ -147,7 +147,7 @@ class Models(Regression):
         
         surf = ax.plot_surface(Xm, Ym, Zm, cmap=cm.coolwarm, linewidth=0, antialiased=True)
         
-        # ax.set_zlim(np.min(self.franke) - 0.3, np.max(self.franke) + 0.4)
+        ax.set_zlim(np.min(self.prediction) - 0.3, np.max(self.prediction) + 0.4)
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
