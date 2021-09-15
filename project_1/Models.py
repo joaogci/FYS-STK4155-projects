@@ -6,13 +6,14 @@ class Model(Regression):
         Linear models class
     """
     
-
-    # Ordinary Least Squares
-    # @param X {matrix} Design matrix
-    # @param y {vector} Training data
-    # @param pseudoInverse {boolean} Whether to use numpy.linalg.pinv (SVD-based) instead of numpy.linalg.inv
-    # @param verbose {boolean} If true, will print intermediate results to the console
-    # @returns Returns the training prediction and the regression parameters vector (beta)
+    """
+    Ordinary Least Squares
+    @param X {matrix} Design matrix
+    @param y {vector} Training data
+    @param pseudoInverse {boolean} Whether to use numpy.linalg.pinv (SVD-based) instead of numpy.linalg.inv
+    @param verbose {boolean} If true, will print intermediate results to the console
+    @returns Returns the training prediction and the regression parameters vector (beta)
+    """
     def ols(X, y, pseudoInverse = False, verbose = False):
         
         # Find beta
