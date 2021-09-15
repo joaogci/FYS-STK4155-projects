@@ -95,12 +95,10 @@ class Regression:
         self.X = design_mat
         return self.X
 
-    def tt_split(self, X, y, split = 0.25, seed = 0):
+    def tt_split(self, split = 0.25, seed = 0):
         """
             Splits the design matrix and data into two sets of data; testing and training
             Parameters:
-                X {matrix}: The matrix to split
-                y {vector}: The data to split
                 split {float}: Between 0 and 1, the fraction of data to use for testing
                 seed {int}: Seed to use for the random generator
             Returns:
@@ -108,8 +106,8 @@ class Regression:
         """
 
         # Check inputs
-        if len(X) != len(y):
-            print('ERROR: tt_split was given inputs of different sizes! Expects len(X) == len(y), given len(X) =', len(X), ', len(y) =', len(y), '!!')
+        if len(self.X) != len(self.y):
+            print('ERROR: tt_split was given inputs of different sizes! Expects len(X) == len(y), given len(X) =', len(self.X), ', len(y) =', len(self.y), '!!')
             return None, None, None, None
 
         # Init random number generator
@@ -117,17 +115,18 @@ class Regression:
 
         # Split the data into train and test sets
         X_train, X_test, y_train, y_test = [], [], [], []
-        for i in range(0, len(X)):
+        for i in range(0, len(self.X)):
             r = rng.random()
             if r > split:
-                X_train.append(X[i])
-                y_train.append(y[i])
+                X_train.append(self.X[i])
+                y_train.append(self.y[i])
             else:
-                X_test.append(X[i])
-                y_test.append(y[i])
+                X_test.append(self.X[i])
+                y_test.append(self.y[i])
 
         # Return the split data as matrices
-        return np.asmatrix(X_train), np.asmatrix(X_test), np.asmatrix(y_train), np.asmatrix(y_test)
+        self.X_train, self.X_test, self.y_train, self.y_test = np.asmatrix(X_train), np.asmatrix(X_test), np.asmatrix(y_train), np.asmatrix(y_test)
+        return self.X_train, self.X_test, self.y_train, self.y_test
     
     def standard_scaler(self, X_train, X_test): 
         

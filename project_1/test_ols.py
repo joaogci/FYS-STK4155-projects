@@ -10,8 +10,8 @@ y = 5*x*x + 2 + 0.1*np.random.randn(count, 1)
 
 linreg = Models(x, y, verbose=False)
 X = linreg.design_matrix(degree)
-pred, beta = linreg.ols(X, y, pseudo_inverse=True)
-pred_svd, _ = linreg.ols_svd(X, y)
+pred, beta = linreg.ols(pseudo_inverse=True)
+pred_svd, _ = linreg.ols_svd()
 
 print('MSE (standard OLS):', linreg.mse(y, pred))
 print('R2 (standard OLS):', linreg.r2(y, pred))
