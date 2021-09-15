@@ -100,7 +100,7 @@ class Regression:
         """
 
         # Check inputs
-        assert(self.X.shape[0] != self.y.shape[0], "".join(('ERROR: tt_split was given inputs of different sizes! Expects n_row(X) == len(y), given n_row(X) =', str(self.X.shape[0]), ' len(y) =', str(self.y.shape[0]), '!!')))
+        assert(self.X.shape[0] != self.y.shape[0])#, "".join(('ERROR: tt_split was given inputs of different sizes! Expects n_row(X) == len(y), given n_row(X) =', str(self.X.shape[0]), ' len(y) =', str(self.y.shape[0]), '!!')))
                
         # Init random number generator
         rng = np.random.default_rng(seed=seed)
