@@ -1,7 +1,7 @@
 from Regression import Regression
 import numpy as np
 
-class Franke:
+class TestFunction:
     """
         Test function class to test regression models
         
