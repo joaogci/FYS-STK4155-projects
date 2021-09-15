@@ -52,14 +52,11 @@ class Regression:
         # Flatten measure points if they are not 1 dim
         self.x1 = np.ravel(self.x1)
 
-        design_mat = np.ones((len(self.x1),degree+1)) # First column of design matrix is 1
+        self.X = np.ones((len(self.x1),degree+1)) # First column of design matrix is 1
 
         for i in range(1,degree+1): # First column is 1, so we skip it
-            design_mat[:,i] = self.x1**i
-            
-        self.X = design_mat
-        return self.X
-    
+            self.X[:,i] = self.x1**i
+                
     def design_matrix_2D(self, degree):
         """
             Create the design matrix in the form of a Vandermonde matrix for two 
@@ -84,17 +81,13 @@ class Regression:
         self.x1 = np.ravel(self.x1)
         self.x2 = np.ravel(self.x2)
 
-        len_beta = int((degree + 1) * (degree + 2) / 2)	# Number of elements in beta
-        design_mat = np.ones((len(self.x1), len_beta)) # First column of design matrix is 1
+        self.X = np.ones((len(self.x1), int((degree + 1) * (degree + 2) / 2))) # First column of design matrix is 1
 
         for i in range(1, degree + 1): # First column is 1, so we skip it
             q = int(i * (i + 1) / 2)      # 1 + 2 + ... + i
             for k in range(i + 1):
-                design_mat[:, q + k] = (self.x ** (i - k)) * (self.y ** k)
+                self.X[:, q + k] = (self.x ** (i - k)) * (self.y ** k)
         
-        self.X = design_mat
-        return self.X
-
     def tt_split(self, split = 0.25, seed = 0):
         """
             Splits the design matrix and data into two sets of data; testing and training
@@ -128,34 +121,35 @@ class Regression:
         self.X_train, self.X_test, self.y_train, self.y_test = np.asmatrix(X_train), np.asmatrix(X_test), np.asmatrix(y_train), np.asmatrix(y_test)
         return self.X_train, self.X_test, self.y_train, self.y_test
     
-    def standard_scaler(self, X_train, X_test): 
-        
-        for i in range(X_train.shape[1]):
-            mean_value = np.mean(X_train[:, i])
-            standard_deviation = np.std(X_train[:, i])
+    def standard_scaler(self): 
+        self.X_test_scaled = np.zeros(self.X_test.shape)
+        self.X_train_scaled = np.zeros(self.X_train.shape)
+ 
+        for i in range(self.X_train.shape[1]):
+            mean_value = np.mean(self.X_train[:, i])
+            standard_deviation = np.std(self.X_train[:, i])
             
-            X_train[:, i] = (X_train[:, i] - mean_value) / standard_deviation
-            X_test[:, i] = (X_test[:, i] - mean_value) / standard_deviation 
-        
-        return X_train, X_test
+            self.X_train_scaled[:, i] = (self.X_train[:, i] - mean_value) / standard_deviation
+            self.X_test_scaled[:, i] = (self.X_test[:, i] - mean_value) / standard_deviation 
     
-    def min_max_scaler(self, X_train, X_test):
+    def min_max_scaler(self):
+        self.X_test_scaled = np.zeros(self.X_test.shape)
+        self.X_train_scaled = np.zeros(self.X_train.shape)
         
-        for i in range(X_train.shape[1]):
-            x_min = np.min(X_train[:, i])
-            x_max = np.max(X_train[:, i])
+        for i in range(self.X_train.shape[1]):
+            x_min = np.min(self.X_train[:, i])
+            x_max = np.max(self.X_train[:, i])
             
-            X_train[:, i] = (X_train[:, i] - x_min) / (x_max - x_min)
-            X_test[:, i] = (X_test[:, i] - x_min) / (x_max - x_min)
+            self.X_train_scaled[:, i] = (self.X_train[:, i] - x_min) / (x_max - x_min)
+            self.X_test_scaled[:, i] = (self.X_test[:, i] - x_min) / (x_max - x_min)
             
-        return X_train, X_test
-
-    def robust_scaler(self, X_train, X_test):
-       
-       for i in range(X_train.shape[1]):
-           median = np.median(X_train[:, i])
-           inter_quantile_range = np.percentile(X_train[:, i], 75) - np.percentile(X_train[:, i], 25)
-           
-           X_train[:, i] = (X_train[:, i] - median) / inter_quantile_range
-       
-       return X_train, X_test 
+    def robust_scaler(self):
+        self.X_test_scaled = np.zeros(self.X_test.shape)
+        self.X_train_scaled = np.zeros(self.X_train.shape)
+        
+        for i in range(self.X_train.shape[1]):
+            median = np.median(self.X_train[:, i])
+            inter_quantile_range = np.percentile(self.X_train[:, i], 75) - np.percentile(self.X_train[:, i], 25)
+            
+            self.X_train_scaled[:, i] = (self.X_train[:, i] - median) / inter_quantile_range
+        
