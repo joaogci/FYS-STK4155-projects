@@ -1,4 +1,4 @@
-from Regression import Regression
+from Models import Models
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -37,7 +37,7 @@ class Franke:
         self.franke = self.franke + np.random.normal(0, 1, self.franke.shape)
         
     def initialize_regression(self):
-        return Regression.from_2D(self.X, self.Y, self.franke, verbose=False)
+        return Models.from_2D(self.X, self.Y, self.franke, verbose=False)
     
     def plot(self):
         fig = plt.figure(figsize=(8, 6), dpi=80)

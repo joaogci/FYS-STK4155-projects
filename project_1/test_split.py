@@ -15,6 +15,8 @@ linreg.design_matrix(degree)
 # Split data
 linreg.tt_split(split=0.25)
 
+linreg.standard_scaler()
+
 # Prediction
 linreg.ols(pseudo_inverse=True)
 
