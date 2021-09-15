@@ -14,14 +14,16 @@ class Regression:
             y (matrix): data set for fitting
     """
     
-    def __init__(self, x1, y):
+    def __init__(self, x1, y, verbose = False):
         self.x1 = x1
         self.y = y
+        self.verbose = verbose
     
-    def __init__(self, x1, x2, y):
-        self.x1 = x1
-        self.x2 = x2
-        self.y = y
+    @classmethod
+    def from_2D(cls, x1, x2, y, verbose = False):
+        instance = cls(data)
+        instance.x2 = x2
+        return instance
 
     def design_matrix(self, degree):
         # Flatten measure points if they are not 1 dim

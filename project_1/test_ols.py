@@ -8,8 +8,8 @@ degree = 2
 x = np.random.rand(count, 1)
 y = 5*x*x + 2 + 0.1*np.random.randn(count, 1)
 
-linreg = Models(verbose=False)
-X = linreg.design_matrix(x, degree)
+linreg = Models(x, y, verbose=False)
+X = linreg.design_matrix(degree)
 pred, beta = linreg.ols(X, y, pseudo_inverse=True)
 pred_svd, _ = linreg.ols_svd(X, y)
 
