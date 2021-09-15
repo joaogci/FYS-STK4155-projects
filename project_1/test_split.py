@@ -19,9 +19,7 @@ linreg.tt_split(split=0.25)
 linreg.ols(pseudo_inverse=True)
 
 # Show errors
-print('MSE Train:',     linreg.mse(linreg.y_train, linreg.prediction_train))
-print('MSE Test:',      linreg.mse(linreg.y_test, linreg.prediction_test))
-print('MSE Overall:',   linreg.mse(linreg.y, linreg.prediction))
+linreg.print_error_estimates()
 
 # Show data & prediction
 plt.plot(linreg.X_train[:,1], linreg.y_train ,'k+', label='Training data')

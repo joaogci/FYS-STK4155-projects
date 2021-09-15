@@ -11,15 +11,12 @@ y = 5*x*x + 2 + 0.1*np.random.randn(count, 1)
 linreg = Models(x, y, verbose=False)
 linreg.design_matrix(degree)
 linreg.ols(pseudo_inverse=True)
+linreg.print_error_estimates('regular OLS')
 
 linregSVD = Models(x, y, verbose=False)
 linregSVD.design_matrix(degree)
 linregSVD.ols_svd()
-
-print('MSE (standard OLS):', linreg.mse(y, linreg.prediction))
-print('R2 (standard OLS):', linreg.r2(y, linreg.prediction))
-print('MSE (SVD OLS):', linreg.mse(y, linregSVD.prediction))
-print('R2 (SVD OLS):', linreg.r2(y, linregSVD.prediction))
+linregSVD.print_error_estimates('SVD')
 
 # Show data & prediction
 plt.plot(x, y ,'k+', label='Input data')

@@ -34,8 +34,25 @@ class Models(Regression):
         """
         
         return np.sum(np.power(y_data-y_model, 2)) / np.size(y_model)
-    
 
+    def print_error_estimates(self, name = None):
+        """
+            Displays the R2 score and MSE for the predictions made by the model
+
+            Parameters:
+                name (string|None): If provided, will display in brackets after the name of the different scores
+        """
+        prefix = "" if name == None else " (" + name + ")"
+        print("MSE" + prefix + ":", self.mse(self.y, self.prediction))
+        print("R2 score" + prefix + ":", self.r2(self.y, self.prediction))
+        if hasattr(self, 'X_train'):
+            print("Training MSE" + prefix + ":", self.mse(self.y_train, self.prediction_train))
+            print("Training R2 score" + prefix + ":", self.r2(self.y_train, self.prediction_train))
+            print("Test MSE" + prefix + ":", self.mse(self.y_test, self.prediction_test))
+            print("Test R2 score" + prefix + ":", self.r2(self.y_test, self.prediction_test))
+        print('')
+
+    
 
     def ols(self, pseudo_inverse = True):
         """
