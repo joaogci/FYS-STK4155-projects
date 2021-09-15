@@ -9,6 +9,9 @@ class Regression:
     def design_matrix(self, x,degree):
         design_mat = np.ones((len(x),degree+1)) # First column of design matrix is 1
 
+        if len(x.shape) > 1:
+            x = np.ravel(x)
+
         for i in range(1,degree+1): # First column is 1, so we skip it
             design_mat[:,i] = x**i
 
