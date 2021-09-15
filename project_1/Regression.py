@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.core.fromnumeric import mean
 
 class Regression:
     """
@@ -99,30 +100,25 @@ class Regression:
         """
 
         # Check inputs
-        if len(self.X) != len(self.y):
-            print('ERROR: tt_split was given inputs of different sizes! Expects len(X) == len(y), given len(X) =', len(self.X), ', len(y) =', len(self.y), '!!')
-            return None, None, None, None
-
+        assert(self.X.shape[0] != self.y.shape[0], "".join(('ERROR: tt_split was given inputs of different sizes! Expects n_row(X) == len(y), given n_row(X) =', str(self.X.shape[0]), ' len(y) =', str(self.y.shape[0]), '!!')))
+               
         # Init random number generator
         rng = np.random.default_rng(seed=seed)
 
         # Split the data into train and test sets
-        X_train, X_test, y_train, y_test = [], [], [], []
-        for i in range(0, len(self.X)):
-            r = rng.random()
-            if r > split:
-                X_train.append(self.X[i])
-                y_train.append(self.y[i])
-            else:
-                X_test.append(self.X[i])
-                y_test.append(self.y[i])
-
-        # Return the split data as matrices
-        self.X_train, self.X_test, self.y_train, self.y_test = np.asmatrix(X_train), np.asmatrix(X_test), np.asmatrix(y_train), np.asmatrix(y_test)
-        return self.X_train, self.X_test, self.y_train, self.y_test
+        split_size = int(self.X.shape[0] * split)
+        
+        perm = rng.permuted(np.arange(0, self.X.shape[0]))
+        perm_X = self.X[perm, :]
+        perm_y = self.y[perm]
+        
+        self.X_train = perm_X[0:split_size, :]
+        self.y_train = perm_y[0:split_size]
+        self.X_test = perm_X[split_size:, :]
+        self.y_test = perm_y[split_size:]
+            
+        # return self.X_train, self.X_test, self.y_train, self.y_test
     
-
-
     def ensure_split(self):
         """
             Ensures tt_split has been called on the instance
@@ -136,15 +132,15 @@ class Regression:
             return False
         return True
     
-
-
+    # Skip the first value in the scaling since we disregard the intercept when scaling
+    
     def standard_scaler(self):
         self.ensure_split()
-
+        
         self.X_test_scaled = np.zeros(self.X_test.shape)
         self.X_train_scaled = np.zeros(self.X_train.shape)
  
-        for i in range(self.X_train.shape[1]):
+        for i in range(1, self.X_train.shape[1]):
             mean_value = np.mean(self.X_train[:, i])
             standard_deviation = np.std(self.X_train[:, i])
             
@@ -157,7 +153,7 @@ class Regression:
         self.X_test_scaled = np.zeros(self.X_test.shape)
         self.X_train_scaled = np.zeros(self.X_train.shape)
         
-        for i in range(self.X_train.shape[1]):
+        for i in range(1, self.X_train.shape[1]):
             x_min = np.min(self.X_train[:, i])
             x_max = np.max(self.X_train[:, i])
             
@@ -170,7 +166,7 @@ class Regression:
         self.X_test_scaled = np.zeros(self.X_test.shape)
         self.X_train_scaled = np.zeros(self.X_train.shape)
         
-        for i in range(self.X_train.shape[1]):
+        for i in range(1, self.X_train.shape[1]):
             median = np.median(self.X_train[:, i])
             inter_quantile_range = np.percentile(self.X_train[:, i], 75) - np.percentile(self.X_train[:, i], 25)
             
