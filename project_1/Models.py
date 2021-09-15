@@ -5,16 +5,24 @@ class Models(Regression):
     """
         Linear models class
     """
+
+    """
+    Initialises a Models instance with some optional settings
+    @param verbose {boolean} If true, will print intermediate results to the console as applicable
+    """
+    def __init__(self, verbose = False):
+        self.verbose = verbose
     
+
+
     """
     Ordinary Least Squares
     @param X {matrix} Design matrix
     @param y {vector} Training data
     @param pseudo_inverse {boolean} Whether to use numpy.linalg.pinv (SVD-based) instead of numpy.linalg.inv; ignored when from_svd is True
-    @param verbose {boolean} If true, will print intermediate results to the console
     @returns Returns the training prediction and the regression parameters vector (beta) (only returned if from_svd is False)
     """
-    def ols(self, X, y, pseudo_inverse = True, verbose = False):
+    def ols(self, X, y, pseudo_inverse = True):
         
         # Compute beta from the matrix inverse or pseudo inverse
         if pseudo_inverse: # Use numpy.linalg.pinv (uses SVD)
@@ -22,13 +30,16 @@ class Models(Regression):
         else: # Use true matrix inverse (may be ill-conditioned)
             beta = np.linalg.inv(X.T @ X) @ X.T @ y
 
-        if verbose:
+        # Compute prediction
+        pred = X @ beta
+
+        if self.verbose:
             print("Ordinary least squares with design matrix:\n", X)
             print("Regression parameters:", beta[:,0])
-            print("Training data prediction:", beta @ y, "\n")
+            print("Training data prediction:", pred, "\n")
 
         # Return results
-        return X @ beta, beta
+        return pred, beta
 
     
 
@@ -37,10 +48,9 @@ class Models(Regression):
     @param X {matrix} Design matrix
     @param y {vector} Training data
     @param include_beta {boolean} Whether to compute and return beta; slower than simply doing the prediction by itself
-    @param verbose {boolean} If true, will print intermediate results to the console
     @returns Returns the training prediction and the regression parameters vector (beta) (only returned if from_svd is False)
     """
-    def ols_svd(self, X, y, include_beta = False, verbose = False):
+    def ols_svd(self, X, y, include_beta = False):
         # Compute SVD of design matrix
         u, sigma, vT = np.linalg.svd(X, full_matrices=False)
 
@@ -54,7 +64,7 @@ class Models(Regression):
             diag = np.diag(sigma)
             beta = vT.T @ np.linalg.inv(diag) @ u.T @ y
 
-        if verbose:
+        if self.verbose:
             print("Ordinary least squares from SVD with design matrix:\n", X)
             print("Singular values:\n", sigma)
             if include_beta:
