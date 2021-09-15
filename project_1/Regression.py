@@ -121,7 +121,26 @@ class Regression:
         self.X_train, self.X_test, self.y_train, self.y_test = np.asmatrix(X_train), np.asmatrix(X_test), np.asmatrix(y_train), np.asmatrix(y_test)
         return self.X_train, self.X_test, self.y_train, self.y_test
     
-    def standard_scaler(self): 
+
+
+    def ensure_split(self):
+        """
+            Ensures tt_split has been called on the instance
+            If not, runs tt_split before returning with default params
+
+            Returns:
+                (boolean): Whether tt_split had already been called on the instance
+        """
+        if not hasattr(self, 'X_train'):
+            self.tt_split()
+            return False
+        return True
+    
+
+
+    def standard_scaler(self):
+        self.ensure_split()
+
         self.X_test_scaled = np.zeros(self.X_test.shape)
         self.X_train_scaled = np.zeros(self.X_train.shape)
  
@@ -133,6 +152,8 @@ class Regression:
             self.X_test_scaled[:, i] = (self.X_test[:, i] - mean_value) / standard_deviation 
     
     def min_max_scaler(self):
+        self.ensure_split()
+
         self.X_test_scaled = np.zeros(self.X_test.shape)
         self.X_train_scaled = np.zeros(self.X_train.shape)
         
@@ -144,6 +165,8 @@ class Regression:
             self.X_test_scaled[:, i] = (self.X_test[:, i] - x_min) / (x_max - x_min)
             
     def robust_scaler(self):
+        self.ensure_split()
+
         self.X_test_scaled = np.zeros(self.X_test.shape)
         self.X_train_scaled = np.zeros(self.X_train.shape)
         
