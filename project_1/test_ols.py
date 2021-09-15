@@ -8,10 +8,15 @@ degree = 2
 x = np.random.rand(count, 1)
 y = 5*x*x + 2 + 0.1*np.random.randn(count, 1)
 
-linreg = Models()
+linreg = Models(verbose=False)
 X = linreg.design_matrix(x, degree)
-pred, beta = linreg.ols(X, y, use_svd=False, pseudo_inverse=True, verbose=False)
-pred_svd, _ = linreg.ols(X, y, use_svd=True, verbose=False)
+pred, beta = linreg.ols(X, y, pseudo_inverse=True)
+pred_svd, _ = linreg.ols_svd(X, y)
+
+print('MSE (standard OLS):', linreg.mse(y, pred))
+print('R2 (standard OLS):', linreg.r2(y, pred))
+print('MSE (SVD OLS):', linreg.mse(y, pred_svd))
+print('R2 (SVD OLS):', linreg.r2(y, pred_svd))
 
 # Show data & prediction
 plt.plot(x, y ,'k+', label='Input data')
