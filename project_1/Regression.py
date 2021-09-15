@@ -33,4 +33,31 @@ class Regression:
 
         return design_mat
 
+    
+
+    """
+    Splits the design matrix and data into two sets of data; testing and training
+    @param X {matrix} The matrix to split
+    @param y {vector} The data to split
+    @param split {float} Between 0 and 1, the fraction of data to use for testing
+    @param seed {int} Seed to use for the random generator
+    @returns {matrix, matrix, vector, vector}
+    """
+    def tt_split(self, X, y, split = 0.25, seed = 0):
+
+        # Check inputs
+        if len(X) != len(y):
+            print('ERROR: tt_split was given inputs of different sizes! Expects len(X) == len(y), given len(X) =', len(X), ', len(y) =', len(y), '!!')
+            return None, None, None, None
+
+        rng = np.random.default_rng(seed=seed)
+        X_train = []
+        X_test = []
+        y_train = []
+        y_test = []
+        for i in range(0, len(X)):
+            r = rng.normal()
+            if r < split:
+                
+
 
