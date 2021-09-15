@@ -1,4 +1,4 @@
-import Regression
+from Regression import *
 import numpy as np
 
 class Model(Regression):
@@ -14,7 +14,7 @@ class Model(Regression):
     @param verbose {boolean} If true, will print intermediate results to the console
     @returns Returns the training prediction and the regression parameters vector (beta)
     """
-    def ols(X, y, pseudo_inverse = False, verbose = False):
+    def ols(self, X, y, pseudo_inverse = False, verbose = False):
         
         # Find beta
         if pseudo_inverse:   # Compute beta from the SVD (numpy.linalg.inv)

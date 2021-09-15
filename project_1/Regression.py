@@ -5,7 +5,7 @@ class Regression():
         Parent class for Models and Resampling
         This class should include MSE, R2, setting up the Vandermonte matrix, and scaling
     """
-    def design_matrix(x,degree):
+    def design_matrix(self, x,degree):
         # Flatten measure points if they are not 1 dim
         if len(x.shape) > 1:
             x = np.ravel(x)
@@ -17,7 +17,7 @@ class Regression():
 
         return design_mat
     
-    def design_matrix_2D(x,y,degree):
+    def design_matrix_2D(self, x,y,degree):
         # Flatten measure points if they are not 1 dim
         if len(x.shape) > 1:
             x = np.ravel(x)
@@ -37,9 +37,9 @@ class Regression():
     
     # --- Error functions ---
 
-    def R2(y_data, y_model):
+    def R2(self, y_data, y_model):
         return 1 - np.sum((y_data - y_model) ** 2) / np.sum((y_data - np.mean(y_data)) ** 2)
     
-    def MSE(y_data, y_model):
+    def MSE(self, y_data, y_model):
         n = np.size(y_model)
         return np.sum((y_data-y_model)**2)/n
