@@ -32,9 +32,5 @@ class Regression:
                 design_mat[:,q+k] = (x**(i-k))*(y**k)
 
         return design_mat
-    
-    ...
-    
-    # --- Error functions ---
 
 
