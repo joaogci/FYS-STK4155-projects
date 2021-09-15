@@ -1,8 +1,8 @@
+from Regression import Regression
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
 
 class Franke:
     """
@@ -13,15 +13,8 @@ class Franke:
             b (float): end of the interval for x and y
             h (float): step between successive points
             random (boolean): if True, use random inputs with the number of points specified by (b - a) / h 
-        
-        Methods: 
-            data_set(): returns a numpy matrix with the values for the Franke function over a meshgrid of x and y
-            plot(): 3D plot of the computed Franke function
     """
-    
-    def __init__(self):
-        pass
-    
+        
     def __init__(self, a, b, h, random=False):
         if not random:
             self.x = np.arange(a, b, h)
@@ -39,8 +32,12 @@ class Franke:
         term4 = -0.2*np.exp(-(9*self.X-4)**2 - (9*self.Y-7)**2)
         
         self.franke = term1 + term2 + term3 + term4
+   
+    def add_noise(self):
+        self.franke = self.franke + np.random.normal(0, 1, self.franke.shape)
         
-        return self.franke
+    def initialize_regression(self):
+        return Regression.from_2D(self.X, self.Y, self.franke, verbose=False)
     
     def plot(self):
         fig = plt.figure(figsize=(8, 6), dpi=80)
