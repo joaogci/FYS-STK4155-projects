@@ -1,7 +1,7 @@
-from Regression import *
+from Regression import Regression
 import numpy as np
 
-class Model(Regression):
+class Models(Regression):
     """
         Linear models class
     """
@@ -21,11 +21,13 @@ class Model(Regression):
             beta = np.linalg.pinv(X.T @ X) @ X.T @ y
         else:               # Compute beta from the matrix inverse (may be prone to errors)
             beta = np.linalg.inv(X.T @ X) @ X.T @ y
-        
+
         if verbose:
-            print("Ordinary least squares with design matrix:", X, "\nRegression parameters:", beta, "\nTraining data prediction:", beta @ y, "\n")
+            print("Ordinary least squares with design matrix:\n", X)
+            print("Regression parameters:", beta[:,0])
+            print("Training data prediction:", beta @ y, "\n")
 
         # Return results
-        return beta @ y, beta
+        return X @ beta, beta
 
     
