@@ -29,6 +29,24 @@ class Regression:
         return instance
 
     def design_matrix(self, degree):
+         """
+            Create the design matris in the form of a Vandermonde matrix for one 
+            dimensional data set. The matrix is of the form
+
+            [[1 x_1 x_1^2 ... x_1^(degree)]
+             ...
+             [1 x_n x_n^2 ... x_n^(degree)]]
+            
+            Parameters: 
+                x (numpy array): The input data
+                degree (int): The degree of the polynomial
+            
+            Returns: 
+                design_mat (numpy array): (n x p) dimensional matrix, 
+                where n is number of datapoints and p is the degree 
+                pluss 1
+        """
+
         # Flatten measure points if they are not 1 dim
         self.x1 = np.ravel(self.x1)
 
@@ -41,6 +59,25 @@ class Regression:
         return self.X
     
     def design_matrix_2D(self, degree):
+        """
+            Create the design matris in the form of a Vandermonde matrix for two 
+            dimensional data set. The matrix is of the form
+            
+            [[1 x_1 y_1 x_1^2 x_1y_1 y_1^2 ... y_1^(degree)]
+             ...
+             [1 x_n y_n x_n^2 x_ny_n y_n^2 ... y_n^(degree)]]
+            
+            Parameters: 
+                x (numpy array): The input data
+                y (numpy array): The input data
+                degree (int): The degree of the polynomial
+            
+            Returns: 
+                design_mat (numpy array): (n x p) dimensional matrix, 
+                where n is number of datapoints and p is given by
+                p = degree*(degree + 1)/2
+        """
+
         # Flatten measure points if they are not 1 dim
         self.x1 = np.ravel(self.x1)
         self.x2 = np.ravel(self.x2)
