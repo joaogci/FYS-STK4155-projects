@@ -4,5 +4,8 @@ class Model(Regression):
     """
         Linear models class
     """
-    ...
+    
+    
+    def ols()
+
     
