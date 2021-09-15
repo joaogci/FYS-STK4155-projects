@@ -8,9 +8,6 @@ class Models(Regression):
         Parameters: 
            verbose (boolean): If true, will print intermediate results to the console as applicable 
     """
-    
-    def __init__(self, verbose = False):
-        self.verbose = verbose
 
     def r2(self, y_data, y_model):
         """
