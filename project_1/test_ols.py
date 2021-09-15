@@ -19,11 +19,9 @@ linregSVD.ols_svd()
 linregSVD.print_error_estimates('SVD')
 
 # Show data & prediction
-plt.plot(x, y ,'k+', label='Input data')
-plt.plot(np.sort(x, 0), np.sort(linreg.prediction, 0), 'b-', label='Prediction from matrix inverse OLS')
-plt.plot(np.sort(x, 0), np.sort(linregSVD.prediction, 0), 'r--', label='Prediction from SVD OLS')
+linreg.plot(name='Standard OLS', colour='b')
+linregSVD.plot(add_data=False, name='SVD OLS', colour='r-')
 plt.xlabel('$x$')
 plt.ylabel('$y$')
 plt.title('Ordinary Least Squares predictions')
-plt.legend()
 plt.show()
