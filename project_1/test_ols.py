@@ -8,13 +8,10 @@ degree = 2
 x = np.random.rand(count, 1)
 y = 5*x*x + 2 + 0.1*np.random.randn(count, 1)
 
-# Run models
-linreg = Models(verbose=False)
+linreg = Models()
 X = linreg.design_matrix(x, degree)
-pred, beta = linreg.ols(X, y, pseudo_inverse=True)
-pred_svd, beta_svd = linreg.ols_svd(X, y, include_beta=True)
-
-print("Difference in betas found between standard OLS and SVD-based OLS:\n", beta - beta_svd)
+pred, beta = linreg.ols(X, y, use_svd=False, pseudo_inverse=True, verbose=False)
+pred_svd, _ = linreg.ols(X, y, use_svd=True, verbose=False)
 
 # Show data & prediction
 plt.plot(x, y ,'k+', label='Input data')
