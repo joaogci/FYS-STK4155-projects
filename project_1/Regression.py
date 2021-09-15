@@ -60,7 +60,7 @@ class Regression:
     
     def design_matrix_2D(self, degree):
         """
-            Create the design matris in the form of a Vandermonde matrix for two 
+            Create the design matrix in the form of a Vandermonde matrix for two 
             dimensional data set. The matrix is of the form
             
             [[1 x_1 y_1 x_1^2 x_1y_1 y_1^2 ... y_1^(degree)]
