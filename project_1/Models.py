@@ -2,7 +2,7 @@ from Regression import Regression
 import numpy as np
 import matplotlib.pyplot as plt
 
-class Models(Regression):
+class Models:
     """
         Holds various models that can be used to fit the data to a polynomial
     """
