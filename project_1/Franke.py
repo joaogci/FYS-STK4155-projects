@@ -33,11 +33,11 @@ class Franke:
         
         self.franke = term1 + term2 + term3 + term4
    
-    def add_noise(self):
-        self.franke = self.franke + np.random.normal(0, 1, self.franke.shape)
+    def add_noise(self, dampening_factor):
+        self.franke = self.franke + dampening_factor * np.random.normal(0, 1, self.franke.shape)
         
     def initialize_regression(self):
-        return Models.from_2D(self.X, self.Y, self.franke, verbose=False)
+        return Models.from_2D(self.X, self.Y, self.franke, verbose=True)
     
     def plot(self):
         fig = plt.figure(figsize=(8, 6), dpi=80)
