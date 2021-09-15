@@ -15,7 +15,7 @@ class Franke:
             random (boolean): if True, use random inputs with the number of points specified by (b - a) / h 
         
         Methods: 
-            function(): returns a numpy matrix with the values for the Franke function over a meshgrid of x and y
+            data_set(): returns a numpy matrix with the values for the Franke function over a meshgrid of x and y
             plot(): 3D plot of the computed Franke function
     """
     
@@ -30,7 +30,7 @@ class Franke:
             self.x = np.sort((b - a) * np.random.rand(int((b - a) / h)) + a)
             self.y = np.sort((b - a) * np.random.rand(int((b - a) / h)) + a)
             
-    def function(self):
+    def data_set(self):
         self.X, self.Y = np.meshgrid(self.x, self.y)
         
         term1 = 0.75*np.exp(-(0.25*(9*self.X-2)**2) - 0.25*((9*self.Y-2)**2))
