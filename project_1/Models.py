@@ -85,9 +85,7 @@ class Models(Regression):
         """
             Ordinary Least Squares from SVD, with optional beta computation (slower)
         
-            Parameters: 
-                X (matrix): Design matrix
-                y (vector): Training data
+            Parameters:
                 compute_beta (boolean): Whether to compute and return beta; slower than simply doing the prediction by itself
 
             Returns:
