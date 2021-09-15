@@ -13,6 +13,11 @@ X = linreg.design_matrix(x, degree)
 pred, beta = linreg.ols(X, y, pseudo_inverse=True)
 pred_svd, _ = linreg.ols_svd(X, y)
 
+print('MSE (standard OLS):', linreg.mse(y, pred))
+print('R2 (standard OLS):', linreg.r2(y, pred))
+print('MSE (SVD OLS):', linreg.mse(y, pred_svd))
+print('R2 (SVD OLS):', linreg.r2(y, pred_svd))
+
 # Show data & prediction
 plt.plot(x, y ,'k+', label='Input data')
 plt.plot(np.sort(x, 0), np.sort(pred, 0), 'b-', label='Prediction from matrix inverse OLS')
