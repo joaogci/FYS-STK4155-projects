@@ -9,9 +9,9 @@ class Franke:
         Franke function class
         
         Parameters: 
-            a (double): beginning of the interval for x and y
-            b (double): end of the interval for x and y
-            h (double): step between successive points
+            a (float): beginning of the interval for x and y
+            b (float): end of the interval for x and y
+            h (float): step between successive points
             random (boolean): if True, use random inputs with the number of points specified by (b - a) / h 
         
         Methods: 

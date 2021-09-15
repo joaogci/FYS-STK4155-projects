@@ -4,37 +4,52 @@ class Regression:
     """
         Parent class for Models and Resampling
         This class should include MSE, R2, setting up the Vandermonte matrix, and scaling
+        
+        Parameters for 1D regression: 
+            x1 (vector): data points for fitting
+            y (vector): data set for fitting
+        
+        Parameters for 2D regression:
+            x1, x2 (vector): data points for fitting
+            y (matrix): data set for fitting
     """
     
-    def design_matrix(self, x,degree):
-        # Flatten measure points if they are not 1 dim
-        if len(x.shape) > 1:
-            x = np.ravel(x)
+    def __init__(self, x1, y):
+        self.x1 = x1
+        self.y = y
+    
+    def __init__(self, x1, x2, y):
+        self.x1 = x1
+        self.x2 = x2
+        self.y = y
 
-        design_mat = np.ones((len(x),degree+1)) # First column of design matrix is 1
+    def design_matrix(self, degree):
+        # Flatten measure points if they are not 1 dim
+        self.x1 = np.ravel(self.x1)
+
+        design_mat = np.ones((len(self.x1),degree+1)) # First column of design matrix is 1
 
         for i in range(1,degree+1): # First column is 1, so we skip it
-            design_mat[:,i] = x**i
-
-        return design_mat
+            design_mat[:,i] = self.x1**i
+            
+        self.X = design_mat
+        return self.X
     
-    def design_matrix_2D(self, x,y,degree):
+    def design_matrix_2D(self, degree):
         # Flatten measure points if they are not 1 dim
-        if len(x.shape) > 1:
-            x = np.ravel(x)
-            y = np.ravel(y)
+        self.x1 = np.ravel(self.x1)
+        self.x2 = np.ravel(self.x2)
 
-        len_beta = int((degree+1)*(degree+2)/2)	# Number of elements in beta
-        design_mat = np.ones((len(x),len_beta)) # First column of design matrix is 1
+        len_beta = int((degree + 1) * (degree + 2) / 2)	# Number of elements in beta
+        design_mat = np.ones((len(self.x1), len_beta)) # First column of design matrix is 1
 
-        for i in range(1,degree+1): # First column is 1, so we skip it
-            q = int(i*(i+1)/2)      # 1 + 2 + ... + i
-            for k in range(i+1):
-                design_mat[:,q+k] = (x**(i-k))*(y**k)
-
-        return design_mat
-
-    
+        for i in range(1, degree + 1): # First column is 1, so we skip it
+            q = int(i * (i + 1) / 2)      # 1 + 2 + ... + i
+            for k in range(i + 1):
+                design_mat[:, q + k] = (self.x ** (i - k)) * (self.y ** k)
+        
+        self.X = design_mat
+        return self.X
 
     """
     Splits the design matrix and data into two sets of data; testing and training
