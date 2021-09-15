@@ -29,7 +29,7 @@ class Regression:
         return instance
 
     def design_matrix(self, degree):
-         """
+        """
             Create the design matris in the form of a Vandermonde matrix for one 
             dimensional data set. The matrix is of the form
 
