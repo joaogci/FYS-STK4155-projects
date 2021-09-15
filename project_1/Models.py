@@ -46,54 +46,28 @@ class Models(Regression):
             print("Prediction:", self.prediction, "\n")
 
 
-    def ols_svd(self, compute_beta = False):
+    def ols_svd(self):
         """
             Ordinary Least Squares from SVD, with optional beta computation (slower)
         
             Parameters:
                 compute_beta (boolean): Whether to compute and return beta; slower than simply doing the prediction by itself
         """
-
-        # Pick the design matrix and data set - either the full set if tt_split hasn't been called,
-        # or X_train and y_train
-        X = self.X
-        y = self.y
-        training = False
-        if hasattr(self, 'X_train'):
-            X = self.X_train
-            y = self.y_train
-            training = True
         
         # Compute SVD of design matrix
-        u, sigma, vT = np.linalg.svd(X, full_matrices=False)
-
-        # Compute prediction
-        self.prediction = u @ u.T @ self.y
-        if training:
-            self.prediction_train = u @ u.T @ self.y_train
-            self.prediction_test = u @ u.T @ self.y_test
-
-        # Compute beta (slow)
-        self.beta = None
-        if compute_beta:
-            diag = np.zeros((len(u), len(vT)))
-            diag = np.diag(sigma)
-            self.beta = vT.T @ np.linalg.inv(diag) @ u.T @ y
+        u, sigma, vT = np.linalg.svd(self.X_train, full_matrices=False)
+        
+        self.prediction = u @ u.T @ self.y_train
+        
+        self.beta = np.multiply(vT.T, 1 / sigma) @ u.T @ self.y_train
 
         if self.verbose:
-            print("Ordinary least squares from SVD with design matrix:\n", X)
+            print("Ordinary least squares from SVD with design matrix:\n", self.X_train)
             print("Singular values:\n", sigma)
-            if compute_beta:
-                print("Beta:\n", self.beta)
-            else:
-                print("Beta:\n(skipped for performance)")
-            print("MSE:", self.mse(self.y, self.prediction))
-            print("R2 score:", self.r2(self.y, self.prediction))
+            print("Beta:\n", self.beta)
+            print("MSE:", self.mse(self.y_train, self.prediction))
+            print("R2 score:", self.r2(self.y_train, self.prediction))
             print("Prediction:\n", self.prediction, "\n")
-
-
-
-
 
     def r2(self, y_data, y_model):
         """
@@ -131,6 +105,7 @@ class Models(Regression):
             Parameters:
                 name (string|None): If provided, will display in brackets after the name of the different scores
         """
+        
         prefix = "" if name == None else " (" + name + ")"
         print("MSE" + prefix + ":", self.mse(self.y, self.prediction))
         print("R2 score" + prefix + ":", self.r2(self.y, self.prediction))
@@ -150,6 +125,7 @@ class Models(Regression):
                 name (string|None): If provided, will display in brackets in the label
                 colour (string): Colour to use for the prediction plot
         """
+        
         if add_data:
             plt.plot(self.x1, self.y ,'k+', label='Input data')
         plt.plot(np.sort(self.x1, 0), np.sort(self.prediction, 0), colour + '-', label='Prediction'+('' if name == None else " (" + name + ")"))

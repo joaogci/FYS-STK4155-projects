@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.core.fromnumeric import mean
 
 class Regression:
     """
@@ -18,8 +17,8 @@ class Regression:
     """
     
     def __init__(self, x1, y, verbose = False):
-        self.x1 = x1
-        self.y = y
+        self.x1 = np.ravel(x1)
+        self.y = np.ravel(y)
         self.verbose = verbose
     
     @classmethod
@@ -28,7 +27,7 @@ class Regression:
             Constructor for 2D regression with additional x2
         """
         instance = cls(x1, y, verbose)
-        instance.x2 = x2
+        instance.x2 = np.ravel(x2)
         return instance
 
     def design_matrix(self, degree):
@@ -49,9 +48,6 @@ class Regression:
                 where n is number of datapoints and p is the degree 
                 pluss 1
         """
-
-        # Flatten measure points if they are not 1 dim
-        self.x1 = np.ravel(self.x1)
 
         self.X = np.ones((len(self.x1),degree+1)) # First column of design matrix is 1
 
@@ -78,16 +74,12 @@ class Regression:
                 p = degree*(degree + 1)/2
         """
 
-        # Flatten measure points if they are not 1 dim
-        self.x1 = np.ravel(self.x1)
-        self.x2 = np.ravel(self.x2)
-
         self.X = np.ones((len(self.x1), int((degree + 1) * (degree + 2) / 2))) # First column of design matrix is 1
 
         for i in range(1, degree + 1): # First column is 1, so we skip it
             q = int(i * (i + 1) / 2)      # 1 + 2 + ... + i
             for k in range(i + 1):
-                self.X[:, q + k] = (self.x ** (i - k)) * (self.y ** k)
+                self.X[:, q + k] = (self.x1 ** (i - k)) * (self.x2 ** k)
         
     def tt_split(self, split = 0.25, seed = 0):
         """
@@ -100,7 +92,7 @@ class Regression:
         """
 
         # Check inputs
-        assert(self.X.shape[0] != self.y.shape[0])#, "".join(('ERROR: tt_split was given inputs of different sizes! Expects n_row(X) == len(y), given n_row(X) =', str(self.X.shape[0]), ' len(y) =', str(self.y.shape[0]), '!!')))
+        assert(self.X.shape[0] == self.y.shape[0])#, "".join(('ERROR: tt_split was given inputs of different sizes! Expects n_row(X) == len(y), given n_row(X) =', str(self.X.shape[0]), ' len(y) =', str(self.y.shape[0]), '!!')))
                
         # Init random number generator
         rng = np.random.default_rng(seed=seed)
@@ -136,39 +128,30 @@ class Regression:
     
     def standard_scaler(self):
         self.ensure_split()
-        
-        self.X_test_scaled = np.zeros(self.X_test.shape)
-        self.X_train_scaled = np.zeros(self.X_train.shape)
- 
+         
         for i in range(1, self.X_train.shape[1]):
             mean_value = np.mean(self.X_train[:, i])
             standard_deviation = np.std(self.X_train[:, i])
             
-            self.X_train_scaled[:, i] = (self.X_train[:, i] - mean_value) / standard_deviation
-            self.X_test_scaled[:, i] = (self.X_test[:, i] - mean_value) / standard_deviation 
+            self.X_train[:, i] = (self.X_train[:, i] - mean_value) / standard_deviation
+            self.X_test[:, i] = (self.X_test[:, i] - mean_value) / standard_deviation 
     
     def min_max_scaler(self):
         self.ensure_split()
-
-        self.X_test_scaled = np.zeros(self.X_test.shape)
-        self.X_train_scaled = np.zeros(self.X_train.shape)
         
         for i in range(1, self.X_train.shape[1]):
             x_min = np.min(self.X_train[:, i])
             x_max = np.max(self.X_train[:, i])
             
-            self.X_train_scaled[:, i] = (self.X_train[:, i] - x_min) / (x_max - x_min)
-            self.X_test_scaled[:, i] = (self.X_test[:, i] - x_min) / (x_max - x_min)
+            self.X_train[:, i] = (self.X_train[:, i] - x_min) / (x_max - x_min)
+            self.X_test[:, i] = (self.X_test[:, i] - x_min) / (x_max - x_min)
             
     def robust_scaler(self):
         self.ensure_split()
-
-        self.X_test_scaled = np.zeros(self.X_test.shape)
-        self.X_train_scaled = np.zeros(self.X_train.shape)
         
         for i in range(1, self.X_train.shape[1]):
             median = np.median(self.X_train[:, i])
             inter_quantile_range = np.percentile(self.X_train[:, i], 75) - np.percentile(self.X_train[:, i], 25)
             
-            self.X_train_scaled[:, i] = (self.X_train[:, i] - median) / inter_quantile_range
-        
+            self.X_train[:, i] = (self.X_train[:, i] - median) / inter_quantile_range
+            self.X_test[:, i] = (self.X_test[:, i] - median) / inter_quantile_range
