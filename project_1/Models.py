@@ -1,6 +1,8 @@
 from Regression import Regression
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 class Models(Regression):
     """
@@ -130,3 +132,23 @@ class Models(Regression):
             plt.plot(self.x1, self.y ,'k+', label='Input data')
         plt.plot(np.sort(self.x1, 0), np.sort(self.prediction, 0), colour + '-', label='Prediction'+('' if name == None else " (" + name + ")"))
         plt.legend()
+        
+    def plot_3D(self):
+        Xm, Ym = np.meshgrid(np.arange(0, 1, 0.01), np.arange(0, 1, 0.01))
+        Zm = np.zeros((len(np.arange(0, 1, 0.01)), len(np.arange(0, 1, 0.01))))
+
+        for i in range(0, 6):
+            q = int(i * (i + 1) / 2)
+            for k in range(i + 1):
+                Zm += self.beta[q+k] * (Xm ** (i - k)) * (Ym ** k)
+ 
+        fig = plt.figure(figsize=(8, 6), dpi=80)
+        ax = fig.add_subplot(111, projection='3d')
+        
+        surf = ax.plot_surface(Xm, Ym, Zm, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+        
+        # ax.set_zlim(np.min(self.franke) - 0.3, np.max(self.franke) + 0.4)
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+        fig.colorbar(surf, shrink=0.5, aspect=5)
