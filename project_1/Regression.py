@@ -30,7 +30,7 @@ class Regression:
 
     def design_matrix(self, degree):
         """
-            Create the design matris in the form of a Vandermonde matrix for one 
+            Create the design matrix in the form of a Vandermonde matrix for one 
             dimensional data set. The matrix is of the form
 
             [[1 x_1 x_1^2 ... x_1^(degree)]
