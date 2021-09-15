@@ -10,14 +10,14 @@ class Model(Regression):
     Ordinary Least Squares
     @param X {matrix} Design matrix
     @param y {vector} Training data
-    @param pseudoInverse {boolean} Whether to use numpy.linalg.pinv (SVD-based) instead of numpy.linalg.inv
+    @param pseudo_inverse {boolean} Whether to use numpy.linalg.pinv (SVD-based) instead of numpy.linalg.inv
     @param verbose {boolean} If true, will print intermediate results to the console
     @returns Returns the training prediction and the regression parameters vector (beta)
     """
-    def ols(X, y, pseudoInverse = False, verbose = False):
+    def ols(X, y, pseudo_inverse = False, verbose = False):
         
         # Find beta
-        if pseudoInverse:   # Compute beta from the SVD (numpy.linalg.inv)
+        if pseudo_inverse:   # Compute beta from the SVD (numpy.linalg.inv)
             beta = np.linalg.pinv(X.T @ X) @ X.T @ y
         else:               # Compute beta from the matrix inverse (may be prone to errors)
             beta = np.linalg.inv(X.T @ X) @ X.T @ y
