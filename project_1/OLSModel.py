@@ -7,6 +7,8 @@ class OLSModel(Model):
         Implementation of the Ordinary Least Squares algorithm as a Model child class, to be given to a Solver instance
     """
 
+    NAME = 'Ordinary Least Squares'
+
     def __init__(self, pseudo_inverse: bool = True):
         """
             Initializes the OLSModel

@@ -2,7 +2,7 @@
 import numpy as np
 from DataGenerator import DataGenerator
 from Model import Model
-import matplotlib.pyplot as plt
+from PostProcess import PostProcess
 
 class Solver:
     """
@@ -11,7 +11,7 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, model: Model = None):
+    def __init__(self, degree: int, data_generator: DataGenerator = None, model: Model = None, post_processes = []):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
@@ -19,6 +19,7 @@ class Solver:
         self._degree = degree
         self._data_generator = data_generator
         self._model = model
+        self._post_processes = post_processes
     
     
     def set_data_generator(self, data_generator: DataGenerator):
@@ -36,6 +37,14 @@ class Solver:
                 model (Model): The model to use to predict the data
         """
         self._model = model
+    
+    def add_post_process(self, post_process: PostProcess):
+        """
+            Adds a post-process pass to the solver instance
+            Parameters:
+                post_process (PostProcess): The post process pass to append and run once predictions are made
+        """
+        self._post_processes.append(post_process)
 
 
     def _design_matrix(self, x1: np.matrix, x2: np.matrix) -> np.matrix:
@@ -81,34 +90,7 @@ class Solver:
         
         # Return design matrix
         return X
-    
 
-    def _r2(self, y_data: np.matrix, y_model: np.matrix) -> float:
-        """
-            Compute R2 score
-            
-            Parameters:
-                y_data (vector) Input data points to compare against
-                y_model (vector) Predicted data
-                
-            Returns:
-                (float) The computed R2 score, which hopefully approaches 1
-        """
-        return 1 - np.sum(np.power(y_data - y_model, 2)) / np.sum(np.power(y_data - np.mean(y_data), 2))
-    
-
-    def _mse(self, y_data: np.matrix, y_model: np.matrix) -> float:
-        """
-            Compute Mean Squared Error
-            
-            Parameters:
-                y_data (vector): Input data points to compare against
-                y_model (vector): Predicted data
-            
-            Returns:
-                (float) The computed Mean Squared Error, which hopefully approaches 0
-        """
-        return np.sum(np.power(y_data-y_model, 2)) / np.size(y_model)
 
 
     def run(self):
@@ -138,14 +120,6 @@ class Solver:
         evaluator = self._model.interpolate(X, data[-1])
         prediction = evaluator(X, data[-1])
 
-        # Show error estimates
-        # @todo: implement as optional component
-        print('Mean Squared Error:', self._mse(data[-1], prediction))
-        print('R2 Score:', self._r2(data[-1], prediction))
-
-        # Plot results
-        # @todo: implement as optional component instead to have 2D/3D flexibility
-        plt.plot(data[0], data[-1], 'k+', label='Input data')
-        plt.plot(data[0], prediction, 'b-', label='Prediction')
-        plt.legend()
-        plt.show()
+        # Run post-processes
+        for process in self._post_processes:
+            process.run(self._model.NAME, data, prediction)

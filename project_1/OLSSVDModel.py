@@ -7,6 +7,8 @@ class OLSSVDModel(Model):
         Implementation of Ordinary Least Squares from SVD as a Model child class, to be given to a Solver instance
     """
 
+    NAME = 'Ordinary Least Squares via SVD'
+
     def __init__(self, compute_beta: bool = False):
         """
             Initializes the OLSSVDModel
