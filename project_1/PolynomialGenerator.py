@@ -7,12 +7,13 @@ class PolynomialGenerator(DataGenerator):
         A Data Generator that can be used to generate randomized data that follows an nth order 1D polynomial
     """
 
-    def __init__(self, count: int = 100, min_x: float = 0, max_x: float = 1, degree: int = 2, noise: float = 1):
+    def __init__(self, count: int = 100, min_x: float = 0, max_x: float = 1, degree: int = 2, noise: float = 1, normalise: bool = True):
         self._count = count
         self._min_x = min_x
         self._max_x = max_x
         self._degree = degree
         self._noise = noise
+        self._normalise = normalise
 
 
     def generate(self) -> tuple:
@@ -30,7 +31,10 @@ class PolynomialGenerator(DataGenerator):
         for i in range(0, self._degree + 1):
             y += factors[i] * x ** i
         
-        # @todo: optionally normalize y between 0..1 or -1..1 (otherwise MSE becomes ridiculous if the range is already -800..800 or something)
+        # Optionally normalize y between 0..1 or -1..1
+        # (otherwise MSE becomes ridiculous if the range is already much bigger than 0..1)
+        if self._normalise:
+            y = (y - np.min(y)) / (np.max(y) - np.min(y))
 
         # Add noise
         y += np.random.randn(self._count, 1) * self._noise

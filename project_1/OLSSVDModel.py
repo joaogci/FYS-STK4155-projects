@@ -9,14 +9,6 @@ class OLSSVDModel(Model):
 
     NAME = 'Ordinary Least Squares via SVD'
 
-    def __init__(self, compute_beta: bool = False):
-        """
-            Initializes the OLSSVDModel
-            Parameters:
-                compute_beta (bool): Whether to compute beta when running through the interpolation - slower if True
-        """
-        self._compute_beta = compute_beta
-
     def interpolate(self, design_matrix: np.matrix, y: np.matrix):
         """
             Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
@@ -26,14 +18,10 @@ class OLSSVDModel(Model):
         # Compute SVD of design matrix
         u, sigma, vT = np.linalg.svd(design_matrix, full_matrices=False)
         
-        # Compute beta optionally (slower)
-        beta = None
-        if self._compute_beta:
-            beta = np.multiply(vT.T, 1 / sigma) @ u.T @ y
+        # Compute beta (slower, but allows to be then used to predict more than just data sets of the same length)
+        beta = np.multiply(vT.T, 1 / sigma) @ u.T @ y
 
         # Curry over a prediction function to predict results from any data set (not just the one given to interpolate)
-        uuT = u @ u.T
-        def predict(X: np.matrix, y: np.matrix) -> np.matrix:
-            prediction = uuT @ y
-            return prediction
+        def predict(X: np.matrix) -> np.matrix:
+            return X @ beta
         return predict

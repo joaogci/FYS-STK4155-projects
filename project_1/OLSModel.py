@@ -30,7 +30,7 @@ class OLSModel(Model):
             beta = np.linalg.inv(design_matrix.T @ design_matrix) @ design_matrix.T @ y
 
         # Curry over a prediction function to predict results from any design matrix (not just the one given to interpolate)
-        def predict(X: np.matrix, y: np.matrix) -> np.matrix:
+        def predict(X: np.matrix) -> np.matrix:
             prediction = X @ beta
             return prediction
         return predict
