@@ -122,14 +122,14 @@ class Solver:
         # Create design matrix
         X_full = self._design_matrix(data[0], data[1] if len(data) > 2 else None)
 
-        # Split data
+        # Split data optionally
         if self._splitter != None:
             X_split, y_split = self._splitter.split(X_full, data[-1])
         else:
             X_split = { 'full': X_full }
             y_split = { 'full': data[-1] }
         
-        # Scale data
+        # Scale data optionally
         # @todo
         
         # Init model and get evaluator to make predictions out of
