@@ -74,7 +74,7 @@ class Solver:
                 plus 1 (1-variable input) or p = degree*(degree + 1)/2 (2-variable input)
         """
 
-        if x2 == None: # 1-variable Vandermonde matrix
+        if x2 is None: # 1-variable Vandermonde matrix
             X = np.ones((len(x1), self._degree + 1)) # First column of design matrix is 1
 
             for i in range(1, self._degree+1): # First column is 1, so we skip it

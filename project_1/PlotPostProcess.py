@@ -1,8 +1,9 @@
 
 from PostProcess import PostProcess
-from ErrorEstimates import r2, mse
 import numpy as np
+from matplotlib import cm
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 class PlotPostProcess(PostProcess):
     """
@@ -15,10 +16,41 @@ class PlotPostProcess(PostProcess):
         """
 
         # 2D
-        plt.plot(data[0], data[-1], 'k+', label='Input data')
-        plt.plot(data[0], prediction, 'b-', label='Prediction')
-        plt.title(name + ' prediction')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.legend()
-        plt.show()
+        if len(data) <= 2:
+            plt.figure(name + ' prediction')
+            plt.plot(data[0], data[-1], 'k+', label='Input data')
+            plt.plot(data[0], prediction, 'b-', label='Prediction')
+            plt.title(name + ' prediction')
+            plt.xlabel('x')
+            plt.ylabel('y')
+            plt.legend()
+            plt.show()
+        
+        # 3D
+        else:
+            # Reformat data from 1D to 2D matrices
+            root = int(np.sqrt(len(data[0])))
+            xm = np.zeros((root, root))
+            ym = np.zeros((root, root))
+            zm = np.zeros((root, root))
+            for x in range(root):
+                for y in range(root):
+                    xm[x,y] = data[0][x * root + y]
+                    ym[x,y] = data[1][x * root + y]
+                    zm[x,y] = prediction[x * root + y]
+
+            fig = plt.figure(name + ' prediction', figsize=(8, 6), dpi=80)
+            ax = fig.add_subplot(111, projection='3d')
+            
+            surf = ax.plot_surface(xm, ym, zm, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+            
+            ax.set_zlim(np.min(prediction) - 0.3, np.max(prediction) + 0.3)
+            ax.zaxis.set_major_locator(LinearLocator(10))
+            ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+            fig.colorbar(surf, shrink=0.5, aspect=5)
+
+            plt.title(name + ' prediction')
+            plt.xlabel('x')
+            plt.ylabel('y')
+            plt.show()

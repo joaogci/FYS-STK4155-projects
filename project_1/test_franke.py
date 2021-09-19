@@ -1,15 +1,17 @@
 
 from Solver import Solver
-from PolynomialGenerator import PolynomialGenerator
+from FrankeGenerator import FrankeGenerator
 from OLSModel import OLSModel
 from OLSSVDModel import OLSSVDModel
 from ErrDisplayPostProcess import ErrDisplayPostProcess
 from PlotPostProcess import PlotPostProcess
 
 
-solver = Solver(3)
+solver = Solver(10)
 
-solver.set_data_generator(PolynomialGenerator(degree=3, count=100, min_x=-5, max_x=5, noise=10))
+generator = FrankeGenerator(0, 1, 0.01, noise=0.01)
+generator.plot(show=False)
+solver.set_data_generator(generator)
 
 solver.set_model(OLSSVDModel())
 
