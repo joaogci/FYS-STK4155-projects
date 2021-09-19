@@ -8,9 +8,9 @@ from PlotPostProcess import PlotPostProcess
 from TrainTestSplitter import TrainTestSplitter
 
 
-solver = Solver(3)
+solver = Solver(5)
 
-solver.set_data_generator(PolynomialGenerator(degree=3, count=100, min_x=-5, max_x=5, noise=0.05))
+solver.set_data_generator(PolynomialGenerator(degree=5, count=100, min_x=-15, max_x=30, noise=0.05))
 
 solver.set_splitter(TrainTestSplitter())
 
