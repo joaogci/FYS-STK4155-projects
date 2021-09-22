@@ -28,7 +28,9 @@ class StandardScaler(Scaler):
                 X (np.matrix): Design matrix to scale
         """
         
+        X_scaled = np.zeros(X.shape)
+        
         for i in range(1, X.shape[1]):
-            X[:, i] = (X[:, i] - self._mean_value[i - 1]) / self._standard_deviation[i - 1]
+            X_scaled[:, i] = (X[:, i] - self._mean_value[i - 1]) / self._standard_deviation[i - 1]
             
-        return X
+        return X_scaled
