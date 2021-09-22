@@ -13,7 +13,13 @@ class StandardScaler(Scaler):
             Parameters:
                 X (np.matrix): Principal design matrix
         """
-        self._means = np.zeros() #TODO
+        
+        self._mean_value = np.zeros(X.shape[1])
+        self._standard_deviation = np.zeros(X.shape[1])
+        
+        for i in range(1, X.shape[1]):
+            self._mean_value = np.mean(X[:, i])
+            self._standard_deviation = np.std(X[:, i])
 
     def scale(self, X: np.matrix) -> np.matrix:
         """
@@ -21,11 +27,8 @@ class StandardScaler(Scaler):
             Parameters:
                 X (np.matrix): Design matrix to scale
         """
-        #TODO
-        for i in range(1, self.X_train.shape[1]):
-            mean_value = np.mean(self.X_train[:, i])
-            standard_deviation = np.std(self.X_train[:, i])
+        
+        for i in range(1, X.shape[1]):
+            X[:, i] = (X[:, i] - self._mean_value) / self._standard_deviation
             
-            self.X_train[:, i] = (self.X_train[:, i] - mean_value) / standard_deviation
-            self.X_test[:, i] = (self.X_test[:, i] - mean_value) / standard_deviation
-
+        return X
