@@ -2,7 +2,6 @@
 from Solver import Solver
 from PolynomialGenerator import PolynomialGenerator
 from OLSModel import OLSModel
-from OLSSVDModel import OLSSVDModel
 from ErrDisplayPostProcess import ErrDisplayPostProcess
 from PlotPostProcess import PlotPostProcess
 from TrainTestSplitter import TrainTestSplitter
