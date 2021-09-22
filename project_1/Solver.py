@@ -99,7 +99,7 @@ class Solver:
         
         else: # 2-variable Vandermonde matrix
             X = np.ones((len(x1), int((self._degree + 1) * (self._degree + 2) / 2))) # First column of design matrix is 1
-
+            # The number of features are 1 + 2 + ... + (degree+1) = (degree+1)*(degree+2)/2
             for i in range(1, self._degree + 1): # First column is 1, so we skip it
                 q = int(i * (i + 1) / 2) # 1 + 2 + ... + i
                 for k in range(i + 1):
