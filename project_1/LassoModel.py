@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.linear_model import Lasso
 from Model import Model
 
-class Lasso(Model):
+class LassoModel(Model):
     """
         Implementation of the Lasso regression as a Model child class, to be given for a Solver instance
     """
@@ -25,7 +25,7 @@ class Lasso(Model):
         
         # Uses sklearn function to compute the linear fit for the Lasso model
 
-        lasso_train = Lasso(alpha=self._lmd)
+        lasso_train = Lasso(alpha=self._lmd, fit_intercept=False)
         lasso_train.fit(design_matrix, y)
         
         beta = lasso_train.coef_

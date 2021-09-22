@@ -2,7 +2,7 @@
 import numpy as np
 from Model import Model
 
-class Ridge(Model):
+class RidgeModel(Model):
     """
         Implementation of the Ridge regression as a Model child class, to be given for a Solver instance
     """
@@ -27,9 +27,9 @@ class Ridge(Model):
 
         # Compute beta with the peseudo inverse
         if self._pseudo_inverse: # Use numpy.linalg.pinv (uses SVD)
-            beta = np.linalg.pinv(design_matrix.T @ design_matrix + self._lmd * np.eye(degree + 1)) @ design_matrix.T @ y
+            beta = np.linalg.pinv(design_matrix.T @ design_matrix + self._lmd * np.eye(design_matrix.shape[1])) @ design_matrix.T @ y
         else: # Use true matrix inverse (may be ill-conditioned)
-            beta = np.linalg.inv(design_matrix.T @ design_matrix + self._lmd + np.eye(degree + 1)) @ design_matrix.T @ y
+            beta = np.linalg.inv(design_matrix.T @ design_matrix + self._lmd + np.eye(design_matrix.shape[1])) @ design_matrix.T @ y
 
         return beta
 
