@@ -9,7 +9,7 @@ from PlotPostProcess import PlotPostProcess
 
 solver = Solver(5)
 
-solver.set_data_generator(FrankeGenerator(0, 1, 0.05, random=True, noise=0.01))
+solver.set_data_generator(FrankeGenerator(0, 1, 20, random=True, noise=0.01))
 
 solver.set_splitter(TrainTestSplitter())
 

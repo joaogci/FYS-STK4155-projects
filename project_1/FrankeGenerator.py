@@ -17,7 +17,7 @@ class FrankeGenerator(DataGenerator):
             noise (float): Scale of noise to add to the results
     """
         
-    def __init__(self, a: float, b: float, h: float, random: bool = False, noise: float = 0):
+    def __init__(self, a: float, b: float, h: int, random: bool = False, noise: float = 0):
         self._a = a
         self._b = b
         self._h = h
@@ -34,8 +34,8 @@ class FrankeGenerator(DataGenerator):
             self._x = np.arange(self._a, self._b, self._h)
             self._y = np.arange(self._a, self._b, self._h)
         else:
-            self._x = np.sort((self._b - self._a) * rng.random(int((self._b - self._a) / self._h)) + self._a)
-            self._y = np.sort((self._b - self._a) * rng.random(int((self._b - self._a) / self._h)) + self._a)
+            self._x = np.sort(rng.uniform(self._a,self._b,self._h))
+            self._y = np.sort(rng.uniform(self._a,self._b,self._h))
 
         self._X, self._Y = np.meshgrid(self._x, self._y)
         
