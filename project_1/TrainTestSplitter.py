@@ -42,7 +42,7 @@ class TrainTestSplitter(Splitter):
             Returns:
                 {matrix, matrix, vector, vector} Split version of the data/design matrix
         """
-        split = self._test_size
+        split = 1 - self._test_size
         seed = 0
         # Check inputs
         assert X.shape[0] == y.shape[0], "SizeError: tt_split was given inputs of different sizes! Expects n_row(X) == len(y), given n_row(X) = {}, len(y) = {}!".format(X.shape[0], y.shape[0])
