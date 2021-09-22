@@ -6,9 +6,7 @@ class Ridge(Model):
     """
         Implementation of the Ridge regression as a Model child class, to be given for a Solver instance
     """
-    
-    NAME = "Ridge"
-    
+
     def __init__(self, lmd: float, pseudo_inverse: bool = True):
         """
             Initializes the Ridge Model
@@ -18,6 +16,8 @@ class Ridge(Model):
         """
         self._lmd = lmd
         self._pseudo_inverse = pseudo_inverse
+        self.NAME = "Ridge lmd = " + str(self._lmd)
+        
         
     def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> tuple:
         """
@@ -31,10 +31,6 @@ class Ridge(Model):
         else: # Use true matrix inverse (may be ill-conditioned)
             beta = np.linalg.inv(design_matrix.T @ design_matrix + self._lmd + np.eye(degree + 1)) @ design_matrix.T @ y
 
-        # Curry over a prediction function to predict results from any design matrix (not just the one given to interpolate)
-        def predict(X: np.matrix) -> np.matrix:
-            prediction = X @ beta
-            return prediction
-        return predict, np.var(beta)
+        return beta
 
 

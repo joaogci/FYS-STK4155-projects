@@ -31,10 +31,6 @@ class Ridge(Model):
         
         beta = lasso_train.coef_
 
-        # Curry over a prediction function to predict results from any design matrix (not just the one given to interpolate)
-        def predict(X: np.matrix) -> np.matrix:
-            prediction = X @ beta
-            return prediction
-        return predict, np.var(beta)
+        return beta
 
 
