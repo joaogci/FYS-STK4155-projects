@@ -22,7 +22,7 @@ class PolynomialGenerator(DataGenerator):
         """
 
         # Generate x points between min_x and max_x
-        x = rng.random((self._count, 1)) * (self._max_x - self._min_x) + self._min_x
+        x = rng.uniform(self._min_x,self._max_x,(self._count,1))
         y = np.zeros((self._count, 1))
 
         # Generate polynomial coefficients and compute data points

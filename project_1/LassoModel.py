@@ -15,7 +15,7 @@ class LassoModel(Model):
                 lmd (float): Hyper-parameter for the Ridge regression
         """
         self._lmd = lmd
-        self.NAME = "Lasso lmd = " + str(self._lmd)
+        self.name = "Lasso λ=" + str(self._lmd)
         
     def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> tuple:
         """

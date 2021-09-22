@@ -31,8 +31,8 @@ class FrankeGenerator(DataGenerator):
             return np.ravel(self._X), np.ravel(self._Y), np.ravel(self._franke)
             
         if not self._random:
-            self._x = np.arange(self._a, self._b, self._h)
-            self._y = np.arange(self._a, self._b, self._h)
+            self._x = np.linspace(self._a, self._b, self._h)
+            self._y = np.linspace(self._a, self._b, self._h)
         else:
             self._x = np.sort(rng.uniform(self._a,self._b,self._h))
             self._y = np.sort(rng.uniform(self._a,self._b,self._h))

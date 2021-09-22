@@ -15,25 +15,29 @@ class ErrDisplayPostProcess(PostProcess):
         self._display_r2 = display_r2
         self._display_mse = display_mse
 
-    def run(self, name: str, data: tuple, design_matrices: dict, sets: dict, predictions: dict, beta: np.matrix, degree: int):
+    def run(self, data: tuple, design_matrices: dict, sets: dict, predictions: dict, betas: dict, degree: int):
         """
             Prints the MSE and R2 score for the prediciton made
         """
         print('\n---')
 
-        if self._display_mse:
-            print('Mean Squared Error (' + name + '):', mse(sets['full'], predictions['full']))
-            for key in sets.keys():
-                if key != 'full':
-                    print('Mean Squared Error (' + name + ', ' + key + ' set):', mse(sets[key], predictions[key]))
+        for model_name in predictions.keys():
 
-        if self._display_mse and self._display_r2:
+            if self._display_mse:
+                print('Mean Squared Error (' + model_name + '):', mse(sets['full'], predictions[model_name]['full']))
+                for key in sets.keys():
+                    if key != 'full':
+                        print('Mean Squared Error (' + model_name + ', ' + key + ' set):', mse(sets[key], predictions[model_name][key]))
+
+            if self._display_mse and self._display_r2:
+                print('')
+            
+            if self._display_r2:
+                print('R2 Score (' + model_name + '):', r2(sets['full'], predictions[model_name]['full']))
+                for key in sets.keys():
+                    if key != 'full':
+                        print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
+            
             print('')
-        
-        if self._display_r2:
-            print('R2 Score (' + name + '):', r2(sets['full'], predictions['full']))
-            for key in sets.keys():
-                if key != 'full':
-                    print('R2 Score (' + name + ', ' + key + ' set):', r2(sets[key], predictions[key]))
 
         print('---\n')
