@@ -3,12 +3,10 @@ import numpy as np
 from sklearn.linear_model import Lasso
 from Model import Model
 
-class Ridge(Model):
+class Lasso(Model):
     """
         Implementation of the Lasso regression as a Model child class, to be given for a Solver instance
     """
-    
-    NAME = "Ridge"
     
     def __init__(self, lmd: float):
         """
@@ -17,6 +15,7 @@ class Ridge(Model):
                 lmd (float): Hyper-parameter for the Ridge regression
         """
         self._lmd = lmd
+        self.NAME = "Lasso lmd = " + str(self._lmd)
         
     def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> tuple:
         """
