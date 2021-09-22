@@ -46,6 +46,9 @@ class PlotPostProcess(PostProcess):
         
         # 3D
         else:
+
+            num_plots = 1 + len(betas)
+
             # Reformat data from 1D to 2D matrices
             root = int(np.sqrt(len(data[0])))
             xm = np.zeros((root, root))
@@ -58,8 +61,8 @@ class PlotPostProcess(PostProcess):
                     zm[x,y] = data[-1][x * root + y]
             
             # Show input data
-            fig = plt.figure('Input data', figsize=(8, 6), dpi=80)
-            ax = fig.add_subplot(111, projection='3d')
+            fig = plt.figure('Predictions', figsize=(16, 10), dpi=80)
+            ax = fig.add_subplot(2, int((num_plots + 1) / 2), 1, projection='3d')
             
             surf = ax.plot_surface(xm, ym, zm, cmap=cm.coolwarm, linewidth=0, antialiased=True)
             
@@ -72,10 +75,12 @@ class PlotPostProcess(PostProcess):
             plt.xlabel('x')
             plt.ylabel('y')
 
+            pltIdx = 1
             for model_name in betas.keys():
+                pltIdx += 1
+                
                 # Show prediction as a smooth plot
-                fig = plt.figure(model_name + ' prediction', figsize=(8, 6), dpi=80)
-                ax = fig.add_subplot(111, projection='3d')
+                ax = fig.add_subplot(2, int((num_plots + 1) / 2), pltIdx, projection='3d')
                 
                 # Generate linspaced meshgrid to show predictions at smooth points
                 xm_display, ym_display = np.meshgrid(np.linspace(np.min(data[0]), np.max(data[0]), self._display_steps), np.linspace(np.min(data[1]), np.max(data[1]), self._display_steps))
