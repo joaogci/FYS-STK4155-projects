@@ -29,8 +29,4 @@ class OLSModel(Model):
         else: # Use true matrix inverse (may be ill-conditioned)
             beta = np.linalg.inv(design_matrix.T @ design_matrix) @ design_matrix.T @ y
 
-        # Curry over a prediction function to predict results from any design matrix (not just the one given to interpolate)
-        def predict(X: np.matrix) -> np.matrix:
-            prediction = X @ beta
-            return prediction
-        return predict, np.var(beta)
+        return beta

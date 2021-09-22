@@ -22,8 +22,7 @@ class PolynomialGenerator(DataGenerator):
         """
 
         # Generate x points between min_x and max_x
-        x = np.random.rand(self._count, 1) * (self._max_x - self._min_x) + self._min_x
-        x = np.sort(x, 0)
+        x = rng.random((self._count, 1)) * (self._max_x - self._min_x) + self._min_x
         y = np.zeros((self._count, 1))
 
         # Generate polynomial coefficients and compute data points
@@ -37,7 +36,7 @@ class PolynomialGenerator(DataGenerator):
             y = (y - np.min(y)) / (np.max(y) - np.min(y))
 
         # Add noise
-        y += rng.normal(rng.normal(0, 1, (self._count, 1))) * self._noise
+        y += rng.normal(0, 1, (self._count, 1)) * self._noise
 
         # Return data (2D data)
         return x, y

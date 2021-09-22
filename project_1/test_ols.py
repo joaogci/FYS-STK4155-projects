@@ -7,7 +7,6 @@ from ErrDisplayPostProcess import ErrDisplayPostProcess
 from PlotPostProcess import PlotPostProcess
 from TrainTestSplitter import TrainTestSplitter
 
-
 degree = 5
 
 solver = Solver(degree, seed=0)
