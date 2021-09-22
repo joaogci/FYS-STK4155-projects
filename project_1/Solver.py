@@ -4,6 +4,7 @@ from DataGenerator import DataGenerator
 from Splitter import Splitter
 from Model import Model
 from PostProcess import PostProcess
+import copy
 
 class Solver:
     """
@@ -12,7 +13,7 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, models = [], post_processes = [], seed: int = 0):
+    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, models = list(), post_processes = list(), seed: int = 0):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
@@ -20,8 +21,8 @@ class Solver:
         self._degree = degree
         self._data_generator = data_generator
         self._splitter = splitter
-        self._models = models
-        self._post_processes = post_processes
+        self._models = copy.deepcopy(models)
+        self._post_processes = copy.deepcopy(post_processes)
         self._rng = np.random.default_rng(np.random.MT19937(seed))
 
         # Generate the data
