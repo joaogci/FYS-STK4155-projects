@@ -29,6 +29,6 @@ class StandardScaler(Scaler):
         """
         
         for i in range(1, X.shape[1]):
-            X[:, i] = (X[:, i] - self._mean_value) / self._standard_deviation
+            X[:, i] = (X[:, i] - self._mean_value[i - 1]) / self._standard_deviation[i - 1]
             
         return X

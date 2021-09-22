@@ -4,6 +4,7 @@ from DataGenerator import DataGenerator
 from Splitter import Splitter
 from Model import Model
 from PostProcess import PostProcess
+from Scaler import Scaler
 
 class Solver:
     """
@@ -12,7 +13,7 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, model: Model = None, post_processes = [], seed: int = 0):
+    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, model: Model = None, scaler: Scaler = None, post_processes = list(), seed: int = 0):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
@@ -22,6 +23,7 @@ class Solver:
         self._splitter = splitter
         self._model = model
         self._post_processes = post_processes
+        self._scaler = scaler
         self._rng = np.random.default_rng(np.random.MT19937(seed))
 
         # Generate the data
@@ -54,6 +56,15 @@ class Solver:
                 model (Model): The model to use to predict the data
         """
         self._model = model
+        
+    def set_scaler(self, scaler: Scaler):
+        """
+            Sets the scaler on the solver instance
+            Parameters:
+                scaler (Scaler): The scaler to use to scale the data
+        """
+        self._scaler = scaler
+
     
     def add_post_process(self, post_process: PostProcess):
         """
@@ -133,8 +144,13 @@ class Solver:
             y_split = { 'full': self._data[-1] }
         
         # Scale data optionally
-        # @todo
-        
+        if self._scaler != None and len(X_split.keys()) > 1:
+            self._scaler.prepare(X_split['train'])
+            
+            for key in list(X_split.keys()):
+                new_key = key + '_scaled'
+                X_split[new_key] = self._scaler.scale(X_split[key])
+                
         # Init model and get evaluator to make predictions out of
         # Selecting which set to use out of the full set depending on the labeled sets in X_split and y_split
         X = X_split['full']
@@ -142,7 +158,12 @@ class Solver:
         if 'train' in X_split.keys(): # Use training data
             X = X_split['train']
             y = y_split['train']
+        if 'train_scaled' in X_split.keys():
+            X = X_split['train_scaled']
+            y = y_split['train']
+            
         beta = self._model.interpolate(X, y, self._degree)
+        print(beta)
 
         # Make predictions for all subsets
         predictions = {}
