@@ -160,12 +160,11 @@ class Solver:
         if 'train_scaled' in X_split.keys():
             X = X_split['train_scaled']
             y = y_split['train']
-            
-        beta = self._model.interpolate(X, y, self._degree)
-        print(beta)
+
+        # Compute beta values for all models
         betas = {}
         for model in self._models:
-            betas[model.name] = model.interpolate(X, y, self._degree)
+            betas[model.name] = model.interpolate(X, y)
 
         # Make predictions for all models and all subsets
         predictions = {}

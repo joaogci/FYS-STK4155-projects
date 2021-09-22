@@ -17,7 +17,7 @@ class LassoModel(Model):
         self._lmd = lmd
         self.name = "Lasso λ=" + str(self._lmd)
         
-    def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> tuple:
+    def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> tuple:
         """
             Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
             Predictions will be based off Lasso for this model
