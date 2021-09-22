@@ -9,7 +9,7 @@ class OLSSVDModel(Model):
 
     NAME = 'Ordinary Least Squares via SVD'
 
-    def interpolate(self, design_matrix: np.matrix, y: np.matrix):
+    def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> tuple:
         """
             Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
             Predictions will be based off OLS with SVD for this model
@@ -24,4 +24,4 @@ class OLSSVDModel(Model):
         # Curry over a prediction function to predict results from any data set (not just the one given to interpolate)
         def predict(X: np.matrix) -> np.matrix:
             return X @ beta
-        return predict
+        return predict, np.var(beta)

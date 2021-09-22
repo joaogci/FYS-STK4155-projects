@@ -17,7 +17,7 @@ class OLSModel(Model):
         """
         self._pseudo_inverse = pseudo_inverse
 
-    def interpolate(self, design_matrix: np.matrix, y: np.matrix):
+    def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> tuple:
         """
             Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
             Predictions will be based off OLS for this model
@@ -33,4 +33,4 @@ class OLSModel(Model):
         def predict(X: np.matrix) -> np.matrix:
             prediction = X @ beta
             return prediction
-        return predict
+        return predict, np.var(beta)

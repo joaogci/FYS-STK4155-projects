@@ -140,7 +140,7 @@ class Solver:
         if 'train' in X_split.keys(): # Use training data
             X = X_split['train']
             y = y_split['train']
-        evaluator = self._model.interpolate(X, y)
+        evaluator, estimator_variance = self._model.interpolate(X, y)
 
         # Make predictions for all subsets
         predictions = {}
@@ -149,4 +149,4 @@ class Solver:
 
         # Run post-processes on original data + full prediction
         for process in self._post_processes:
-            process.run(self._model.NAME, data, y_split, predictions)
+            process.run(self._model.NAME, data, y_split, predictions, estimator_variance)

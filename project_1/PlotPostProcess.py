@@ -10,7 +10,7 @@ class PlotPostProcess(PostProcess):
         Post process that displays a plot of the prediction
     """
 
-    def run(self, name: str, data: tuple, sets: dict, predictions: dict):
+    def run(self, name: str, data: tuple, sets: dict, predictions: dict, estimator_variance: float):
         """
             Displays a plot of the original and predicted data
             Note that only the full prediction is shown on the diagram
@@ -71,5 +71,5 @@ class PlotPostProcess(PostProcess):
             plt.title(name + ' prediction')
             plt.xlabel('x')
             plt.ylabel('y')
-            
+
             plt.show()
