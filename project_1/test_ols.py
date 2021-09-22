@@ -2,6 +2,8 @@
 from Solver import Solver
 from PolynomialGenerator import PolynomialGenerator
 from OLSModel import OLSModel
+from RidgeModel import RidgeModel
+from LassoModel import LassoModel
 from ErrDisplayPostProcess import ErrDisplayPostProcess
 from PlotPostProcess import PlotPostProcess
 from TrainTestSplitter import TrainTestSplitter
@@ -14,7 +16,7 @@ solver.set_data_generator(PolynomialGenerator(degree=degree, count=100, min_x=-1
 
 solver.set_splitter(TrainTestSplitter())
 
-solver.set_model(OLSModel())
+solver.set_model(LassoModel(0.001))
 
 solver.add_post_process(ErrDisplayPostProcess())
 solver.add_post_process(PlotPostProcess())
