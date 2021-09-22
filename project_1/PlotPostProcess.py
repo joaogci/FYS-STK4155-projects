@@ -10,17 +10,31 @@ class PlotPostProcess(PostProcess):
         Post process that displays a plot of the prediction
     """
 
-    def run(self, name: str, data: tuple, sets: dict, predictions: dict, estimator_variance: float):
+    def __init__(self, display_steps: int = 500):
+        self._display_steps = display_steps
+
+    def run(self, name: str, data: tuple, design_matrices: dict, sets: dict, predictions: dict, beta: np.matrix, degree: int):
         """
             Displays a plot of the original and predicted data
-            Note that only the full prediction is shown on the diagram
         """
 
         # 2D
         if len(data) <= 2:
+
+            # Display a smooth curve of the polynomial regardless of the input data
+            x_display = np.linspace(np.min(data[0]), np.max(data[0]), self._display_steps)
+            y_display = np.zeros(self._display_steps)
+            for i in range(len(beta)):
+                y_display += beta[i] * x_display ** i
+
             plt.figure(name + ' prediction')
-            plt.plot(data[0], sets['full'], 'k+', label='Input data')
-            plt.plot(data[0], predictions['full'], 'b-', label='Prediction')
+            # Either display the entire input data, or split it up into the training and testing sets
+            if 'test' in design_matrices.keys():
+                plt.plot(design_matrices['train'][:,1], sets['train'], 'k+', label='Input data (training set)', alpha=0.25)
+                plt.plot(design_matrices['test'][:,1], sets['test'], 'k+', label='Input data (test set)')
+            else:
+                plt.plot(data[0], sets['full'], 'k+', label='Input data')
+            plt.plot(x_display, y_display, 'b-', label='Prediction')
             plt.title(name + ' prediction')
             plt.xlabel('x')
             plt.ylabel('y')
@@ -34,13 +48,11 @@ class PlotPostProcess(PostProcess):
             xm = np.zeros((root, root))
             ym = np.zeros((root, root))
             zm = np.zeros((root, root))
-            zm_pred = np.zeros((root, root))
             for x in range(root):
                 for y in range(root):
                     xm[x,y] = data[0][x * root + y]
                     ym[x,y] = data[1][x * root + y]
                     zm[x,y] = data[-1][x * root + y]
-                    zm_pred[x,y] = predictions['full'][x * root + y]
             
             # Show input data
             fig = plt.figure('Input data', figsize=(8, 6), dpi=80)
@@ -57,13 +69,21 @@ class PlotPostProcess(PostProcess):
             plt.xlabel('x')
             plt.ylabel('y')
 
-            # Show prediction
+            # Show prediction as a smooth plot
             fig = plt.figure(name + ' prediction', figsize=(8, 6), dpi=80)
             ax = fig.add_subplot(111, projection='3d')
             
-            surf = ax.plot_surface(xm, ym, zm_pred, cmap=cm.coolwarm, linewidth=0, antialiased=True)
+            xm_display, ym_display = np.meshgrid(self._display_steps, self._display_steps)
+            zm_display = np.zeros((self._display_steps, self._display_steps))
+            betaIdx = 0
+            for i in range(degree + 1):
+                for k in range(i + 1):
+                    # print('i=', i, ' | i-k= ', i-k, ' | k=', k, ' | betaIdx=', betaIdx, ' | beta[idx]=', beta[betaIdx])
+                    zm_display += beta[betaIdx] * (xm_display ** (i - k)) * (ym_display ** k)
+                    betaIdx += 1
+            surf = ax.plot_surface(xm_display, ym_display, zm_display, cmap=cm.coolwarm, linewidth=0, antialiased=True)
             
-            ax.set_zlim(np.min(predictions['full']) - 0.3, np.max(predictions['full']) + 0.3)
+            ax.set_zlim(np.min(zm_display) - 0.3, np.max(zm_display) + 0.3)
             ax.zaxis.set_major_locator(LinearLocator(10))
             ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 

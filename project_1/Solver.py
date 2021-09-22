@@ -22,7 +22,7 @@ class Solver:
         self._splitter = splitter
         self._model = model
         self._post_processes = post_processes
-        self._rng = np.random.default_rng(seed)
+        self._rng = np.random.default_rng(np.random.MT19937(seed))
     
     
     def set_data_generator(self, data_generator: DataGenerator):
@@ -140,13 +140,13 @@ class Solver:
         if 'train' in X_split.keys(): # Use training data
             X = X_split['train']
             y = y_split['train']
-        evaluator, estimator_variance = self._model.interpolate(X, y)
+        beta = self._model.interpolate(X, y, self._degree)
 
         # Make predictions for all subsets
         predictions = {}
         for key in X_split.keys():
-            predictions[key] = evaluator(X_split[key])
+            predictions[key] = X_split[key] @ beta
 
         # Run post-processes on original data + full prediction
         for process in self._post_processes:
-            process.run(self._model.NAME, data, y_split, predictions, estimator_variance)
+            process.run(self._model.NAME, data, X_split, y_split, predictions, beta, self._degree)

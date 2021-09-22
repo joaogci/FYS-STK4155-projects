@@ -13,10 +13,9 @@ class Model:
     NAME = '<none>'
 
     @abc.abstractmethod
-    def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> tuple:
+    def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> np.matrix:
         """
-            Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions, as well
-            as the predictor variance
+            Given a design matrix and a (training) data set, returns the beta feature matrix
         """
         print('Error: cannot instantiate/use the default Model class - use a base class that overrides interpolate()!')
         return None
