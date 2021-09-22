@@ -4,7 +4,7 @@ from Scaler import Scaler
 
 class StandardScaler(Scaler):
     """
-        Applies standard scaling to the features, by subtracting the mean and dividing by the standard deviation
+        Applies standard scaling to the design matrix, by subtracting the mean and dividing by the standard deviation
     """
     
     def prepare(self, X: np.matrix):
@@ -30,5 +30,5 @@ class StandardScaler(Scaler):
         
         for i in range(1, X.shape[1]):
             X[:, i] = (X[:, i] - self._mean_value) / self._standard_deviation
-            
+        
         return X
