@@ -12,7 +12,7 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, model: Model = None, post_processes = []):
+    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, model: Model = None, post_processes = [], seed: int = 0):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
@@ -22,6 +22,7 @@ class Solver:
         self._splitter = splitter
         self._model = model
         self._post_processes = post_processes
+        self._rng = np.random.default_rng(seed)
     
     
     def set_data_generator(self, data_generator: DataGenerator):
@@ -117,7 +118,7 @@ class Solver:
             return
 
         # Generate data
-        data = self._data_generator.generate()
+        data = self._data_generator.generate(self._rng)
         
         # Create design matrix
         X_full = self._design_matrix(data[0], data[1] if len(data) > 2 else None)

@@ -18,19 +18,24 @@ class FrankeGenerator(DataGenerator):
     """
         
     def __init__(self, a: float, b: float, h: float, random: bool = False, noise: float = 0):
+        self._a = a
+        self._b = b
+        self._h = h
+        self._random = random
         self._noise = noise
-        if not random:
-            self._x = np.arange(a, b, h)
-            self._y = np.arange(a, b, h)
-        else:
-            self._x = np.sort((b - a) * np.random.rand(int((b - a) / h)) + a)
-            self._y = np.sort((b - a) * np.random.rand(int((b - a) / h)) + a)
             
 
-    def generate(self) -> tuple:
+    def generate(self, rng: np.random.Generator) -> tuple:
 
         if hasattr(self, '_franke'): # Data has already been generated, just return cached version
             return np.ravel(self._X), np.ravel(self._Y), np.ravel(self._franke)
+            
+        if not self._random:
+            self._x = np.arange(self._a, self._b, self._h)
+            self._y = np.arange(self._a, self._b, self._h)
+        else:
+            self._x = np.sort((self._b - self._a) * rng.random(int((self._b - self._a) / self._h)) + self._a)
+            self._y = np.sort((self._b - self._a) * rng.random(int((self._b - self._a) / self._h)) + self._a)
 
         self._X, self._Y = np.meshgrid(self._x, self._y)
         
@@ -42,33 +47,7 @@ class FrankeGenerator(DataGenerator):
         self._franke = term1 + term2 + term3 + term4
 
         # Add optional noise
-        self._franke += self._noise * np.random.normal(0, 1, self._franke.shape)
+        self._franke += self._noise * rng.normal(0, 1, self._franke.shape)
 
         return np.ravel(self._X), np.ravel(self._Y), np.ravel(self._franke)
-
-    
-    def plot(self, show: bool = True):
-        """
-            Renders a 3D plot of the initial data
-        """
-        if not hasattr(self, '_franke'):
-            self.generate()
-
-        fig = plt.figure('Franke function input data', figsize=(8, 6), dpi=80)
-        ax = fig.add_subplot(111, projection='3d')
-        
-        surf = ax.plot_surface(self._X, self._Y, self._franke, cmap=cm.coolwarm, linewidth=0, antialiased=True)
-        
-        ax.set_zlim(np.min(self._franke) - 0.3, np.max(self._franke) + 0.3)
-        ax.zaxis.set_major_locator(LinearLocator(10))
-        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-
-        fig.colorbar(surf, shrink=0.5, aspect=5)
-
-        plt.title('Franke function input data')
-        plt.xlabel('x')
-        plt.ylabel('y')
-
-        if show:
-            plt.show()
 

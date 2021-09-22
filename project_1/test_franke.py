@@ -11,7 +11,6 @@ from PlotPostProcess import PlotPostProcess
 solver = Solver(10)
 
 generator = FrankeGenerator(0, 1, 0.01, noise=0.01)
-generator.plot(show=False)
 solver.set_data_generator(generator)
 
 solver.set_splitter(TrainTestSplitter())
