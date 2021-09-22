@@ -73,6 +73,7 @@ class PlotPostProcess(PostProcess):
             fig = plt.figure(name + ' prediction', figsize=(8, 6), dpi=80)
             ax = fig.add_subplot(111, projection='3d')
             
+            # Generate linspaced meshgrid to show predictions at smooth points
             xm_display, ym_display = np.meshgrid(np.linspace(np.min(data[0]), np.max(data[0]), self._display_steps), np.linspace(np.min(data[1]), np.max(data[1]), self._display_steps))
             zm_display = np.zeros((self._display_steps, self._display_steps))
             betaIdx = 0
