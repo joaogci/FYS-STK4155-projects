@@ -73,12 +73,11 @@ class PlotPostProcess(PostProcess):
             fig = plt.figure(name + ' prediction', figsize=(8, 6), dpi=80)
             ax = fig.add_subplot(111, projection='3d')
             
-            xm_display, ym_display = np.meshgrid(self._display_steps, self._display_steps)
+            xm_display, ym_display = np.meshgrid(np.linspace(np.min(data[0]), np.max(data[0]), self._display_steps), np.linspace(np.min(data[1]), np.max(data[1]), self._display_steps))
             zm_display = np.zeros((self._display_steps, self._display_steps))
             betaIdx = 0
             for i in range(degree + 1):
                 for k in range(i + 1):
-                    # print('i=', i, ' | i-k= ', i-k, ' | k=', k, ' | betaIdx=', betaIdx, ' | beta[idx]=', beta[betaIdx])
                     zm_display += beta[betaIdx] * (xm_display ** (i - k)) * (ym_display ** k)
                     betaIdx += 1
             surf = ax.plot_surface(xm_display, ym_display, zm_display, cmap=cm.coolwarm, linewidth=0, antialiased=True)
