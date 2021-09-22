@@ -2,17 +2,17 @@
 
 ## Examples
 
-Fitting a 1D 4th degree (randomized) polynomial using SVD OLS:
+Fitting a 1D 4th degree (randomized) polynomial using OLS:
 ```py
 from Solver import Solver
 from PolynomialGenerator import PolynomialGenerator
-from OLSSVDModel import OLSSVDModel
+from OLSModel import OLSModel
 
 solver = Solver(4) # 4th degree polynomial
 # Set the data generator to a Polynomial Generator
 solver.set_data_generator(PolynomialGenerator(degree=4, count=100, min_x=-5, max_x=5, noise=0.05))
 # Set the model as OLS via SVD
-solver.set_model(OLSSVDModel())
+solver.set_model(OLSModel())
 # Run the solver
 solver.run()
 ```
@@ -78,7 +78,7 @@ Child classes: `PolynomialGenerator` (2D data), `FrankeGenerator` (3D data)
 
 `Model` child classes should implement the `interpolate` method which takes a design matrix and data set and returns an estimator function which can later be fed other design matrices to fit a polynomial to them following the same trend as the original data set; a `Model` instance can be attached to a `Solver` using `.set_model()`.
 
-Child classes: `OLSModel`, `OLSSVDModel`
+Child classes: `OLSModel`, `RidgeModel`
 
 ### Splitter
 
