@@ -12,7 +12,7 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, model: Model = None, post_processes = [], seed: int = 0):
+    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, models = [], post_processes = [], seed: int = 0):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
@@ -20,7 +20,7 @@ class Solver:
         self._degree = degree
         self._data_generator = data_generator
         self._splitter = splitter
-        self._model = model
+        self._models = models
         self._post_processes = post_processes
         self._rng = np.random.default_rng(np.random.MT19937(seed))
 
@@ -47,13 +47,13 @@ class Solver:
         """
         self._splitter = splitter
     
-    def set_model(self, model: Model):
+    def add_model(self, model: Model):
         """
             Sets the model on the solver instance
             Parameters:
                 model (Model): The model to use to predict the data
         """
-        self._model = model
+        self._models.append(model)
     
     def add_post_process(self, post_process: PostProcess):
         """
@@ -118,7 +118,7 @@ class Solver:
         if self._data_generator == None:
             print('Error: no data generator has been defined on the solver!')
             return
-        if self._model == None:
+        if len(self._models) <= 0:
             print('Error: no model has been defined on the solver!')
             return
         
@@ -142,13 +142,18 @@ class Solver:
         if 'train' in X_split.keys(): # Use training data
             X = X_split['train']
             y = y_split['train']
-        beta = self._model.interpolate(X, y, self._degree)
+        betas = {}
+        for model in self._models:
+            print('Getting beta for model ', model.name)
+            betas[model.name] = model.interpolate(X, y, self._degree)
 
-        # Make predictions for all subsets
+        # Make predictions for all models and all subsets
         predictions = {}
-        for key in X_split.keys():
-            predictions[key] = X_split[key] @ beta
+        for model in self._models:
+            predictions[model.name] = {}
+            for key in X_split.keys():
+                predictions[model.name][key] = X_split[key] @ betas[model.name]
 
         # Run post-processes on original data + full prediction
         for process in self._post_processes:
-            process.run(self._model.NAME, self._data, X_split, y_split, predictions, beta, self._degree)
+            process.run(self._data, X_split, y_split, predictions, betas, self._degree)

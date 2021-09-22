@@ -15,7 +15,9 @@ solver.set_data_generator(FrankeGenerator(0, 1, 0.025, random=True, noise=0.01))
 
 solver.set_splitter(TrainTestSplitter())
 
-solver.set_model(RidgeModel(0.001))
+solver.add_model(OLSModel())
+solver.add_model(RidgeModel(0.001))
+solver.add_model(LassoModel(0.001))
 
 solver.add_post_process(ErrDisplayPostProcess())
 solver.add_post_process(PlotPostProcess())

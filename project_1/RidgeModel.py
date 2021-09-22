@@ -16,7 +16,7 @@ class RidgeModel(Model):
         """
         self._lmd = lmd
         self._pseudo_inverse = pseudo_inverse
-        self.NAME = "Ridge lmd = " + str(self._lmd)
+        self.name = "Ridge λ=" + str(self._lmd)
         
         
     def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> tuple:

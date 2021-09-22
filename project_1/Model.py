@@ -10,7 +10,7 @@ class Model:
     """
         Override per implementation to display the name of the model
     """
-    NAME = '<none>'
+    name = '<none>'
 
     @abc.abstractmethod
     def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> np.matrix:
