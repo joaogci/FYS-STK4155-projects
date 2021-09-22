@@ -23,7 +23,11 @@ class Solver:
         self._model = model
         self._post_processes = post_processes
         self._rng = np.random.default_rng(seed)
-    
+        
+        # Generate the data
+        if data_generator != None:
+            self._data = self._data_generator.generate(self._rng) 
+
     
     def set_data_generator(self, data_generator: DataGenerator):
         """
@@ -32,6 +36,9 @@ class Solver:
                 data_generator (DataGenerator): The data generator to use
         """
         self._data_generator = data_generator
+        
+        # Generate the data
+        self._data = self._data_generator.generate(self._rng)
     
     def set_splitter(self, splitter: Splitter):
         """
@@ -103,7 +110,6 @@ class Solver:
         return X
 
 
-
     def run(self):
         """
             Runs the data generator, model, and other attached components to create necessary prediction(s)
@@ -116,19 +122,16 @@ class Solver:
         if self._model == None:
             print('Error: no model has been defined on the solver!')
             return
-
-        # Generate data
-        data = self._data_generator.generate(self._rng)
         
         # Create design matrix
-        X_full = self._design_matrix(data[0], data[1] if len(data) > 2 else None)
+        X_full = self._design_matrix(self._data[0], self._data[1] if len(self._data) > 2 else None)
 
         # Split data optionally
         if self._splitter != None:
-            X_split, y_split = self._splitter.split(X_full, data[-1])
+            X_split, y_split = self._splitter.split(X_full, self._data[-1])
         else:
             X_split = { 'full': X_full }
-            y_split = { 'full': data[-1] }
+            y_split = { 'full': self._data[-1] }
         
         # Scale data optionally
         # @todo
@@ -140,7 +143,7 @@ class Solver:
         if 'train' in X_split.keys(): # Use training data
             X = X_split['train']
             y = y_split['train']
-        evaluator, estimator_variance = self._model.interpolate(X, y)
+        evaluator, estimator_variance = self._model.interpolate(X, y, self._degree)
 
         # Make predictions for all subsets
         predictions = {}
@@ -149,4 +152,4 @@ class Solver:
 
         # Run post-processes on original data + full prediction
         for process in self._post_processes:
-            process.run(self._model.NAME, data, y_split, predictions, estimator_variance)
+            process.run(self._model.NAME, self._data, y_split, predictions, estimator_variance)
