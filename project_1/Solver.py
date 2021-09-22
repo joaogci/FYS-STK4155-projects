@@ -25,7 +25,7 @@ class Solver:
         self._rng = np.random.default_rng(np.random.MT19937(seed))
 
         # Generate the data
-        if self.__data_generator != None:
+        if self._data_generator != None:
             self._data = self._data_generator.generate(self._rng) 
     
     def set_data_generator(self, data_generator: DataGenerator):
