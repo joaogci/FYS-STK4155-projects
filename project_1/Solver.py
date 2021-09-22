@@ -145,7 +145,6 @@ class Solver:
             y = y_split['train']
         betas = {}
         for model in self._models:
-            print('Getting beta for model ', model.name)
             betas[model.name] = model.interpolate(X, y, self._degree)
 
         # Make predictions for all models and all subsets
