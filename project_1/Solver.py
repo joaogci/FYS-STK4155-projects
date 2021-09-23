@@ -167,10 +167,11 @@ class Solver:
         else:
             X = X_split['full']
             y = y_split['full']
-        
+
+        # Compute beta values for all models
         betas = {}
         for model in self._models:
-            betas[model.name] = model.interpolate(X, y, self._degree)
+            betas[model.name] = model.interpolate(X, y)
 
         # Make predictions for all models and all subsets
         predictions = {}

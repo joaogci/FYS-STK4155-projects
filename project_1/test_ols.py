@@ -17,6 +17,7 @@ solver = Solver(degree, seed=0)
 solver.set_data_generator(ExponentialGenerator(degree=degree, count=100, min_x=-1, max_x=1, noise=0.1))
 
 solver.set_splitter(TrainTestSplitter())
+solver.set_scaler(StandardScaler())
 
 solver.add_model(OLSModel())
 # solver.add_model(RidgeModel(5))

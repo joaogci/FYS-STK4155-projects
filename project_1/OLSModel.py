@@ -19,7 +19,7 @@ class OLSModel(Model):
         if self._pseudo_inverse:
             self.name = 'Ordinary Least Squares (SVD)'
 
-    def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> tuple:
+    def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> tuple:
         """
             Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
             Predictions will be based off OLS for this model

@@ -13,7 +13,7 @@ class Model:
     name = '<none>'
 
     @abc.abstractmethod
-    def interpolate(self, design_matrix: np.matrix, y: np.matrix, degree: float) -> np.matrix:
+    def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> np.matrix:
         """
             Given a design matrix and a (training) data set, returns the beta feature matrix
         """

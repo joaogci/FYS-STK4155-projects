@@ -28,7 +28,9 @@ class RobustScaler(Scaler):
                 X (np.matrix): Design matrix to scale
         """
         
-        for i in range(1, X.shape[1]):
-            X[:, i] = (X[:, i] - self._median) / self._inter_quartile_range
+        X_scaled = np.zeros(X.shape)
         
-        return X
+        for i in range(1, X.shape[1]):
+            X_scaled[:, i] = (X[:, i] - self._median) / self._inter_quartile_range
+        
+        return X_scaled
