@@ -22,21 +22,38 @@ class ErrDisplayPostProcess(PostProcess):
         print('\n---')
 
         for model_name in predictions.keys():
-
-            if self._display_mse:
-                print('Mean Squared Error (' + model_name + '):', mse(sets['full'], predictions[model_name]['full']))
-                for key in sets.keys():
-                    if key != 'full':
-                        print('Mean Squared Error (' + model_name + ', ' + key + ' set):', mse(sets[key], predictions[model_name][key]))
-
-            if self._display_mse and self._display_r2:
-                print('')
             
-            if self._display_r2:
-                print('R2 Score (' + model_name + '):', r2(sets['full'], predictions[model_name]['full']))
-                for key in sets.keys():
-                    if key != 'full':
-                        print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
+            if 'train_scaled' in design_matrices.keys():
+                if self._display_mse:
+                    print('Mean Squared Error (' + model_name + '):', mse(sets['full_scaled'], predictions[model_name]['full_scaled']))
+                    for key in sets.keys():
+                        if key != 'full_scaled' and 'scaled' in key:
+                            print('Mean Squared Error (' + model_name + ', ' + key + ' set):', mse(sets[key], predictions[model_name][key]))
+
+                if self._display_mse and self._display_r2:
+                    print('')
+                
+                if self._display_r2:
+                    print('R2 Score (' + model_name + '):', r2(sets['full_scaled'], predictions[model_name]['full_scaled']))
+                    for key in sets.keys():
+                        if key != 'full_scaled' and 'scaled' in key:
+                            print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
+
+            else:
+                if self._display_mse:
+                    print('Mean Squared Error (' + model_name + '):', mse(sets['full'], predictions[model_name]['full']))
+                    for key in sets.keys():
+                        if key != 'full':
+                            print('Mean Squared Error (' + model_name + ', ' + key + ' set):', mse(sets[key], predictions[model_name][key]))
+
+                if self._display_mse and self._display_r2:
+                    print('')
+                
+                if self._display_r2:
+                    print('R2 Score (' + model_name + '):', r2(sets['full'], predictions[model_name]['full']))
+                    for key in sets.keys():
+                        if key != 'full':
+                            print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
             
             print('')
 
