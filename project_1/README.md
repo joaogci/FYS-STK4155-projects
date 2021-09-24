@@ -1,5 +1,9 @@
 # Project 1 - Fitting linear models to the Franke function
 
+## Confusion (NEED TO FIX)
+
+When scaling (without std), i.e., only "supposedly" removing the mean, the predictions are correct, but when plotting the actual polynomial using the beta-values, we get a wrong result.
+
 ## Examples
 
 Fitting a 1D 4th degree (randomized) polynomial using OLS:

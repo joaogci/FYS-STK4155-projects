@@ -20,16 +20,17 @@ class PolynomialGenerator(DataGenerator):
         """
             Generates a set of noisy data from a polynomial
         """
-
+        
         # Generate x points between min_x and max_x
         x = rng.uniform(self._min_x,self._max_x,(self._count,1))
         y = np.zeros((self._count, 1))
 
         # Generate polynomial coefficients and compute data points
-        factors = rng.random((self._degree + 1, 1)) * 10 - 5
+        factors = rng.uniform(-5,5,(self._degree + 1, 1)) # rng.random((self._degree + 1, 1)) * 10 - 5
         for i in range(0, self._degree + 1):
-            y += factors[i] * x ** i
-        
+            
+            y += factors[i] * (x ** i)
+
         # Optionally normalize y between 0..1 or -1..1
         # (otherwise MSE becomes ridiculous if the range is already much bigger than 0..1)
         if self._normalise:
