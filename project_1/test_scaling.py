@@ -22,7 +22,7 @@ solver.set_splitter(TrainTestSplitter())
 solver.add_post_process(ErrDisplayPostProcess())
 solver.add_post_process(PlotPostProcess())
 
-solver.add_model(OLSModel())
+solver.add_model(RidgeModel(lmd=0.5))
 
 print("Without Scaling: ")
 solver.run()
