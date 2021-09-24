@@ -40,6 +40,12 @@ class Solver:
         
         # Generate the data
         self._data = self._data_generator.generate(self._rng)
+
+    def set_data(self, data):
+        self._data = data
+
+    def get_data(self):
+        return self._data
     
     def set_splitter(self, splitter: Splitter):
         """
@@ -72,7 +78,6 @@ class Solver:
                 post_process (PostProcess): The post process pass to append and run once predictions are made
         """
         self._post_processes.append(post_process)
-
 
     def _design_matrix(self, x1: np.matrix, x2: np.matrix) -> np.matrix:
         """
@@ -142,6 +147,8 @@ class Solver:
             X_split = { 'full': X_full }
             y_split = { 'full': self._data[-1] }
         
+        print(np.mean(y_split['train']))
+
         # Scale data optionally
         if self._scaler != None and len(X_split.keys()) > 1:
             self._scaler.prepare(X_split['train'])
