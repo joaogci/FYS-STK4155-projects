@@ -1,5 +1,11 @@
 # Project 1 - Fitting linear models to the Franke function
 
+## TODO: 
+ * Resampling (bootstraping and cross-validation)
+ * KFold spliting for CV
+ * add fit_interpect option to Solver
+ * add a way to retrive the generated data to feed it to sklearn functions 
+
 ## Examples
 
 Fitting a 1D 4th degree (randomized) polynomial using OLS:
