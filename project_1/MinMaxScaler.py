@@ -14,12 +14,16 @@ class MinMaxScaler(Scaler):
                 X (np.matrix): Principal design matrix
         """
         
-        self._min = np.zeros(X.shape[1] - 1)
-        self._max = np.zeros(X.shape[1] - 1)
-        
-        for i in range(1, X.shape[1]):
-            self._min[i - 1] = np.min(X[:, i])
-            self._max[i - 1] = np.max(X[:, i])
+        if X.shape[1] == 1:
+            self._min = np.min(X[:, 0])
+            self._max = np.max(X[:, 0])
+        else:
+            self._min = np.zeros(X.shape[1] - 1)
+            self._max = np.zeros(X.shape[1] - 1)
+            
+            for i in range(1, X.shape[1]):
+                self._min[i - 1] = np.min(X[:, i])
+                self._max[i - 1] = np.max(X[:, i])
 
     def scale(self, X: np.matrix) -> np.matrix:
         """
@@ -28,9 +32,12 @@ class MinMaxScaler(Scaler):
                 X (np.matrix): Design matrix to scale
         """
         
-        X_scaled = np.zeros(X.shape)
+        X_scaled = np.ones(X.shape)
         
-        for i in range(1, X.shape[1]):
-            X_scaled[:, i] = (X[:, i] - self._min) / (self._max - self._min)
+        if X.shape[1] == 1:
+            X_scaled[:, 0] = (X[:, 0] - self._min) / (self._max - self._min)
+        else:
+            for i in range(1, X.shape[1]):
+                X_scaled[:, i] = (X[:, i] - self._min[i - 1]) / (self._max[i - 1] - self._min[i - 1])
         
         return X_scaled

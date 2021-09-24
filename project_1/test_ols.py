@@ -11,8 +11,9 @@ from ErrDisplayPostProcess import ErrDisplayPostProcess
 from PlotPostProcess import PlotPostProcess
 from TrainTestSplitter import TrainTestSplitter
 from StandardScaler import StandardScaler
+from ExponentialGenerator import ExponentialGenerator
 
-degree = 5
+degree = 4
 
 solver = Solver(degree, seed=0)
 

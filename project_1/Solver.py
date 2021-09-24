@@ -14,7 +14,7 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, models = list(), post_processes = list(), seed: int = 0):
+    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, scaler: Scaler = None, models = list(), post_processes = list(), seed: int = 0):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
@@ -25,6 +25,7 @@ class Solver:
         self._models = copy.deepcopy(models)
         self._post_processes = copy.deepcopy(post_processes)
         self._rng = np.random.default_rng(np.random.MT19937(seed))
+        self._scaler = scaler
 
         # Generate the data
         if self._data_generator != None:
@@ -157,16 +158,22 @@ class Solver:
                 new_key = key + '_scaled'
                 X_split[new_key] = self._scaler.scale(X_split[key])
                 
+            self._scaler.prepare(y_split['train'])
+            for key in list(y_split.keys()):
+                new_key = key + '_scaled'
+                y_split[new_key] = self._scaler.scale(y_split[key])
+                
         # Init model and get evaluator to make predictions out of
         # Selecting which set to use out of the full set depending on the labeled sets in X_split and y_split
-        X = X_split['full']
-        y = y_split['full']
-        if 'train' in X_split.keys(): # Use training data
-            X = X_split['train']
-            y = y_split['train']
         if 'train_scaled' in X_split.keys():
             X = X_split['train_scaled']
+            y = y_split['train_scaled']
+        elif 'train' in X_split.keys():
+            X = X_split['train']
             y = y_split['train']
+        else:
+            X = X_split['full']
+            y = y_split['full']
 
         # Compute beta values for all models
         betas = {}
@@ -175,10 +182,18 @@ class Solver:
 
         # Make predictions for all models and all subsets
         predictions = {}
-        for model in self._models:
-            predictions[model.name] = {}
-            for key in X_split.keys():
-                predictions[model.name][key] = X_split[key] @ betas[model.name]
+        
+        if 'train_scaled' in X_split.keys():
+            for model in self._models:
+                predictions[model.name] = {}
+                for key in X_split.keys():
+                    if 'scaled' in key:
+                        predictions[model.name][key] = X_split[key] @ betas[model.name] 
+        else:
+            for model in self._models:
+                predictions[model.name] = {}
+                for key in X_split.keys():
+                    predictions[model.name][key] = X_split[key] @ betas[model.name]
 
         # Run post-processes on original data + full prediction
         for process in self._post_processes:

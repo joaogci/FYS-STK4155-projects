@@ -24,14 +24,23 @@ class PlotPostProcess(PostProcess):
             plt.figure('Predictions')
 
             # Either display the entire input data, or split it up into the training and testing sets
-            if 'test' in design_matrices.keys():
+            if 'test_scaled' in design_matrices.keys():
+                plt.plot(design_matrices['train_scaled'][:,1], sets['train_scaled'], 'k+', label='Input data (training set)', alpha=0.25)
+                plt.plot(design_matrices['test_scaled'][:,1], sets['test_scaled'], 'k+', label='Input data (test set)')
+                M=np.max(design_matrices['test_scaled'][:,1])
+                m=np.min(design_matrices['test_scaled'][:,1])
+            elif 'test' in design_matrices.keys():
                 plt.plot(design_matrices['train'][:,1], sets['train'], 'k+', label='Input data (training set)', alpha=0.25)
                 plt.plot(design_matrices['test'][:,1], sets['test'], 'k+', label='Input data (test set)')
+                M=np.max(design_matrices['test'][:,1])
+                m=np.min(design_matrices['test'][:,1])
             else:
                 plt.plot(data[0], sets['full'], 'k+', label='Input data')
+                M=np.max(data[0])
+                m=np.min(data[0])
                 
             # Display a smooth curve of the polynomial regardless of the input data, for each model
-            x_display = np.linspace(np.min(data[0]), np.max(data[0]), self._display_steps)
+            x_display = np.linspace(m, M, self._display_steps)
             for model_name in betas.keys():
                 y_display = np.zeros(self._display_steps)
                 for i in range(len(betas[model_name])):

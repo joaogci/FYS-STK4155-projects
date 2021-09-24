@@ -4,6 +4,12 @@
 
 When scaling (without std), i.e., only "supposedly" removing the mean, the predictions are correct, but when plotting the actual polynomial using the beta-values, we get a wrong result.
 
+## TODO: 
+ * Resampling (bootstraping and cross-validation)
+ * KFold spliting for CV
+ * add fit_interpect option to Solver
+ * add a way to retrive the generated data to feed it to sklearn functions 
+
 ## Examples
 
 Fitting a 1D 4th degree (randomized) polynomial using OLS:
