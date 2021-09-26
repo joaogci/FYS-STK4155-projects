@@ -16,7 +16,7 @@ class OLSModel(Model):
                 pseudo_inverse (bool): Whether to use SVD-based pseudo-inverse in computation of beta
         """
         self._pseudo_inverse = pseudo_inverse
-        if self._pseudo_inverse:
+        if not self._pseudo_inverse:
             self.name = 'Ordinary Least Squares (SVD)'
 
     def interpolate(self, design_matrix: np.matrix, y: np.matrix) -> tuple:
@@ -26,7 +26,7 @@ class OLSModel(Model):
         """
 
         # Compute beta from the matrix inverse or pseudo inverse
-        if self._pseudo_inverse: # Use SVD pseudo-inverse
+        if not self._pseudo_inverse: # Use SVD pseudo-inverse
             
             # Compute SVD of design matrix
             u, sigma, vT = np.linalg.svd(design_matrix, full_matrices=False)
@@ -35,6 +35,6 @@ class OLSModel(Model):
             beta = np.multiply(vT.T, 1 / sigma) @ u.T @ y
             
         else: # Use true matrix inverse (may be ill-conditioned)
-            beta = np.linalg.inv(design_matrix.T @ design_matrix) @ design_matrix.T @ y
+            beta = np.linalg.pinv(design_matrix.T @ design_matrix) @ design_matrix.T @ y
 
         return beta

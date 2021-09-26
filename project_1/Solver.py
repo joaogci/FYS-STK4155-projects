@@ -14,12 +14,13 @@ class Solver:
     """
 
 
-    def __init__(self, degree: int, data_generator: DataGenerator = None, splitter: Splitter = None, scaler: Scaler = None, models = list(), post_processes = list(), seed: int = 0):
+    def __init__(self, degree: int, fit_intercept: bool = False, data_generator: DataGenerator = None, splitter: Splitter = None, scaler: Scaler = None, models = list(), post_processes = list(), seed: int = 0):
         """
             Default Solver constructor
             Parameters can be used to set up components on the Solver in a non-verbose way
         """
         self._degree = degree
+        self._fit_intercept = fit_intercept
         self._data_generator = data_generator
         self._splitter = splitter
         self._models = copy.deepcopy(models)
@@ -150,8 +151,7 @@ class Solver:
         
         # Scale data optionally
         if self._scaler != None and len(X_split.keys()) > 1:
-            self._scaler.prepare(X_split['train'])
-            
+            self._scaler.prepare(X_split['train']) 
             for key in list(X_split.keys()):
                 new_key = key + '_scaled'
                 X_split[new_key] = self._scaler.scale(X_split[key])
@@ -160,7 +160,11 @@ class Solver:
             for key in list(y_split.keys()):
                 new_key = key + '_scaled'
                 y_split[new_key] = self._scaler.scale(y_split[key])
-                
+        
+        if not self._fit_intercept: 
+            for key in X_split.keys():
+                X_split[key][:, 0] = 0
+        
         # Init model and get evaluator to make predictions out of
         # Selecting which set to use out of the full set depending on the labeled sets in X_split and y_split
         if 'train_scaled' in X_split.keys():
@@ -177,7 +181,8 @@ class Solver:
         betas = {}
         for model in self._models:
             betas[model.name] = model.interpolate(X, y)
-
+        print(betas)
+        
         # Make predictions for all models and all subsets
         predictions = {}
         
@@ -192,7 +197,12 @@ class Solver:
                 predictions[model.name] = {}
                 for key in X_split.keys():
                     predictions[model.name][key] = X_split[key] @ betas[model.name]
-
+        
+        print(np.mean(y_split['train_scaled']))
+        print(np.mean(y_split['full_scaled']))
+        print(np.mean(y_split['test_scaled'])) 
+        print(np.mean(y_split['train']))
+        print(np.mean(y_split['test']))
         # Run post-processes on original data + full prediction
         for process in self._post_processes:
             process.run(self._data, X_split, y_split, predictions, betas, self._degree)
