@@ -45,42 +45,52 @@ scaler.fit(X_train)
 X_scaled = scaler.transform(X)
 X_train_scaled = scaler.transform(X_train)
 X_test_scaled  = scaler.transform(X_test)
-X_train_scaled = X_train - np.mean(X_train,axis=0)
-X_test_scaled  = X_test - np.mean(X_train,axis=0)
+# X_train_scaled_own = X_train - np.mean(X_train,axis=0)
+# X_test_scaled  = X_test - np.mean(X_train,axis=0)
 
 #scaler = sk.preprocessing.StandardScaler()
 scaler = sk.preprocessing.StandardScaler(with_std=False)
 scaler.fit(y_train)
-print(scaler.mean_)
-print(np.mean(y_train))
+# print(scaler.mean_)
+# print(np.mean(y_train))
 y_scaled = scaler.transform(y)
 y_train_scaled = scaler.transform(y_train)
 y_test_scaled  = scaler.transform(y_test)
-y_train_scaled = y_train - np.mean(y_train)
-y_test_scaled  = y_test - np.mean(y_train)
+# y_train_scaled = y_train - np.mean(y_train)
+# y_test_scaled  = y_test - np.mean(y_train)
 
 
 linreg_scaled = sk.linear_model.LinearRegression(fit_intercept=False).fit(X_train_scaled, y_train_scaled)
 linreg = sk.linear_model.LinearRegression(fit_intercept=False).fit(X_train, y_train)
+# linreg_fit = sk.linear_model.LinearRegression(fit_intercept=True).fit(X_train, y_train)
 
 y_tile_scaled = linreg_scaled.predict(X_test_scaled)
 y_tile = linreg.predict(X_test)
 
 coefs_scale = linreg_scaled.coef_
-inter_scale = linreg_scaled.intercept_
+# inter_scale = linreg_scaled.intercept_
+inter_scale = np.mean(y_train) - np.dot(np.mean(X_train,axis=0),coefs_scale.T)
 
 coefs = linreg.coef_
 inter = linreg.intercept_
 
+# coefs_fit = linreg_fit.coef_
+# inter_fit = linreg_fit.intercept_
+
 print("Unscaled: ")
 print(coefs)
 print(inter)
-print(f"MSE: {mean_squared_error(y_test, y_tile)}")
+# print(f"MSE: {mean_squared_error(y_test, y_tile)}")
+# print()
+# print("Unscaled (fit_intercept=Ture): ")
+# print(coefs_fit)
+# print(inter_fit)
+# # print(f"MSE: {mean_squared_error(y_test, y_tile)}")
 print()
 print("Scaled: ")
 print(coefs_scale)
 print(inter_scale)
-print(f"MSE: {mean_squared_error(y_test_scaled, y_tile_scaled)}")
+# print(f"MSE: {mean_squared_error(y_test_scaled, y_tile_scaled)}")
 
 # space = np.linspace(np.min(X_train_scaled[:,1]),np.max(X_train_scaled[:,1]),1000)
 space = np.linspace(np.min(X[:,1]), np.max(X[:,1]),1000)
@@ -121,4 +131,4 @@ plt.plot(space, out, 'r', label='unscaled')
 plt.plot(space_scaled, out_scaled, 'b', label='scaled')
 plt.legend()
 
-plt.show()
+# plt.show()
