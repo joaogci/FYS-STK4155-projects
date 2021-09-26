@@ -148,8 +148,6 @@ class Solver:
             X_split = { 'full': X_full }
             y_split = { 'full': self._data[-1] }
         
-        print(np.mean(y_split['train']))
-
         # Scale data optionally
         if self._scaler != None and len(X_split.keys()) > 1:
             self._scaler.prepare(X_split['train'])
