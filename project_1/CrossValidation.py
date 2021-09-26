@@ -14,6 +14,3 @@ class CrossValidation(Resampling):
         
     def resample(self) -> ...:
         ...
-
- 
-    
