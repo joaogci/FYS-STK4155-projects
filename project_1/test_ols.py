@@ -61,36 +61,36 @@ solver2.run()
 
 # X_train, X_test, y_train, y_test = sk.model_selection.train_test_split(X,y,test_size=0.2,random_state=11)
 
-scaler = sk.preprocessing.StandardScaler(with_std=False)
-scaler.fit(X_train)
-X_scaled = scaler.transform(X)
-X_train_scaled = scaler.transform(X_train)
-X_test_scaled  = scaler.transform(X_test)
+# scaler = sk.preprocessing.StandardScaler(with_std=False)
+# scaler.fit(X_train)
+# X_scaled = scaler.transform(X)
+# X_train_scaled = scaler.transform(X_train)
+# X_test_scaled  = scaler.transform(X_test)
 # X_train_scaled_own = X_train - np.mean(X_train,axis=0)
 # X_test_scaled  = X_test - np.mean(X_train,axis=0)
 
 #scaler = sk.preprocessing.StandardScaler()
-scaler = sk.preprocessing.StandardScaler(with_std=False)
-scaler.fit(y_train)
+# scaler = sk.preprocessing.StandardScaler(with_std=False)
+# scaler.fit(y_train)
 # print(scaler.mean_)
 # print(np.mean(y_train))
-y_scaled = scaler.transform(y)
-y_train_scaled = scaler.transform(y_train)
-y_test_scaled  = scaler.transform(y_test)
+# y_scaled = scaler.transform(y)
+# y_train_scaled = scaler.transform(y_train)
+# y_test_scaled  = scaler.transform(y_test)
 # y_train_scaled = y_train - np.mean(y_train)
 # y_test_scaled  = y_test - np.mean(y_train)
 
 
-linreg_scaled = sk.linear_model.LinearRegression(fit_intercept=False).fit(X_train_scaled, y_train_scaled)
-linreg = sk.linear_model.LinearRegression(fit_intercept=False).fit(X_train, y_train)
+# linreg_scaled = sk.linear_model.LinearRegression(fit_intercept=False).fit(X_train_scaled, y_train_scaled)
+# linreg = sk.linear_model.LinearRegression(fit_intercept=False).fit(X_train, y_train)
 # linreg_fit = sk.linear_model.LinearRegression(fit_intercept=True).fit(X_train, y_train)
 
 # y_tile_scaled = linreg_scaled.predict(X_test_scaled)
 # y_tile = linreg.predict(X_test)
 
-coefs_scale = linreg_scaled.coef_
+# coefs_scale = linreg_scaled.coef_
 # inter_scale = linreg_scaled.intercept_
-inter_scale = np.mean(y_train) - np.dot(np.mean(X_train,axis=0),coefs_scale.T)
+# inter_scale = np.mean(y_train) - np.dot(np.mean(X_train,axis=0),coefs_scale.T)
 
 # coefs = linreg.coef_
 # inter = linreg.intercept_
@@ -98,19 +98,19 @@ inter_scale = np.mean(y_train) - np.dot(np.mean(X_train,axis=0),coefs_scale.T)
 # coefs_fit = linreg_fit.coef_
 # inter_fit = linreg_fit.intercept_
 
-print("Unscaled: ")
-print(coefs)
-print(inter)
+# print("Unscaled: ")
+# print(coefs)
+# print(inter)
 # print(f"MSE: {mean_squared_error(y_test, y_tile)}")
 # print()
 # print("Unscaled (fit_intercept=Ture): ")
 # print(coefs_fit)
 # print(inter_fit)
 # # print(f"MSE: {mean_squared_error(y_test, y_tile)}")
-print()
-print("Scaled: ")
-print(coefs_scale)
-print(inter_scale)
+# print()
+# print("Scaled: ")
+# print(coefs_scale)
+# print(inter_scale)
 # print(f"MSE: {mean_squared_error(y_test_scaled, y_tile_scaled)}")
 
 # # space = np.linspace(np.min(X_train_scaled[:,1]),np.max(X_train_scaled[:,1]),1000)
