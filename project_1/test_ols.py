@@ -3,17 +3,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sklearn as sk
 from sklearn.metrics import mean_squared_error
-from Solver import Solver
-from PolynomialGenerator import PolynomialGenerator
-from OLSModel import OLSModel
-from RidgeModel import RidgeModel
-from LassoModel import LassoModel
-from ErrDisplayPostProcess import ErrDisplayPostProcess
-from PlotPostProcess import PlotPostProcess
-from TrainTestSplitter import TrainTestSplitter
-from StandardScaler import StandardScaler
-from ExponentialGenerator import ExponentialGenerator
-from MinMaxScaler import MinMaxScaler
+from include.Solver import Solver
+from include.PolynomialGenerator import PolynomialGenerator
+from include.OLSModel import OLSModel
+from include.RidgeModel import RidgeModel
+from include.LassoModel import LassoModel
+from include.ErrDisplayPostProcess import ErrDisplayPostProcess
+from include.PlotPostProcess import PlotPostProcess
+from include.TrainTestSplitter import TrainTestSplitter
+from include.StandardScaler import StandardScaler
+from include.ExponentialGenerator import ExponentialGenerator
+from include.MinMaxScaler import MinMaxScaler
 
 degree = 4
 
