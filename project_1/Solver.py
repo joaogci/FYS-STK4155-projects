@@ -20,7 +20,7 @@ class Solver:
             Parameters can be used to set up components on the Solver in a non-verbose way
         """
         self._degree = degree
-        self._fit_intercept = fit_intercept
+        self.fit_intercept = fit_intercept
         self._data_generator = data_generator
         self._splitter = splitter
         self._models = copy.deepcopy(models)
@@ -174,7 +174,7 @@ class Solver:
                 y_split[new_key] = self._scaler.scale(y_split[key])
         
         # Set first column of design matrices to 0s instead of 1s if fit_intercept is False
-        if not self._fit_intercept: 
+        if not self.fit_intercept: 
             for key in X_split.keys():
                 X_split[key][:, 0] = 0
         
