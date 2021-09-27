@@ -11,37 +11,39 @@ class PlotPostProcess(PostProcess):
         Post process that displays a plot of the prediction
     """
 
-    def __init__(self, display_steps: int = 500, show: bool = True, title: str = None):
+    def __init__(self, display_steps: int = 500, show: bool = True, title: str = None, discrete_predictions: bool = False):
         self._display_steps = display_steps
         self.show = show
         self.title = title
+        self._discrete_predictions = discrete_predictions
 
     def run(self, data: tuple, design_matrices: dict, sets: dict, predictions: dict, betas: dict, degree: int):
         """
             Displays a plot of the original and predicted data
         """
 
+        title = self.title if self.title is not None else 'Predictions'
+
         # 2D
         if len(data) <= 2:
 
-            plt.figure(self.title if self.title is not None else 'Predictions')
+            plt.figure(title)
 
             # Either display the entire input data, or split it up into the training and testing sets
-            a = lambda model_name: 0
-            
+            scaled_mean = lambda model_name: 0
             if 'test_scaled' in design_matrices.keys():
                 plt.plot(design_matrices['train_scaled'][:,1], sets['train_scaled'], 'k+', label='Input data (training set)', alpha=0.25)
                 plt.plot(design_matrices['test_scaled'][:,1], sets['test_scaled'], 'k+', label='Input data (test set)')
                 
-                M = np.max(design_matrices['test_scaled'][:,1]) if np.max(design_matrices['test_scaled'][:,1]) > np.max(design_matrices['train_scaled'][:,1]) else np.max(design_matrices['train_scaled'][:,1])
-                m = np.min(design_matrices['test_scaled'][:,1]) if np.min(design_matrices['test_scaled'][:,1]) < np.min(design_matrices['train_scaled'][:,1]) else np.min(design_matrices['train_scaled'][:,1])
-                a = lambda model_name: np.mean(predictions[model_name]['test_scaled'])
+                M = max(np.max(design_matrices['test_scaled'][:,1]), np.max(design_matrices['train_scaled'][:,1]))
+                m = min(np.min(design_matrices['test_scaled'][:,1]), np.min(design_matrices['train_scaled'][:,1]))
+                scaled_mean = lambda model_name: np.mean(predictions[model_name]['test_scaled'])
             elif 'test' in design_matrices.keys():
                 plt.plot(design_matrices['train'][:,1], sets['train'], 'k+', label='Input data (training set)', alpha=0.25)
                 plt.plot(design_matrices['test'][:,1], sets['test'], 'k+', label='Input data (test set)')
                 
-                M = np.max(design_matrices['test'][:,1]) if np.max(design_matrices['test'][:,1]) > np.max(design_matrices['train'][:,1]) else np.max(design_matrices['train'][:,1])
-                m = np.min(design_matrices['test'][:,1]) if np.min(design_matrices['test'][:,1]) < np.min(design_matrices['train'][:,1]) else np.min(design_matrices['train'][:,1])
+                M = max(np.max(design_matrices['test'][:,1]), np.max(design_matrices['train'][:,1]))
+                m = min(np.min(design_matrices['test'][:,1]), np.min(design_matrices['train'][:,1]))
             else:
                 plt.plot(data[0], sets['full'], 'k+', label='Input data')
                 
@@ -52,14 +54,15 @@ class PlotPostProcess(PostProcess):
             x_display = np.linspace(m, M, self._display_steps)
             
             for model_name in betas.keys():
-                print(a(model_name))
-                y_display = np.zeros(self._display_steps) + a(model_name)
+                y_display = np.zeros(self._display_steps) + scaled_mean(model_name)
                 for i in range(len(betas[model_name])):
                     y_display += betas[model_name][i] * x_display ** i
 
                 plt.plot(x_display, y_display, '--', label='Prediction (' + model_name + ')')
+                if self._discrete_predictions:
+                    plt.plot(data[0], predictions[model_name]['full'], '+', label='Discrete prediction (' + model_name + ')')
             
-            plt.title(self.title if self.title is not None else 'Predictions')
+            plt.title(title)
             plt.xlabel('x')
             plt.ylabel('y')
             plt.legend()
@@ -88,7 +91,7 @@ class PlotPostProcess(PostProcess):
                     zm[x,y] = data[-1][x * root + y]
             
             # Show input data
-            fig = plt.figure(self.title if self.title is not None else 'Predictions', figsize=(16, 10), dpi=80)
+            fig = plt.figure(title, figsize=(16, 10), dpi=80)
             ax = fig.add_subplot(num_lines, plot_partition[0], 1, projection='3d')
             
             surf = ax.plot_surface(xm, ym, zm, cmap=cm.coolwarm, linewidth=0, antialiased=True)
