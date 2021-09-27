@@ -44,9 +44,20 @@ class Solver:
         self._data = self._data_generator.generate(self._rng)
 
     def set_data(self, data):
+        """
+            Sets the data to use directly without coming from a DataGenerator instance
+            Parameters:
+                data (tuple): 2- or 3- element tuple with column np matrices for X, Y and Z (X, Y for 2D)
+        """
         self._data = data
 
     def get_data(self):
+        """
+            Returns the input data, either set directly through set_data or from the DataGenerator instance
+        """
+        if not hasattr(self, '_data'):
+            print('Error: Cannot obtain data from Solver instance before a call to either set_data_generator or set_data!')
+            return None
         return self._data
     
     def set_splitter(self, splitter: Splitter):
@@ -80,6 +91,7 @@ class Solver:
                 post_process (PostProcess): The post process pass to append and run once predictions are made
         """
         self._post_processes.append(post_process)
+
 
     def _design_matrix(self, x1: np.matrix, x2: np.matrix) -> np.matrix:
         """
@@ -161,6 +173,7 @@ class Solver:
                 new_key = key + '_scaled'
                 y_split[new_key] = self._scaler.scale(y_split[key])
         
+        # Set first column of design matrices to 0s instead of 1s if fit_intercept is False
         if not self._fit_intercept: 
             for key in X_split.keys():
                 X_split[key][:, 0] = 0

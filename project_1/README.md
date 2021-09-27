@@ -7,8 +7,6 @@ When scaling (without std), i.e., only "supposedly" removing the mean, the predi
 ## TODO: 
  * Resampling (bootstraping and cross-validation)
  * KFold spliting for CV
- * add fit_interpect option to Solver
- * add a way to retrive the generated data to feed it to sklearn functions 
 
 ## Examples
 
