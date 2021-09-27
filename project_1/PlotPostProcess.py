@@ -32,8 +32,8 @@ class PlotPostProcess(PostProcess):
             # Either display the entire input data, or split it up into the training and testing sets
             scaled_mean = lambda model_name: 0
             if 'test_scaled' in design_matrices.keys():
-                plt.plot(design_matrices['train_scaled'][:,1], sets['train_scaled'], 'k+', label='Input data (training set)', alpha=0.25)
-                plt.plot(design_matrices['test_scaled'][:,1], sets['test_scaled'], 'k+', label='Input data (test set)')
+                plt.plot(design_matrices['train_scaled'][:,1], sets['train_scaled'], 'k+', label='Input data (scaled training set)', alpha=0.25)
+                plt.plot(design_matrices['test_scaled'][:,1], sets['test_scaled'], 'k+', label='Input data (scaled test set)')
                 
                 M = max(np.max(design_matrices['test_scaled'][:,1]), np.max(design_matrices['train_scaled'][:,1]))
                 m = min(np.min(design_matrices['test_scaled'][:,1]), np.min(design_matrices['train_scaled'][:,1]))
@@ -52,7 +52,7 @@ class PlotPostProcess(PostProcess):
                 
             # Display a smooth curve of the polynomial regardless of the input data, for each model
             x_display = np.linspace(m, M, self._display_steps)
-            
+
             for model_name in betas.keys():
                 y_display = np.zeros(self._display_steps) + scaled_mean(model_name)
                 for i in range(len(betas[model_name])):
