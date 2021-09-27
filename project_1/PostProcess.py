@@ -8,16 +8,16 @@ class PostProcess:
     """
 
     @abc.abstractmethod
-    def run(self, data: tuple, design_matrices: dict, sets: dict, predictions: dict, betas: dict, degree: int):
+    def run(self, data: tuple, sets: dict, prediction_sources: list, models: list, degree: int):
         """
             Runs the post-process given the original data fed to the model and the prediction achieved
             Parameters:
                 name (str): Name of the model that has been executed
                 data (tuple): 2- or 3-component tuple containing the original data
-                design_matrices (dict<str, np.matrix>): Split up design matrices (contains at least a 'full' key)
-                sets (dict<str, np.matrix>): Split up data sets (contains at least a 'full' key set to the same as data[-1])
-                predictions (dict<str, dict<str, np.matrix>>): Prediction matrices for each of the models, for each of the labeled sets
-                betas (dict<str, np.matrix>): The feature matrices beta obtained from the full/training data for each model
+                sets (dict<str, InputSet>): The different sets the data has been split into
+                prediction_sources (list<PredictionSource>): The mapping of sets used and
+                                        which sets to use to create predictions for which
+                models (list<Model>): The list of models used to predict the data
                 degree (int): The degree of the polynomial being predicted
         """
         print('Error: cannot instantiate/use the default PostProcess class - use a base class that overrides run()!')

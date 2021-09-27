@@ -1,6 +1,8 @@
 
+from PredictionSource import PredictionSource
 import numpy as np
 from Splitter import Splitter
+from InputSet import InputSet
 
 class TrainTestSplitter(Splitter):
     """
@@ -37,13 +39,17 @@ class TrainTestSplitter(Splitter):
         y_train = perm_y[0:split_size]
         X_test  = perm_X[split_size:, :]
         y_test  = perm_y[split_size:]
-            
+
         return {
-            'full': X,
-            'train': X_train,
-            'test': X_test
-        }, {
-            'full': y,
-            'train': y_train,
-            'test': y_test
+            'full': InputSet(name='Full', X=X, y=y),
+            'train': InputSet(name='Training set', X=X_train, y=y_train),
+            'test': InputSet(name='Testing set', X=X_test, y=y_test)
         }
+
+    def prediction_sources(self) -> list:
+        # Use the training set only as source into the full, training and testing set
+        return [PredictionSource(
+            name='Train/Test',
+            src_set='train',
+            dst_sets=['full', 'train', 'test']
+        )]

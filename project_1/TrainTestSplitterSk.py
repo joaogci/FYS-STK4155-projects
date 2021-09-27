@@ -2,6 +2,8 @@
 import numpy as np
 from Splitter import Splitter
 from sklearn.model_selection import train_test_split
+from InputSet import InputSet
+from PredictionSource import PredictionSource
 
 class TrainTestSplitterSk(Splitter):
     """
@@ -25,12 +27,17 @@ class TrainTestSplitterSk(Splitter):
             Uses the SciKit Learn implementation (see https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html)
         """
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=self._test_size, random_state=self._seed)
+        
         return {
-            'full': X,
-            'train': X_train,
-            'test': X_test
-        }, {
-            'full': y,
-            'train': y_train,
-            'test': y_test
+            'full': InputSet(name='Full', X=X, y=y),
+            'train': InputSet(name='Training set', X=X_train, y=y_train),
+            'test': InputSet(name='Testing set', X=X_test, y=y_test)
         }
+
+    def prediction_sources(self) -> list:
+        # Use the training set only
+        return [PredictionSource(
+            name='Train/Test',
+            src_set='train',
+            dst_sets=['full', 'train', 'test']
+        )]

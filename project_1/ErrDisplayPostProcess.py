@@ -10,70 +10,48 @@ class ErrDisplayPostProcess(PostProcess):
 
     def __init__(self, display_beta_conf_interval: bool = True, display_r2: bool = True, display_mse: bool = True):
         """
-            Default constructor, allows setting whether to display R2/MSE
+            Default constructor, allows setting whether to display R2/MSE/beta conf intervals
         """
         self._display_r2 = display_r2
         self._display_mse = display_mse
         self._display_beta_conf_interval = display_beta_conf_interval
 
-    def run(self, data: tuple, design_matrices: dict, sets: dict, predictions: dict, betas: dict, degree: int):
+    def run(self, data: tuple, sets: dict, prediction_sources: list, models: list, degree: int):
         """
-            Prints the MSE and R2 score for the prediciton made
+            Prints the MSE and R2 score for the predictions made
         """
-        print('\n---\n')
+        print('\n#####\n')
 
-        for model_name in predictions.keys():
+        # Print on a model basis
+        for model in models:
+            print('--- ', model.name, ' ---\n')
             
-            if 'train_scaled' in design_matrices.keys():
-                if self._display_mse:
-                    print('Mean Squared Error (' + model_name + ', scaled):', mse(sets['full_scaled'], predictions[model_name]['full_scaled']))
-                    for key in sets.keys():
-                        if key != 'full_scaled' and 'scaled' in key:
-                            print('Mean Squared Error (' + model_name + ', ' + key.replace('_', ' ') + ' set):', mse(sets[key], predictions[model_name][key]))
+            # Go through the different sources and print the MSE/R2/... for the different destinations of each source
+            for prediction_src in prediction_sources:
+                print('\t- Predictions made for', prediction_src.name)
 
-                if self._display_mse and self._display_r2:
-                    print()
-                
-                if self._display_r2:
-                    print('R2 Score (' + model_name + ', scaled):', r2(sets['full_scaled'], predictions[model_name]['full_scaled']))
-                    for key in sets.keys():
-                        if key != 'full_scaled' and 'scaled' in key:
-                            print('R2 Score (' + model_name + ', ' + key.replace('_', ' ') + ' set):', r2(sets[key], predictions[model_name][key]))
-                
-                if self._display_r2 and self._display_beta_conf_interval:
-                    print()
-                
-                if self._display_beta_conf_interval: 
-                    print('Beta confidence interval (' + model_name + ', scaled):\n', beta_conf_intervals(design_matrices['full_scaled']))
-                    for key in sets.keys():
-                        if key != 'full_scaled' and 'scaled' in key:
-                            print('Beta confidence interval (' + model_name + ', ' + key.replace('_', ' ') + ' set):\n', beta_conf_intervals(design_matrices[key]))
+                # Display the confidence intervals for betas predicted via this model + source
+                if self._display_beta_conf_interval:
+                    X = sets[prediction_src.src_set].get_src_design_mat()
+                    print('\t  Beta confidence interval:', beta_conf_intervals(X))
 
-            else:
-                if self._display_mse:
-                    print('Mean Squared Error (' + model_name + '):', mse(sets['full'], predictions[model_name]['full']))
-                    for key in sets.keys():
-                        if key != 'full':
-                            print('Mean Squared Error (' + model_name + ', ' + key.replace('_', ' ') + ' set):', mse(sets[key], predictions[model_name][key]))
+                # Go through the prediction sets attached to the source set to display MSE/R2
+                for dst in prediction_src.dst_sets:
+                    dst_set = sets[dst]
+                    print('\t\t-', dst_set.name)
 
-                if self._display_mse and self._display_r2:
-                    print()
-                
-                if self._display_r2:
-                    print('R2 Score (' + model_name + '):', r2(sets['full'], predictions[model_name]['full']))
-                    for key in sets.keys():
-                        if key != 'full':
-                            print('R2 Score (' + model_name + ', ' + key.replace('_', ' ') + ' set):', r2(sets[key], predictions[model_name][key]))
-                
-                if self._display_r2 and self._display_beta_conf_interval:
-                    print()
-                
-                if self._display_beta_conf_interval: 
-                    print('Beta confidence interval (' + model_name + '):\n', beta_conf_intervals(design_matrices['full']))
-                    for key in sets.keys():
-                        if key != 'full':
-                            print('Beta confidence interval (' + model_name + ', ' + key.replace('_', ' ') + ' set):\n', beta_conf_intervals(design_matrices[key]))
+                    y = dst_set.get_src_y()
+                    pred = dst_set.get_prediction(model.name)
 
+                    if self._display_mse:
+                        _mse = mse(y, pred)
+                        print('\t\t\tMean Squared Error:', _mse)
+                    
+                    if self._display_r2:
+                        _r2 = r2(y, pred)
+                        print('\t\t\tR2 Score:', _r2)
+                    
+                print()
             print()
 
-        print('---\n')
+        print('#####\n')
