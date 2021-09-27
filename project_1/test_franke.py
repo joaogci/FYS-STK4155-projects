@@ -1,12 +1,12 @@
 
-from include.Solver import Solver
-from include.FrankeGenerator import FrankeGenerator
-from include.TrainTestSplitter import TrainTestSplitter
-from include.OLSModel import OLSModel
-from include.RidgeModel import RidgeModel
-from include.LassoModel import LassoModel
-from include.ErrDisplayPostProcess import ErrDisplayPostProcess
-from include.PlotPostProcess import PlotPostProcess
+from Solver import Solver
+from FrankeGenerator import FrankeGenerator
+from TrainTestSplitter import TrainTestSplitter
+from OLSModel import OLSModel
+from RidgeModel import RidgeModel
+from LassoModel import LassoModel
+from ErrDisplayPostProcess import ErrDisplayPostProcess
+from PlotPostProcess import PlotPostProcess
 
 
 solver = Solver(5)
