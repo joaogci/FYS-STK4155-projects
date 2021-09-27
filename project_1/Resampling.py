@@ -11,7 +11,7 @@ class Resampling:
     @abc.abstractmethod
     def resample(self) -> ...:
         """
-            Ressamples data
+            Resamples data
             Called by the Solver the Resampler is attached to
             Should be overloaded in child classes
             Parameters:
