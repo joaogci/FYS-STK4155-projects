@@ -6,8 +6,7 @@ When scaling (without std), i.e., only "supposedly" removing the mean, the predi
 
 ## TODO: 
  * Resampling (bootstraping and cross-validation)
- * KFold spliting for CV
-
+ 
 ## Examples
 
 Fitting a 1D 4th degree (randomized) polynomial using OLS:
