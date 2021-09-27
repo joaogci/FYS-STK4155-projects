@@ -20,60 +20,60 @@ class ErrDisplayPostProcess(PostProcess):
         """
             Prints the MSE and R2 score for the prediciton made
         """
-        print('\n---')
+        print('\n---\n')
 
         for model_name in predictions.keys():
             
             if 'train_scaled' in design_matrices.keys():
                 if self._display_mse:
-                    print('Mean Squared Error (' + model_name + '):', mse(sets['full_scaled'], predictions[model_name]['full_scaled']))
+                    print('Mean Squared Error (' + model_name + ', scaled):', mse(sets['full_scaled'], predictions[model_name]['full_scaled']))
                     for key in sets.keys():
                         if key != 'full_scaled' and 'scaled' in key:
-                            print('Mean Squared Error (' + model_name + ', ' + key + ' set):', mse(sets[key], predictions[model_name][key]))
+                            print('Mean Squared Error (' + model_name + ', ' + key.replace('_', ' ') + ' set):', mse(sets[key], predictions[model_name][key]))
 
                 if self._display_mse and self._display_r2:
-                    print('')
+                    print()
                 
                 if self._display_r2:
-                    print('R2 Score (' + model_name + '):', r2(sets['full_scaled'], predictions[model_name]['full_scaled']))
+                    print('R2 Score (' + model_name + ', scaled):', r2(sets['full_scaled'], predictions[model_name]['full_scaled']))
                     for key in sets.keys():
                         if key != 'full_scaled' and 'scaled' in key:
-                            print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
+                            print('R2 Score (' + model_name + ', ' + key.replace('_', ' ') + ' set):', r2(sets[key], predictions[model_name][key]))
                 
                 if self._display_r2 and self._display_beta_conf_interval:
                     print()
                 
                 if self._display_beta_conf_interval: 
-                    print('beta confidence interval (' + model_name + '):', beta_conf_intervals(design_matrices['full_scaled']))
+                    print('Beta confidence interval (' + model_name + ', scaled):\n', beta_conf_intervals(design_matrices['full_scaled']))
                     for key in sets.keys():
                         if key != 'full_scaled' and 'scaled' in key:
-                            print('beta confidence interval (' + model_name + ', ' + key + ' set):', beta_conf_intervals(design_matrices[key]))
+                            print('Beta confidence interval (' + model_name + ', ' + key.replace('_', ' ') + ' set):\n', beta_conf_intervals(design_matrices[key]))
 
             else:
                 if self._display_mse:
                     print('Mean Squared Error (' + model_name + '):', mse(sets['full'], predictions[model_name]['full']))
                     for key in sets.keys():
                         if key != 'full':
-                            print('Mean Squared Error (' + model_name + ', ' + key + ' set):', mse(sets[key], predictions[model_name][key]))
+                            print('Mean Squared Error (' + model_name + ', ' + key.replace('_', ' ') + ' set):', mse(sets[key], predictions[model_name][key]))
 
                 if self._display_mse and self._display_r2:
-                    print('')
+                    print()
                 
                 if self._display_r2:
                     print('R2 Score (' + model_name + '):', r2(sets['full'], predictions[model_name]['full']))
                     for key in sets.keys():
                         if key != 'full':
-                            print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
+                            print('R2 Score (' + model_name + ', ' + key.replace('_', ' ') + ' set):', r2(sets[key], predictions[model_name][key]))
                 
                 if self._display_r2 and self._display_beta_conf_interval:
                     print()
                 
                 if self._display_beta_conf_interval: 
-                    print('beta confidence interval (' + model_name + '):', beta_conf_intervals(design_matrices['full']))
+                    print('Beta confidence interval (' + model_name + '):\n', beta_conf_intervals(design_matrices['full']))
                     for key in sets.keys():
                         if key != 'full':
-                            print('beta confidence interval (' + model_name + ', ' + key + ' set):', beta_conf_intervals(design_matrices[key]))
+                            print('Beta confidence interval (' + model_name + ', ' + key.replace('_', ' ') + ' set):\n', beta_conf_intervals(design_matrices[key]))
 
-            print('')
+            print()
 
         print('---\n')

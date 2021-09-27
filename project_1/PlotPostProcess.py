@@ -4,14 +4,17 @@ import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import math
 
 class PlotPostProcess(PostProcess):
     """
         Post process that displays a plot of the prediction
     """
 
-    def __init__(self, display_steps: int = 500):
+    def __init__(self, display_steps: int = 500, show: bool = True, title: str = None):
         self._display_steps = display_steps
+        self.show = show
+        self.title = title
 
     def run(self, data: tuple, design_matrices: dict, sets: dict, predictions: dict, betas: dict, degree: int):
         """
@@ -21,7 +24,7 @@ class PlotPostProcess(PostProcess):
         # 2D
         if len(data) <= 2:
 
-            plt.figure('Predictions')
+            plt.figure(self.title if self.title is not None else 'Predictions')
 
             # Either display the entire input data, or split it up into the training and testing sets
             a = lambda model_name: 0
@@ -56,16 +59,22 @@ class PlotPostProcess(PostProcess):
 
                 plt.plot(x_display, y_display, '--', label='Prediction (' + model_name + ')')
             
-            plt.title('Predictions')
+            plt.title(self.title if self.title is not None else 'Predictions')
             plt.xlabel('x')
             plt.ylabel('y')
             plt.legend()
-            plt.show()
+            if self.show:
+                plt.show()
         
         # 3D
         else:
 
+            # Compute partition of figures into a grid n x k with k <= 3
             num_plots = 1 + len(betas)
+            num_lines = int(math.ceil(num_plots / float(3)))
+            plot_partition = [0] * num_lines
+            for i in range(num_plots):
+                plot_partition[i % num_lines] += 1
 
             # Reformat data from 1D to 2D matrices
             root = int(np.sqrt(len(data[0])))
@@ -79,8 +88,8 @@ class PlotPostProcess(PostProcess):
                     zm[x,y] = data[-1][x * root + y]
             
             # Show input data
-            fig = plt.figure('Predictions', figsize=(16, 10), dpi=80)
-            ax = fig.add_subplot(2, int((num_plots + 1) / 2), 1, projection='3d')
+            fig = plt.figure(self.title if self.title is not None else 'Predictions', figsize=(16, 10), dpi=80)
+            ax = fig.add_subplot(num_lines, plot_partition[0], 1, projection='3d')
             
             surf = ax.plot_surface(xm, ym, zm, cmap=cm.coolwarm, linewidth=0, antialiased=True)
             
@@ -98,7 +107,7 @@ class PlotPostProcess(PostProcess):
                 pltIdx += 1
                 
                 # Show prediction as a smooth plot
-                ax = fig.add_subplot(2, int((num_plots + 1) / 2), pltIdx, projection='3d')
+                ax = fig.add_subplot(num_lines, plot_partition[0], pltIdx, projection='3d')
                 
                 # Generate linspaced meshgrid to show predictions at smooth points
                 xm_display, ym_display = np.meshgrid(np.linspace(np.min(data[0]), np.max(data[0]), self._display_steps), np.linspace(np.min(data[1]), np.max(data[1]), self._display_steps))
@@ -119,4 +128,5 @@ class PlotPostProcess(PostProcess):
                 plt.xlabel('x')
                 plt.ylabel('y')
 
-            plt.show()
+            if self.show:
+                plt.show()

@@ -1,7 +1,4 @@
 
-import numpy as np
-import matplotlib.pyplot as plt
-
 from Solver import Solver
 from OLSModel import OLSModel
 from FrankeGenerator import FrankeGenerator
@@ -18,8 +15,11 @@ solver.set_splitter(TrainTestSplitter())
 solver.add_model(OLSModel())
 
 solver.add_post_process(ErrDisplayPostProcess())
-solver.add_post_process(PlotPostProcess())
+plotter = PlotPostProcess(show=False, title='Predictions - Unscaled')
+solver.add_post_process(plotter)
 solver.run()
 
 solver.set_scaler(StandardScaler(with_std=False))
+plotter.show = True
+plotter.title = 'Predictions - Scaled'
 solver.run()
