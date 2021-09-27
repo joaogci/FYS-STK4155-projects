@@ -198,11 +198,6 @@ class Solver:
                 for key in X_split.keys():
                     predictions[model.name][key] = X_split[key] @ betas[model.name]
         
-        print(np.mean(y_split['train_scaled']))
-        print(np.mean(y_split['full_scaled']))
-        print(np.mean(y_split['test_scaled'])) 
-        print(np.mean(y_split['train']))
-        print(np.mean(y_split['test']))
         # Run post-processes on original data + full prediction
         for process in self._post_processes:
             process.run(self._data, X_split, y_split, predictions, betas, self._degree)
