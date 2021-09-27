@@ -1,6 +1,6 @@
 
 from PostProcess import PostProcess
-from ErrorEstimates import r2, mse
+from ErrorEstimates import r2, mse, beta_conf_intervals
 import numpy as np
 
 class ErrDisplayPostProcess(PostProcess):
@@ -8,12 +8,13 @@ class ErrDisplayPostProcess(PostProcess):
         Post process that prints the error estimates for the predictions made
     """
 
-    def __init__(self, display_r2: bool = True, display_mse: bool = True):
+    def __init__(self, display_beta_conf_interval: bool = True, display_r2: bool = True, display_mse: bool = True):
         """
             Default constructor, allows setting whether to display R2/MSE
         """
         self._display_r2 = display_r2
         self._display_mse = display_mse
+        self._display_beta_conf_interval = display_beta_conf_interval
 
     def run(self, data: tuple, design_matrices: dict, sets: dict, predictions: dict, betas: dict, degree: int):
         """
@@ -38,6 +39,15 @@ class ErrDisplayPostProcess(PostProcess):
                     for key in sets.keys():
                         if key != 'full_scaled' and 'scaled' in key:
                             print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
+                
+                if self._display_r2 and self._display_beta_conf_interval:
+                    print()
+                
+                if self._display_beta_conf_interval: 
+                    print('beta confidence interval (' + model_name + '):', beta_conf_intervals(design_matrices['full_scaled']))
+                    for key in sets.keys():
+                        if key != 'full_scaled' and 'scaled' in key:
+                            print('beta confidence interval (' + model_name + ', ' + key + ' set):', beta_conf_intervals(design_matrices[key]))
 
             else:
                 if self._display_mse:
@@ -54,7 +64,16 @@ class ErrDisplayPostProcess(PostProcess):
                     for key in sets.keys():
                         if key != 'full':
                             print('R2 Score (' + model_name + ', ' + key + ' set):', r2(sets[key], predictions[model_name][key]))
-            
+                
+                if self._display_r2 and self._display_beta_conf_interval:
+                    print()
+                
+                if self._display_beta_conf_interval: 
+                    print('beta confidence interval (' + model_name + '):', beta_conf_intervals(design_matrices['full']))
+                    for key in sets.keys():
+                        if key != 'full':
+                            print('beta confidence interval (' + model_name + ', ' + key + ' set):', beta_conf_intervals(design_matrices[key]))
+
             print('')
 
         print('---\n')

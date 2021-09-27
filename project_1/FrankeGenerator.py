@@ -48,6 +48,6 @@ class FrankeGenerator(DataGenerator):
 
         # Add optional noise
         self._franke += self._noise * rng.normal(0, 1, self._franke.shape)
-
-        return np.ravel(self._X), np.ravel(self._Y), np.ravel(self._franke)
+        
+        return np.ravel(self._X).reshape((np.ravel(self._X).shape[0], 1)), np.ravel(self._Y).reshape((np.ravel(self._Y).shape[0], 1)), np.ravel(self._franke).reshape((np.ravel(self._franke).shape[0], 1))
 

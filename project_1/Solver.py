@@ -120,7 +120,7 @@ class Solver:
             for i in range(1, self._degree + 1): # First column is 1, so we skip it
                 q = int(i * (i + 1) / 2) # 1 + 2 + ... + i
                 for k in range(i + 1):
-                    X[:, q + k] = (x1 ** (i - k)) * (x2 ** k)
+                    X[:, q + k] = (x1[:, 0] ** (i - k)) * (x2[:, 0] ** k)
         
         # Return design matrix
         return X
@@ -181,7 +181,6 @@ class Solver:
         betas = {}
         for model in self._models:
             betas[model.name] = model.interpolate(X, y)
-        print(betas)
         
         # Make predictions for all models and all subsets
         predictions = {}

@@ -31,3 +31,21 @@ def mse(y_data: np.matrix, y_model: np.matrix) -> float:
             (float) The computed Mean Squared Error, which hopefully approaches 0
     """
     return np.sum(np.power(y_data-y_model, 2)) / np.size(y_model)
+
+def beta_conf_intervals(X: np.matrix) -> np.matrix:
+    """
+        Compute confidence intervals for beta
+        
+        Parameters:
+            X (matrix): Design matrix
+        
+        Returns:
+            (vector) confidence interval for every beta
+    """ 
+    temp = np.linalg.pinv(X.T @ X) 
+    var = np.zeros(temp.shape[0])
+    
+    for i in range(var.size):
+        var[i] = temp[i, i]
+    
+    return np.sqrt(var)
