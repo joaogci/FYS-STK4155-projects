@@ -90,7 +90,7 @@ def mean_squared_error(y_data: np.matrix, y_model: np.matrix):
             (float) the computed Mean Squared Error
     """
     
-    return np.sum(np.power(y_data-y_model, 2)) / np.size(y_model)
+    return np.mean((y_data - y_model)**2)
 
 def r2_score(y_data: np.matrix, y_model: np.matrix):
     """
@@ -105,6 +105,33 @@ def r2_score(y_data: np.matrix, y_model: np.matrix):
     """
     
     return 1 - np.sum((y_data - y_model)**2) / np.sum((y_data - np.mean(y_data))**2)
+
+def bias_squared(y_data: np.matrix, y_model: np.matrix):
+    """
+        Compute bias squared
+        
+        Parameters:
+            y_data (numpy array) input data points to compare against
+            y_model (numpy array) predicted data
+            
+        Returns:
+            (float) the computed bias squared
+    """
+ 
+    return np.mean((y_data - np.mean(y_model))**2)
+
+def variance(y_model: np.matrix):
+    """ 
+        Compute variance of given data
+        
+        Parameters:
+            y_model (numpy array) predicted data
+            
+        Returns:
+            (float) the computed variance
+    """
+    
+    return np.mean((y_model - np.mean(y_model))**2)
 
 def ols(X_train, y_train):
     """
