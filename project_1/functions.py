@@ -92,7 +92,7 @@ def scale_mean_svd(X: np.matrix, y: np.matrix) -> tuple:
     """
     compute = lambda m: (m - np.mean(m)) / np.std(m)
     return compute(X), compute(y)
-    
+
 def mean_squared_error(y_data: np.matrix, y_model: np.matrix):
     """
         Compute Mean Squared Error
@@ -163,6 +163,20 @@ def ols(X_train, y_train):
     
     return np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ y_train
 
+def ridge(X: np.matrix, y: np.matrix, λ: float) -> np.matrix:
+    """
+        Given a design matri and a (training) data set, returns the beta predictor matrix to be used to make predictions
+        using Ridge regression with SVD pseudo-inverse
+
+        Parameters:
+            X (np.matrix): Design matrix
+            y (np.matrix): Target data
+        
+        Returns:
+            (np.matrix): Beta coefficients
+    """
+
+    return np.linalg.pinv(X.T @ X + λ * np.eye(X.shape[1])) @ X.T @ y
 
 
 
