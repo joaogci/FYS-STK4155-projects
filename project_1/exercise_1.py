@@ -13,8 +13,8 @@ from functions import *
 degree = 5
 a = 0
 b = 1
-n = 10
-noise = 0.1
+n = 100
+noise = 0.5
 
 # random number generator
 seed = 0
@@ -95,14 +95,14 @@ print(f"R2 test_scaled: {r2_score(z_test_scaled, z_tilde_scaled)} ")
 plt.figure("confidence intervals for beta", figsize=(7, 9), dpi=80)
 
 ax = plt.subplot(211)
-plt.errorbar(np.arange(betas.shape[0]), betas, yerr=2*conf_interval_betas, fmt='-ob', capsize=4)
+plt.errorbar(np.arange(betas.shape[0]), betas, yerr=2*conf_interval_betas, fmt='xb', capsize=4)
 plt.title("unscaled")
 plt.xlim((-1, betas.shape[0]+1))
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
 ax = plt.subplot(212)
-plt.errorbar(np.arange(betas_scaled.shape[0]), betas_scaled, yerr=2*conf_interval_betas_scaled, fmt='-ob', capsize=4)
+plt.errorbar(np.arange(betas_scaled.shape[0]), betas_scaled, yerr=2*conf_interval_betas_scaled, fmt='xb', capsize=4)
 plt.xlim((-1, betas.shape[0]+1))
 plt.title("scaled")
 plt.xlabel(r"$i$")
