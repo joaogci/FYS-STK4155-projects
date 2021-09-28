@@ -7,14 +7,14 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 from sklearn.model_selection import train_test_split
 
-from functions import *
+from functions import create_X_2D, ols, franke_function, mean_squared_error, r2_score, scale_mean
 
 # parameters
 degree = 5
 a = 0
 b = 1
-n = 100
-noise = 0.5
+n = 400
+noise = 0.25
 
 # random number generator
 seed = 0
@@ -52,13 +52,7 @@ z_pred = X_train @ betas
 z_tilde = X_test @ betas
 
 # scaling of the data (optional)
-mean_X = np.mean(X_train, axis=0)
-X_train_scaled = X_train - mean_X
-X_test_scaled = X_test - mean_X
-
-mean_z = np.mean(z_train)
-z_train_scaled = z_train - mean_z
-z_test_scaled = z_test - mean_z
+X_train_scaled, X_test_scaled, z_train_scaled, z_test_scaled = scale_mean(X_train, X_test, z_train, z_test)
 
 # fit OLS model to franke function
 betas_scaled = ols(X_train_scaled, z_train_scaled)

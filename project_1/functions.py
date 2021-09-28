@@ -50,6 +50,33 @@ def franke_function(X, Y):
     term3 = 0.5*np.exp(-(9*X-7)**2/4.0 - 0.25*((9*Y-3)**2))
     term4 = -0.2*np.exp(-(9*X-4)**2 - (9*Y-7)**2)
     return term1 + term2 + term3 + term4
+
+def scale_mean(X_train: np.matrix, X_test: np.matrix, y_train: np.matrix, y_test: np.matrix):
+    """
+        Subtracts the mean value from input data
+        
+        Parameters:
+            X_train (numpy matrix) training design matrix
+            X_test (numpy matrix) testing design matrix
+            y_train (numpy array) training target
+            y_test (numpy array) testing target
+            
+        Returns:
+            (numpy matrix) training design matrix scaled
+            (numpy matrix) testing design matrix scaled
+            (numpy array) training target scaled
+            (numpy array) testing target scaled
+    """
+    
+    mean_X = np.mean(X_train, axis=0)
+    X_train_scaled = X_train - mean_X
+    X_test_scaled = X_test - mean_X
+
+    mean_y = np.mean(y_train)
+    y_train_scaled = y_train - mean_y
+    y_test_scaled = y_test - mean_y
+    
+    return X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled
     
 def mean_squared_error(y_data: np.matrix, y_model: np.matrix):
     """
