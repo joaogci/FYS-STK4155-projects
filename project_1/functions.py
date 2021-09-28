@@ -77,6 +77,21 @@ def scale_mean(X_train: np.matrix, X_test: np.matrix, y_train: np.matrix, y_test
     y_test_scaled = y_test - mean_y
     
     return X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled
+
+def scale_mean_svd(X: np.matrix, y: np.matrix) -> tuple:
+    """
+        Subtracts the mean value and divides by the standard deviation
+
+        Parameters:
+            X (np.matrix): Design matrix
+            y (np.matrix): Outcome
+
+        Returns:
+            (np.matrix): Scaled design matrix
+            (np.matrix): Scaled outcome
+    """
+    compute = lambda m: (m - np.mean(m)) / np.std(m)
+    return compute(X), compute(y)
     
 def mean_squared_error(y_data: np.matrix, y_model: np.matrix):
     """
