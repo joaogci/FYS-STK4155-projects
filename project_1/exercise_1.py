@@ -1,11 +1,5 @@
 import numpy as np
-
 import matplotlib.pyplot as plt
-# from matplotlib import cm
-# from matplotlib.ticker import LinearLocator, FormatStrFormatter
-
-from sklearn.model_selection import train_test_split
-
 from time import time
 
 from functions import Regression
