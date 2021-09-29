@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 def create_X_2D(degree: int, X: np.matrix, Y: np.matrix):
     """
@@ -121,33 +122,6 @@ def r2_score(y_data: np.matrix, y_model: np.matrix):
     
     return 1 - np.sum((y_data - y_model)**2) / np.sum((y_data - np.mean(y_data))**2)
 
-def bias_squared(y_data: np.matrix, y_model: np.matrix):
-    """
-        Compute bias squared
-        
-        Parameters:
-            y_data (numpy array) input data points to compare against
-            y_model (numpy array) predicted data
-            
-        Returns:
-            (float) the computed bias squared
-    """
- 
-    return np.mean((y_data - np.mean(y_model))**2)
-
-def variance(y_model: np.matrix):
-    """ 
-        Compute variance of given data
-        
-        Parameters:
-            y_model (numpy array) predicted data
-            
-        Returns:
-            (float) the computed variance
-    """
-    
-    return np.mean((y_model - np.mean(y_model))**2)
-
 def ols(X_train, y_train):
     """
         Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
@@ -163,23 +137,34 @@ def ols(X_train, y_train):
     
     return np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ y_train
 
-def ridge(X: np.matrix, y: np.matrix, λ: float) -> np.matrix:
+def ridge(X: np.matrix, y: np.matrix, lmd: float) -> np.matrix:
     """
         Given a design matri and a (training) data set, returns the beta predictor matrix to be used to make predictions
         using Ridge regression with SVD pseudo-inverse
 
         Parameters:
-            X (np.matrix): Design matrix
-            y (np.matrix): Target data
+            X (numpy matrix): Design matrix
+            y (numpy array): Target data
+            lmd (float): lmd value for Ridge (if lmd == 0, then OLS)
         
         Returns:
-            (np.matrix): Beta coefficients
+            (numpy array): Beta coefficients
     """
 
-    return np.linalg.pinv(X.T @ X + λ * np.eye(X.shape[1])) @ X.T @ y
+    return np.linalg.pinv(X.T @ X + lmd * np.eye(X.shape[1])) @ X.T @ y
 
 
+class Regression():
+    
+    def __init__(self, max_degreee, n, noise, rng: np.random.Generator):
 
+        self.x = rng.uniform(0, 1, int(np.sqrt(n)))
+        self.y = rng.uniform(0, 1, int(np.sqrt(n)))
+        
+        self.z = franke_function()
+        
+        
+        
 
 
 
