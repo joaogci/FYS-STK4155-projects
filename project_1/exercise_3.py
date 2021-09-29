@@ -39,8 +39,7 @@ X_scaled = X_scaled[perm]
 z_scaled = z_scaled[perm]
 
 # k-folds
-mse_overall = np.zeros(11-5)
-mse_err = np.zeros((2, 11-5))
+mse_overall = [None] * (11-5)
 for kfolds in range(5, 11):
     kfold_size = np.floor(z_scaled.shape[0] / kfolds)
     mse = np.zeros(kfolds)
@@ -62,11 +61,9 @@ for kfolds in range(5, 11):
         mse[k] = mean_squared_error(z_test, z_tilde)
 
     print('K-folds:', kfolds, 'folds.\tAvg test MSE: %.3f' % (np.mean(mse)), '\tMin MSE: %.3f' % (np.min(mse)), '\tMax MSE: %.3f' % (np.max(mse)))
-    mse_overall[kfolds-5] = np.mean(mse)
-    mse_err[0, kfolds-5] = np.min(mse)
-    mse_err[1, kfolds-5] = np.max(mse)
+    mse_overall[kfolds-5] = mse
 
-plt.errorbar([5, 6, 7, 8, 9, 10], mse_overall, mse_err, fmt='b+')
+plt.boxplot(mse_overall, labels=range(5, 11))
 plt.xlabel('# folds')
 plt.ylabel('Mean Squared Error (OLS)')
 plt.title('Franke Function K-Folds MSEs')
