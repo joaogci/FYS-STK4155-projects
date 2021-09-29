@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from functions import create_X_2D, ols, franke_function, mean_squared_error, scale_mean_svd, bias_squared, variance
 
+# TODO: maybe compare vs sklearn k-folds
+
 # parameters
 degree = 6
 a = 0
