@@ -1,122 +1,109 @@
 import numpy as np
-import numpy.linalg as linalg
-
 import matplotlib.pyplot as plt
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from time import time
 
-from sklearn.model_selection import train_test_split
+from functions import Regression
 
-from functions import create_X_2D, ols, franke_function, mean_squared_error, r2_score, scale_mean
 
 # parameters
-degree = 5
-a = 0
-b = 1
-n = 400
-noise = 0.25
+max_degree = 15
+n = 800
+noise = 0.2
 
-# random number generator
-seed = 0
+# rng and seed
+seed = int(time())
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
-# generate x and y data
-# the generation can be randomly distributed
-x = np.linspace(a, b, n)
-y = np.linspace(a, b, n)
-# x = np.sort(rng.uniform(a, b, n))
-# y = np.sort(rng.uniform(a, b, n))
+# regression objects
+reg = Regression(max_degree, n, noise, rng, scale=False)
 
-# create a meshgrid and compute the franke function
-x, y = np.meshgrid(x, y)
-z = franke_function(x, y)
+# mse[0, :] -> scaled
+# mse[1, :] -> unscaled
+mse_train = np.zeros((2, max_degree))
+mse_test = np.zeros((2, max_degree))
+r2_train = np.zeros((2, max_degree))
+r2_test = np.zeros((2, max_degree))
 
-# add noise to the data
-z += noise * rng.normal(0, 1, z.shape)
+features_5 = int((6) * (7) / 2)
+betas_5 = np.zeros((2, features_5))
+var_betas_5 = np.zeros((2, features_5))
 
-# ravel the data 
-x_ravel = np.ravel(x).reshape((np.ravel(x).shape[0], 1))
-y_ravel = np.ravel(y).reshape((np.ravel(y).shape[0], 1))
-z_ravel = np.ravel(z).reshape((np.ravel(z).shape[0], 1))
-
-# create the design matrix
-X = create_X_2D(degree, x_ravel, y_ravel)
-
-# train test split the data
-X_train, X_test, z_train, z_test = train_test_split(X, z_ravel, test_size=0.25, random_state=seed)
-
-# fit OLS model
-betas = ols(X_train, z_train)
-# predictions
-z_pred = X_train @ betas
-z_tilde = X_test @ betas
-
-# scaling of the data (optional)
-X_train_scaled, X_test_scaled, z_train_scaled, z_test_scaled = scale_mean(X_train, X_test, z_train, z_test)
-
-# fit OLS model to franke function
-betas_scaled = ols(X_train_scaled, z_train_scaled)
-# predictions
-z_pred_scaled = X_train_scaled @ betas_scaled
-z_tilde_scaled = X_test_scaled @ betas_scaled
-
-# compute the confidence interval of the betas
-# we know that sgima^2 = diag(inv((X^T @ X)))
-conf_interval_betas = np.sqrt(np.diag(linalg.pinv(X_train.T @ X_train)))
-conf_interval_betas_scaled = np.sqrt(np.diag(linalg.pinv(X_train_scaled.T @ X_train_scaled)))
+for i, deg in enumerate(range(1, max_degree + 1)):
+    print(f"degree: {deg}/{max_degree}", end="\r")
+    
+    ( mse_train[0, i], r2_train[0, i],
+    mse_test[0, i], r2_test[0, i],
+    betas_scaled, var_betas_scaled ) = reg.ordinary_least_squares(degree=deg, scale=True)
+    
+    ( mse_train[1, i], r2_train[1, i], 
+    mse_test[1, i], r2_test[1, i],
+    betas_unscaled, var_betas_unscaled ) = reg.ordinary_least_squares(degree=deg, scale=False)
+    
+    # save betas and var_betas
+    if deg == 5:
+        betas_5[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
+        betas_5[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
+        var_betas_5[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
+        var_betas_5[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
 
 
-# prints
-print(f"betas:        {betas.T}")
-print(f"confidence interval: {conf_interval_betas.T}")
-print()
-print(f"betas_scaled: {betas_scaled.T}")
-print(f"confidence interval: {conf_interval_betas_scaled.T}")
-print()
-print("Unscaled: ")
-print(f"MSE train: {mean_squared_error(z_train, z_pred)} ")
-print(f"R2 train: {r2_score(z_train, z_pred)} ")
-print(f"MSE test: {mean_squared_error(z_test, z_tilde)} ")
-print(f"R2 test: {r2_score(z_test, z_tilde)} ")
-print("Scaled: ")
-print(f"MSE train_scaled: {mean_squared_error(z_train_scaled, z_pred_scaled)} ")
-print(f"R2 train_scaled: {r2_score(z_train_scaled, z_pred_scaled)} ")
-print(f"MSE test_scaled: {mean_squared_error(z_test_scaled, z_tilde_scaled)} ")
-print(f"R2 test_scaled: {r2_score(z_test_scaled, z_tilde_scaled)} ")
-
-
-# confidence interval plots
-plt.figure("confidence intervals for beta", figsize=(7, 9), dpi=80)
+# confidence interval beta values plots
+plt.figure("Confidence intervals for beta values", figsize=(7, 9), dpi=80)
 
 ax = plt.subplot(211)
-plt.errorbar(np.arange(betas.shape[0]), betas, yerr=2*conf_interval_betas, fmt='xb', capsize=4)
-plt.title("unscaled")
-plt.xlim((-1, betas.shape[0]+1))
+plt.errorbar(np.arange(betas_5[0, :].shape[0]), betas_5[0], yerr=2*var_betas_5[0, :], fmt='xb', capsize=4)
+plt.title("scaled")
+plt.xlim((-1, betas_5[0].shape[0]+1))
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
 ax = plt.subplot(212)
-plt.errorbar(np.arange(betas_scaled.shape[0]), betas_scaled, yerr=2*conf_interval_betas_scaled, fmt='xb', capsize=4)
-plt.xlim((-1, betas.shape[0]+1))
-plt.title("scaled")
+plt.errorbar(np.arange(betas_5[1, :].shape[0]), betas_5[1, :], yerr=2*var_betas_5[1, :], fmt='xb', capsize=4)
+plt.xlim((-1, betas_5[1, :].shape[0]+1))
+plt.title("unscaled scaled")
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
+degrees = np.arange(1, max_degree + 1)
+
+# plot MSE and R2 over complexity
+plt.figure("MSE and R2 vs complexity", figsize=(11, 9), dpi=80)
+
+# MSE scaled
+plt.subplot(221)
+plt.plot(degrees, mse_train[0, :], '-k', label="train")
+plt.plot(degrees, mse_test[0, :], '--k', label="test")
+plt.title("MSE scaled")
+plt.xlabel(r"complexity")
+plt.ylabel(r"MSE")
+plt.legend()
+
+# MSE unscaled
+plt.subplot(222)
+plt.plot(degrees, mse_train[1, :], '-k', label="train")
+plt.plot(degrees, mse_test[1, :], '--k', label="test")
+plt.title("MSE unscaled")
+plt.xlabel(r"complexity")
+plt.ylabel(r"MSE")
+plt.legend()
+
+# R2 scaled
+plt.subplot(223)
+plt.plot(degrees, r2_train[0, :], '-k', label="train")
+plt.plot(degrees, r2_test[0, :], '--k', label="test")
+plt.title("R2 scaled")
+plt.xlabel(r"complexity")
+plt.ylabel(r"R2")
+plt.legend()
+
+# R2 unscaled
+plt.subplot(224)
+plt.plot(degrees, r2_train[1, :], '-k', label="train")
+plt.plot(degrees, r2_test[1, :], '--k', label="test")
+plt.title("R2 unscaled")
+plt.xlabel(r"complexity")
+plt.ylabel(r"R2")
+plt.legend()
+
 plt.show()
-
-# plot the franke function
-fig = plt.figure("Franke Function", figsize=(8, 6), dpi=80)
-ax = plt.axes(projection='3d')
-
-# Plot the surface.
-surf = ax.plot_surface(x, y, z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
-# Customize the z axis.
-ax.set_zlim(-0.10, 1.40)
-ax.zaxis.set_major_locator(LinearLocator(10))
-ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
-# Add a color bar which maps values to colors.
-fig.colorbar(surf, shrink=0.5, aspect=5)
-
-# plt.show()
-
 

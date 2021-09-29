@@ -1,5 +1,8 @@
 import numpy as np
 
+from sklearn.model_selection import train_test_split
+from sklearn.utils import resample
+
 def create_X_2D(degree: int, X: np.matrix, Y: np.matrix):
     """
         Create the design matrix in the form of a Vandermonde matrix for one or two
@@ -121,65 +124,128 @@ def r2_score(y_data: np.matrix, y_model: np.matrix):
     
     return 1 - np.sum((y_data - y_model)**2) / np.sum((y_data - np.mean(y_data))**2)
 
-def bias_squared(y_data: np.matrix, y_model: np.matrix):
+def ols(X: np.matrix, y: np.matrix, lmd: float = 0) -> np.matrix:
     """
-        Compute bias squared
-        
-        Parameters:
-            y_data (numpy array) input data points to compare against
-            y_model (numpy array) predicted data
-            
-        Returns:
-            (float) the computed bias squared
-    """
- 
-    return np.mean((y_data - np.mean(y_model))**2)
+        Given a design matrix and a data set, returns the beta predictor array to be used to make predictions
+        using OLS or Ridge regression with SVD pseudo-inverse
 
-def variance(y_model: np.matrix):
-    """ 
-        Compute variance of given data
-        
         Parameters:
-            y_model (numpy array) predicted data
-            
+            X (numpy matrix): Design matrix
+            y (numpy array): Target data
+            lmd (float): lmd value for Ridge (if lmd == 0, then OLS)
+        
         Returns:
-            (float) the computed variance
+            (numpy array): Beta coefficients
     """
+
+    return np.linalg.pinv(X.T @ X + lmd * np.eye(X.shape[1])) @ X.T @ y
+
+
+class Regression():
     
-    return np.mean((y_model - np.mean(y_model))**2)
+    def __init__(self, max_degree: int, n: int, noise: float, rng: np.random.Generator, scale: bool = True):
+        """
+            Regression class
+            
+            Creates the design matrix, generates the data from the Franke function in a random uniform interval [0, 1).
+            Also adds noise to the data, sampled over a normal distribution (N(0, noise))
+            
+            Parameters:
+                max_degree (int): max polynomila degree to fit
+                n (int): number of data points
+                noise (float): variance for the noise
+                rng (numpy Generator): random number generator
+                scale (bool): wheter to scale or not the data
+        """
+        
+        self.max_degree = max_degree
+        self.rng = rng
+        
+        self.x = rng.uniform(0, 1, (n, 1))
+        self.y = rng.uniform(0, 1, (n, 1))
+        
+        self.z = franke_function(self.x, self.y)
+        self.z += noise * rng.normal(0, 1, self.z.shape)
+        
+        self.X_max_deg = create_X_2D(max_degree, self.x, self.y)
+        self.X_train_, self.X_test_, self.z_train, self.z_test = train_test_split(self.X_max_deg, self.z, test_size=0.25)
+        
+        self._scaled = False
+        if scale:
+            self.X_train_, self.X_test_, self.z_train, self.z_test = scale_mean(self.X_train_, self.X_test_, self.z_train, self.z_test)
+            self._scaled = True
+            
+    def ordinary_least_squares(self, degree: int, scale: bool = True):
+        """
+            Ordrinary Least Squares function
+        """
+        
+        if not self._scaled and scale:
+            X_train_, X_test_, z_train, z_test = scale_mean(self.X_train_, self.X_test_, self.z_train, self.z_test)
+            X_train = X_train_[:, :self._n_features(degree)]
+            X_test = X_test_[:, :self._n_features(degree)]
+        else:
+            X_train = self.X_train_[:, :self._n_features(degree)]
+            X_test = self.X_test_[:, :self._n_features(degree)]
+            z_train = self.z_train
+            z_test = self.z_test
+        
+        betas = ols(X_train, z_train)
+        var_betas = np.diag(np.linalg.pinv(X_test.T @ X_test))
+        
+        z_pred = X_train @ betas
+        z_tilde = X_test @ betas
+        
+        mse_train = mean_squared_error(z_train, z_pred)
+        mse_test = mean_squared_error(z_test, z_tilde)
+        r2_train = r2_score(z_train, z_pred)
+        r2_test = r2_score(z_test, z_tilde)
+        
+        return mse_train, r2_train, mse_test, r2_test, betas, var_betas
 
-def ols(X_train, y_train):
-    """
-        Given a design matrix and a (training) data set, returns an evaluator function object that can be given additional data to make predictions
-        Predictions will be based off OLS for this model
+    def bootstrap(self, degree: int, max_bootstrap_cycle: int):
+        """
+            Bootstrap function
+        """
+
+        X_train = self.X_train_[:, :self._n_features(degree)]
+        X_test = self.X_test_[:, :self._n_features(degree)]
         
-        Parameters:
-            X_train (numpy matrix) design matrix for training
-            y_train (numpy array) target data for traning
+        z_tilde_all = np.zeros((self.z_test.shape[0], max_bootstrap_cycle))
         
-        Returns:
-            (numpy array) optimal coefficients (beta) of the linear regression
-    """ 
+        for bootstrap_cycle in range(max_bootstrap_cycle):
+            print(f"bootstrap cycle {bootstrap_cycle+1}/{max_bootstrap_cycle} with degree {degree}/{self.max_degree} ", end="\r")
+            
+            # split and scale the data
+            X_train_resampled, z_train_resampled = resample(X_train, self.z_train)
+            
+            # fit OLS model to franke function
+            betas = ols(X_train_resampled, z_train_resampled)
+            # predictions
+            z_tilde_all[:, bootstrap_cycle] = (X_test @ betas).reshape((self.z_test.shape[0], ))
+            
+        # compute MSE, BIAS and VAR
+        mse_test = mean_squared_error(self.z_test, z_tilde_all)
+        bias = np.mean((self.z_test.reshape(self.z_test.shape[0], ) - np.mean(z_tilde_all, axis=1))**2)
+        var = np.mean(np.var(z_tilde_all, axis=1))
+        
+        return mse_test, bias, var
     
-    return np.linalg.pinv(X_train.T @ X_train) @ X_train.T @ y_train
-
-def ridge(X: np.matrix, y: np.matrix, λ: float) -> np.matrix:
-    """
-        Given a design matri and a (training) data set, returns the beta predictor matrix to be used to make predictions
-        using Ridge regression with SVD pseudo-inverse
-
-        Parameters:
-            X (np.matrix): Design matrix
-            y (np.matrix): Target data
+    def _n_features(self, deg: int):
+        """
+            Returns the number of features for the design matrix when we fit a deg polynomial
+            
+            Parameters:
+                deg (int): degree of fitting polynomial
+                
+            Returns:
+                (int) number of features
+        """
+        return int((deg + 1) * (deg + 2) / 2)
+    
         
-        Returns:
-            (np.matrix): Beta coefficients
-    """
-
-    return np.linalg.pinv(X.T @ X + λ * np.eye(X.shape[1])) @ X.T @ y
-
-
-
+        
+        
 
 
 
