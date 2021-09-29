@@ -10,7 +10,7 @@ from sklearn.utils import resample
 
 from time import time
 
-from functions import create_X_2D, ols, franke_function, mean_squared_error, r2_score, scale_mean#, bias_squared, variance
+from functions import create_X_2D, ols, franke_function, mean_squared_error, scale_mean
 
 
 # parameters
