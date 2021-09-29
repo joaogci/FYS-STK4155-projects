@@ -7,43 +7,39 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 from sklearn.model_selection import train_test_split
 
+from time import time
+
 from functions import create_X_2D, ols, franke_function, mean_squared_error, r2_score, scale_mean
 
 # parameters
 degree = 5
 a = 0
 b = 1
-n = 400
-noise = 0.25
+n = 800
+noise = 0.2
 
 # random number generator
-seed = 0
+seed = int(time())
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
 # generate x and y data
 # the generation can be randomly distributed
-x = np.linspace(a, b, n)
-y = np.linspace(a, b, n)
-# x = np.sort(rng.uniform(a, b, n))
-# y = np.sort(rng.uniform(a, b, n))
+# x = np.linspace(a, b, (n, 1))
+# y = np.linspace(a, b, (n, 1))
+x = rng.uniform(a, b, (n, 1))
+y = rng.uniform(a, b, (n, 1))
 
-# create a meshgrid and compute the franke function
-x, y = np.meshgrid(x, y)
+# compute the franke function
 z = franke_function(x, y)
 
 # add noise to the data
 z += noise * rng.normal(0, 1, z.shape)
 
-# ravel the data 
-x_ravel = np.ravel(x).reshape((np.ravel(x).shape[0], 1))
-y_ravel = np.ravel(y).reshape((np.ravel(y).shape[0], 1))
-z_ravel = np.ravel(z).reshape((np.ravel(z).shape[0], 1))
-
 # create the design matrix
-X = create_X_2D(degree, x_ravel, y_ravel)
+X = create_X_2D(degree, x, y)
 
 # train test split the data
-X_train, X_test, z_train, z_test = train_test_split(X, z_ravel, test_size=0.25, random_state=seed)
+X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.25)
 
 # fit OLS model
 betas = ols(X_train, z_train)
@@ -64,7 +60,6 @@ z_tilde_scaled = X_test_scaled @ betas_scaled
 # we know that sgima^2 = diag(inv((X^T @ X)))
 conf_interval_betas = np.sqrt(np.diag(linalg.pinv(X_train.T @ X_train)))
 conf_interval_betas_scaled = np.sqrt(np.diag(linalg.pinv(X_train_scaled.T @ X_train_scaled)))
-
 
 # prints
 print(f"betas:        {betas.T}")
