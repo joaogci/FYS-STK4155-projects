@@ -9,11 +9,11 @@ import math
 
 
 # Terrain files included in res/
-TERRAIN_1 = 'SRTM_data_Norway_1.tif'
-TERRAIN_2 = 'SRTM_data_Norway_2.tif'
+TERRAIN_1 = 'SRTM_data_Norway_1'
+TERRAIN_2 = 'SRTM_data_Norway_2'
 
 
-def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, sparse_sample: float = 0.5, plot: bool = False) -> np.matrix:
+def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True) -> np.matrix:
     """
         From an image filename, loads the terrain matrix with optional downsampling
 
@@ -27,6 +27,7 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
             rng (np.random.Generator|None): Random number generator to use to sample the input data non linearly (None to sample linearly)
             sparse_sample (float): If rng is not None, the fraction of data points to keep out of the initial data
             plot (bool): Whether to show a 3D plot of the input data before returning the results
+            show_plot (bool): Whether to call matplotlib.pyplot.show() after generating the plot; unused if plot == False
 
         Returns:
             (np.matrix): Numpy array of Xs
@@ -35,7 +36,7 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
     """
 
     # Load full res image
-    terrain = imread('res/' + name)
+    terrain = imread('res/' + name + '.tif')
 
     # Select the biggest possible square shape
     N = min(terrain.shape[0], terrain.shape[1])
@@ -84,9 +85,11 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
         plt.title(name)
         plt.xlabel('x')
         plt.ylabel('y')
-        plt.show()
+        if show_plot:
+            plt.show()
 
-    return np.ravel(x), np.ravel(y), np.ravel(terrain)
+    ravel = lambda m: np.ravel(m).reshape((np.ravel(m).shape[0], 1))
+    return ravel(x), ravel(y), ravel(terrain)
 
 
 # If running the script directly, show a plot of the 1st terrain file
