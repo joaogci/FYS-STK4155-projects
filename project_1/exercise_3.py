@@ -4,8 +4,10 @@ import matplotlib.pyplot as plt
 
 from functions import create_X_2D, ols, franke_function, mean_squared_error, scale_mean_svd, bias_squared, variance
 
+# TODO: maybe compare vs sklearn k-folds
+
 # parameters
-degree = 10
+degree = 6
 a = 0
 b = 1
 n = 500
@@ -39,8 +41,7 @@ X_scaled = X_scaled[perm]
 z_scaled = z_scaled[perm]
 
 # k-folds
-mse_overall = np.zeros(11-5)
-mse_err = np.zeros(11-5)
+mse_overall = [None] * (11-5)
 for kfolds in range(5, 11):
     kfold_size = np.floor(z_scaled.shape[0] / kfolds)
     mse = np.zeros(kfolds)
@@ -61,11 +62,10 @@ for kfolds in range(5, 11):
 
         mse[k] = mean_squared_error(z_test, z_tilde)
 
-    print('K-folds:', kfolds, 'folds. Avg test MSE:', np.mean(mse))
-    mse_overall[kfolds-5] = np.mean(mse)
-    mse_err[kfolds-5] = np.max(mse) - np.min(mse)
+    print('K-folds:', kfolds, 'folds.\tAvg test MSE: %.3f' % (np.mean(mse)), '\tMin MSE: %.3f' % (np.min(mse)), '\tMax MSE: %.3f' % (np.max(mse)))
+    mse_overall[kfolds-5] = mse
 
-plt.errorbar([5, 6, 7, 8, 9, 10], mse_overall, mse_err, fmt='k+')
+plt.boxplot(mse_overall, labels=range(5, 11))
 plt.xlabel('# folds')
 plt.ylabel('Mean Squared Error (OLS)')
 plt.title('Franke Function K-Folds MSEs')
