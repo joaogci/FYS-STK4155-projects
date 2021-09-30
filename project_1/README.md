@@ -1,11 +1,11 @@
 # Project 1 - Fitting linear models to the Franke function
 
-## Confusion (NEED TO FIX)
-
-When scaling (without std), i.e., only "supposedly" removing the mean, the predictions are correct, but when plotting the actual polynomial using the beta-values, we get a wrong result.
-
 ## TODO: 
- * Resampling (bootstraping and cross-validation)
+ * Update bootstrap method to work with Lasso and Ridge
+ * Add a Cross Validation method
+ * Refractor exercise 3, 4 and 5 to work with the new class
+ * Add more data sizes to exercises 1 and 2, for a comparison between data set sizes
+ * Start thinking about the repost
  
 ## Examples
 
