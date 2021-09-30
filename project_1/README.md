@@ -5,7 +5,7 @@
  * Add a Cross Validation method
  * Refractor exercise 3, 4 and 5 to work with the new class
  * Add more data sizes to exercises 1 and 2, for a comparison between data set sizes
- * Start thinking about the repost
+ * Start thinking about the report
  
 ## Examples
 
