@@ -161,6 +161,7 @@ class Regression():
         self.max_degree = max_degree
         self.rng = rng
         self.noise = noise
+        self.data_points = n
         
         self.x = rng.uniform(0, 1, (n, 1))
         self.y = rng.uniform(0, 1, (n, 1))
@@ -215,7 +216,7 @@ class Regression():
         z_tilde_all = np.zeros((self.z_test.shape[0], max_bootstrap_cycle))
         
         for bootstrap_cycle in range(max_bootstrap_cycle):
-            print(f"bootstrap cycle {bootstrap_cycle+1}/{max_bootstrap_cycle} with degree {degree}/{self.max_degree} ", end="\r")
+            print(f"n={self.data_points} | bootstrap cycle {bootstrap_cycle+1}/{max_bootstrap_cycle} with degree {degree}/{self.max_degree} ", end="\r")
             
             # split and scale the data
             X_train_resampled, z_train_resampled = resample(X_train, self.z_train)
