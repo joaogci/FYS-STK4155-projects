@@ -26,7 +26,7 @@ r2_test = np.zeros((2, max_degree))
 
 features_5 = int((6) * (7) / 2)
 betas_5 = np.zeros((2, features_5))
-var_betas_5 = np.zeros((2, features_5))
+std_betas_5 = np.zeros((2, features_5))
 
 for i, deg in enumerate(range(1, max_degree + 1)):
     print(f"degree: {deg}/{max_degree}", end="\r")
@@ -43,22 +43,22 @@ for i, deg in enumerate(range(1, max_degree + 1)):
     if deg == 5:
         betas_5[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
         betas_5[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
-        var_betas_5[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
-        var_betas_5[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
+        std_betas_5[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
+        std_betas_5[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
 
 
 # confidence interval beta values plots
 plt.figure("Confidence intervals for beta values", figsize=(7, 9), dpi=80)
 
 ax = plt.subplot(211)
-plt.errorbar(np.arange(betas_5[0, :].shape[0]), betas_5[0], yerr=2*var_betas_5[0, :], fmt='xb', capsize=4)
+plt.errorbar(np.arange(betas_5[0, :].shape[0]), betas_5[0], yerr=2*std_betas_5[0, :], fmt='xb', capsize=4)
 plt.title("scaled")
 plt.xlim((-1, betas_5[0].shape[0]+1))
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
 ax = plt.subplot(212)
-plt.errorbar(np.arange(betas_5[1, :].shape[0]), betas_5[1, :], yerr=2*var_betas_5[1, :], fmt='xb', capsize=4)
+plt.errorbar(np.arange(betas_5[1, :].shape[0]), betas_5[1, :], yerr=2*std_betas_5[1, :], fmt='xb', capsize=4)
 plt.xlim((-1, betas_5[1, :].shape[0]+1))
 plt.title("unscaled scaled")
 plt.xlabel(r"$i$")

@@ -160,6 +160,7 @@ class Regression():
         
         self.max_degree = max_degree
         self.rng = rng
+        self.noise = noise
         
         self.x = rng.uniform(0, 1, (n, 1))
         self.y = rng.uniform(0, 1, (n, 1))
@@ -191,7 +192,7 @@ class Regression():
             z_test = self.z_test
         
         betas = ols(X_train, z_train)
-        var_betas = np.diag(np.linalg.pinv(X_test.T @ X_test))
+        var_betas = self.noise**2 * np.diag(np.linalg.pinv(X_test.T @ X_test))
         
         z_pred = X_train @ betas
         z_tilde = X_test @ betas
@@ -223,7 +224,7 @@ class Regression():
             betas = ols(X_train_resampled, z_train_resampled)
             # predictions
             z_tilde_all[:, bootstrap_cycle] = (X_test @ betas).reshape((self.z_test.shape[0], ))
-            
+
         # compute MSE, BIAS and VAR
         mse_test = mean_squared_error(self.z_test, z_tilde_all)
         bias = np.mean((self.z_test.reshape(self.z_test.shape[0], ) - np.mean(z_tilde_all, axis=1))**2)
