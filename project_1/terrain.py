@@ -13,7 +13,7 @@ TERRAIN_1 = 'SRTM_data_Norway_1'
 TERRAIN_2 = 'SRTM_data_Norway_2'
 
 
-def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True) -> np.matrix:
+def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, scissor: float = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True) -> np.matrix:
     """
         From an image filename, loads the terrain matrix with optional downsampling
 
@@ -25,6 +25,7 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
             min_z (float|None): Desired minimum Z to use in order to scale the input data; if None, won't scale
             max_z (float|None): Desired maximum Z to use in order to scale the input data; if None, won't scale
             rng (np.random.Generator|None): Random number generator to use to sample the input data non linearly (None to sample linearly)
+            scissor (float|None): If !None, the fraction of the normal terrain to keep (cropping out the rest)
             sparse_sample (float): If rng is not None, the fraction of data points to keep out of the initial data
             plot (bool): Whether to show a 3D plot of the input data before returning the results
             show_plot (bool): Whether to call matplotlib.pyplot.show() after generating the plot; unused if plot == False
@@ -36,11 +37,16 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
     """
 
     # Load full res image
-    terrain = imread('res/' + name + '.tif')
+    terrain = np.matrix(imread('res/' + name + '.tif'))
 
     # Select the biggest possible square shape
     N = min(terrain.shape[0], terrain.shape[1])
     terrain = terrain[:N, :N]
+
+    # Crop it if necessary
+    if scissor is not None:
+        N = int(N*scissor)
+        terrain = terrain[:N, :N]
 
     # Downsample if needed
     if downsample > 0 and downsample < 1:
@@ -78,7 +84,7 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
         fig = plt.figure(name)
         ax = plt.axes(projection='3d')
         surf = ax.plot_surface(x, y, terrain, cmap=cm.gray, linewidth=0, antialiased=True)
-        ax.set_zlim(np.min(terrain)-1, np.max(terrain)+1)
+        ax.set_zlim([np.min(terrain)-1, np.max(terrain)+1])
         ax.zaxis.set_major_locator(LinearLocator(10))
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
         fig.colorbar(surf, shrink=0.5, aspect=5)

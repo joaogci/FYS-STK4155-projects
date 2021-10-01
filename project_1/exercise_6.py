@@ -8,16 +8,18 @@ import matplotlib.pyplot as plt
 
 
 # constants
-max_degree = 15
-downsample = 0.5
+max_degree = 50
+scissor=0.05 # crop data
+downsample = 0.5 # downsample data
 terrain_set = TERRAIN_1
 seed = 0
-noise = 0.2 # a constant that's used to assume the std
+noise = 1.0 # a constant that's used to assume the std
 
 
 # Load data set
 # TODO: enable random sampling with rng=True to see the difference
-x, y, z = load_terrain(terrain_set, downsample=downsample, rng=None, plot=True, show_plot=False)
+x, y, z = load_terrain(terrain_set, downsample=downsample, rng=None, plot=True, scissor=scissor, show_plot=False)
+print(x.shape[0]**2, 'datapoints')
 
 # RNG
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
@@ -28,7 +30,9 @@ reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z)
 
 
 # -------------------------------
-# EXERCISE 1 SNIPPET (unmodified)
+# Predictions for degrees 1..max_degree
+# With and without scaling, split into train/test
+# Computing confidence intervals for beta values for last degree
 # -------------------------------
 
 # mse[0, :] -> scaled
@@ -38,9 +42,9 @@ mse_test = np.zeros((2, max_degree))
 r2_train = np.zeros((2, max_degree))
 r2_test = np.zeros((2, max_degree))
 
-features_5 = int((6) * (7) / 2)
-betas_5 = np.zeros((2, features_5))
-std_betas_5 = np.zeros((2, features_5))
+features_last = int((max_degree + 1) * (max_degree + 2) / 2)
+betas_last = np.zeros((2, features_last))
+std_betas_last = np.zeros((2, features_last))
 
 for i, deg in enumerate(range(1, max_degree + 1)):
     print(f"degree: {deg}/{max_degree}", end="\r")
@@ -54,26 +58,26 @@ for i, deg in enumerate(range(1, max_degree + 1)):
     betas_unscaled, var_betas_unscaled ) = reg.ordinary_least_squares(degree=deg, scale=False)
     
     # save betas and var_betas
-    if deg == 5:
-        betas_5[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
-        betas_5[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
-        std_betas_5[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
-        std_betas_5[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
+    if deg == max_degree:
+        betas_last[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
+        betas_last[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
+        std_betas_last[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
+        std_betas_last[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
 
 
 # confidence interval beta values plots
 plt.figure("Confidence intervals for beta values", figsize=(7, 9), dpi=80)
 
 ax = plt.subplot(211)
-plt.errorbar(np.arange(betas_5[0, :].shape[0]), betas_5[0], yerr=2*std_betas_5[0, :], fmt='xb', capsize=4)
+plt.errorbar(np.arange(betas_last[0, :].shape[0]), betas_last[0], yerr=2*std_betas_last[0, :], fmt='xb', capsize=4)
 plt.title("scaled")
-plt.xlim((-1, betas_5[0].shape[0]+1))
+plt.xlim((-1, betas_last[0].shape[0]+1))
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
 ax = plt.subplot(212)
-plt.errorbar(np.arange(betas_5[1, :].shape[0]), betas_5[1, :], yerr=2*std_betas_5[1, :], fmt='xb', capsize=4)
-plt.xlim((-1, betas_5[1, :].shape[0]+1))
+plt.errorbar(np.arange(betas_last[1, :].shape[0]), betas_last[1, :], yerr=2*std_betas_last[1, :], fmt='xb', capsize=4)
+plt.xlim((-1, betas_last[1, :].shape[0]+1))
 plt.title("unscaled scaled")
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
@@ -118,6 +122,9 @@ plt.title("R2 unscaled")
 plt.xlabel(r"complexity")
 plt.ylabel(r"R2")
 plt.legend()
+
+# Prediction
+plot_prediction_3D(betas_last[0], max_degree, name=terrain_set + ' OLS prediction (degree ' + str(max_degree) + ' polynomial)')
 
 plt.show()
 
