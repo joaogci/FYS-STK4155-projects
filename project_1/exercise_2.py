@@ -17,7 +17,7 @@ seed = int(time())
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
 # plot bias-variance trade-off
-plt.figure("bias-variance trade-off")
+plt.figure("bias-variance trade-off", figsize=(11, 9), dpi=80)
 
 # bootstrap for bias and var
 for j, n in enumerate(n_vals):

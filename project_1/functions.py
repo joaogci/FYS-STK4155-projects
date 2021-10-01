@@ -1,6 +1,6 @@
 import numpy as np
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.utils import resample
 
 def create_X_2D(degree: int, X: np.matrix, Y: np.matrix):
@@ -210,6 +210,7 @@ class Regression():
             Bootstrap function
         """
 
+        # select wanted features
         X_train = self.X_train_[:, :self._n_features(degree)]
         X_test = self.X_test_[:, :self._n_features(degree)]
         
@@ -232,6 +233,38 @@ class Regression():
         var = np.mean(np.var(z_tilde_all, axis=1))
         
         return mse_test, bias, var
+    
+    def k_folds_cross_validation(self, degree: int, n_folds: int):
+        """
+            K Folds cross validation
+        """
+        
+        # select wanted features
+        X = self.X_max_deg[:, :self._n_features(degree)]
+
+        # initialize KFold object
+        kfolds = KFold(n_splits=n_folds)
+        
+        # perform the cross-validation to estimate MSE
+        scores_KFold = np.zeros(n_folds)
+
+        i = 0
+        for train_inds, test_inds in kfolds.split(X):
+            # select k_folds data
+            X_train = X[train_inds, :]
+            z_train = self.z[train_inds]
+
+            X_test = X[test_inds, :]
+            z_test = self.z[test_inds]
+
+            # model and prediction
+            betas = ols(X_train, z_train)
+            z_tilde = X_test @ betas
+
+            scores_KFold[i] = mean_squared_error(z_test, z_tilde)
+            i += 1
+        
+        return np.mean(scores_KFold)
     
     def _n_features(self, deg: int):
         """
