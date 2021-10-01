@@ -1,100 +1,72 @@
 import numpy as np
-import numpy.linalg as linalg
-
 import matplotlib.pyplot as plt
+from time import time
 
-from sklearn.model_selection import train_test_split
-from sklearn.utils import resample
+from functions import Regression
 
-from functions import create_X_2D, ridge, franke_function, mean_squared_error, r2_score, scale_mean_svd, bias_squared, variance
 
 # parameters
-degree = 5
-max_bootstrap_cycle = 15
-kfolds = 5
-a = 0
-b = 1
-n = 50
+max_degree = 15
+degrees = np.arange(1, max_degree + 1)
+n = 400
 noise = 0.2
-λ_min = -12
-λ_max = 2
-λ_steps = 2
+max_bootstrap = 15
+n_folds = 5
+lambdas = np.logspace(-4, 3, 30)
+n_lambdas = lambdas.shape[0]
 
-# random number generator
-seed = 0
+# rng and seed
+seed = int(time())
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
+# regression object
+reg = Regression(max_degree, n, noise, rng)
 
-# generate x and y data
-x = np.sort(rng.uniform(a, b, n))
-y = np.sort(rng.uniform(a, b, n))
+"""
+mse = np.zeros((n_lambdas, max_degree))
+bias = np.zeros((n_lambdas, max_degree))
+var = np.zeros((n_lambdas, max_degree))
 
-# create a meshgrid and compute the franke function + noise
-x, y = np.meshgrid(x, y)
-z = franke_function(x, y)
-z += noise * rng.normal(0, 1, z.shape)
+# bootstrap for bias and var
+for j, deg in enumerate(degrees):
+    for i, lmd in enumerate(lambdas):
+        mse[i, j], bias[i, j], var[i, j] = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap, lmd=lmd)
 
-# ravel the data 
-x_ravel = np.ravel(x).reshape((np.ravel(x).shape[0], 1))
-y_ravel = np.ravel(y).reshape((np.ravel(y).shape[0], 1))
-z_ravel = np.ravel(z).reshape((np.ravel(z).shape[0], 1))
+# plot bias-variance trade-off
+# plt.figure(1, figsize=(11, 9), dpi=80)
 
-# design matrix, split and scaled
-X = create_X_2D(degree, x_ravel, y_ravel)
-X_scaled, z_scaled = scale_mean_svd(X, z_ravel)
+# L, D = np.meshgrid(lambdas, degrees)
+# plt.contour(lambdas, degrees, mse)
+# plt.ylabel("degrees")
+# plt.xlabel("lambdas")
 
-# Shuffle data
-perm = rng.permuted(np.arange(0, x.shape[0]))
-X_scaled = X_scaled[perm]
-z_scaled = z_scaled[perm]
+plt.figure(2, figsize=(11, 9), dpi=80)
 
-# Ridge regression over various values of λ
-λ_count = (λ_max - λ_min) * λ_steps
-mse_b = np.zeros(λ_count)
-mse_k = np.zeros(λ_count)
-lambdas = np.logspace(λ_min, λ_max, λ_count)
-for i, λ in enumerate(lambdas):
+L, D = np.meshgrid(degrees, lambdas)
+plt.contourf(np.log10(lambdas), degrees, mse.T)
+plt.ylabel("degrees",fontsize=14)
+plt.xlabel("lambdas",fontsize=14)
+plt.colorbar()
+"""
+# plt.show()
 
-    # loop over bootstrap cycles
-    bootstrap_mse = np.zeros(max_bootstrap_cycle)
-    for bootstrap_cycle in range(max_bootstrap_cycle):
 
-        # split the data & resample
-        X_train, X_test, z_train, z_test = train_test_split(X_scaled, z_scaled, test_size=0.25)
-        X_train, z_train = resample(X_train, z_train)
-        
-        # fit OLS model to franke function
-        betas = ridge(X_train, z_train, λ)
-        # prediction
-        z_tilde = X_test @ betas
+# plot bias-variance trade-off
+# plt.figure("k-folds cross validation for ridge", figsize=(11, 9), dpi=80)
 
-        bootstrap_mse[bootstrap_cycle] = mean_squared_error(z_test, z_tilde)
-    mse_b[i] = np.mean(bootstrap_mse)
+# cross validation
+mse = np.zeros((n_lambdas, max_degree))
 
-    # K-Folds CV
-    kfold_size = np.floor(z_scaled.shape[0] / kfolds)
-    kfold_mse = np.zeros(kfolds)
-    for k in range(kfolds):
+for j, deg in enumerate(degrees):
+    for i, lmd in enumerate(lambdas):
+        mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=5, lmd=lmd)
 
-        # Split up into training/testing sets
-        train_idx = np.concatenate((np.arange(0, k * kfold_size, dtype=int), np.arange((k+1) * kfold_size, kfolds * kfold_size, dtype=int)))
-        test_idx = np.arange(k * kfold_size, (k+1) * kfold_size, dtype=int)
-        X_train = X_scaled[train_idx]
-        z_train = z_scaled[train_idx]
-        X_test = X_scaled[test_idx]
-        z_test = z_scaled[test_idx]
+plt.figure(2, figsize=(11, 9), dpi=80)
 
-        # fit OLS model to franke function
-        betas = ridge(X_train, z_train, λ)
-        # prediction
-        z_tilde = X_test @ betas
+L, D = np.meshgrid(degrees, lambdas)
+plt.contourf(np.log10(lambdas), degrees, mse.T)
+plt.ylabel("degrees",fontsize=14)
+plt.xlabel("lambdas",fontsize=14)
+plt.colorbar()
 
-        kfold_mse[k] = mean_squared_error(z_test, z_tilde)
-    mse_k[i] = np.mean(kfold_mse)
-
-plt.errorbar(np.log10(lambdas), mse_b, label='Bootstrap MSEs')
-plt.errorbar(np.log10(lambdas), mse_k, label='K-Fold MSE')
-plt.title('Bootstrap & K-Fold MSE over various λ values in ridge regression on the Franke Function')
-plt.legend()
-plt.xlabel('log10(λ)')
-plt.ylabel('MSE')
 plt.show()
+

@@ -1,5 +1,6 @@
 import numpy as np
 
+from sklearn.linear_model import Lasso
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.utils import resample
 
@@ -151,7 +152,7 @@ class Regression():
             Also adds noise to the data, sampled over a normal distribution (N(0, noise))
             
             Parameters:
-                max_degree (int): max polynomila degree to fit
+                max_degree (int): max polynomial degree to fit
                 n (int): number of data points
                 noise (float): variance for the noise
                 rng (numpy Generator): random number generator
@@ -205,9 +206,14 @@ class Regression():
         
         return mse_train, r2_train, mse_test, r2_test, betas, var_betas
 
-    def bootstrap(self, degree: int, max_bootstrap_cycle: int):
+    def bootstrap(self, degree: int, max_bootstrap_cycle: int, lmd: float = 0, alpha: float = 0):
         """
             Bootstrap function
+            
+            Parameters: 
+                degree (int): polynomial degree to fit
+                max_bootstrap_cycle (int): max bootstrap iterations
+                lmd
         """
 
         # select wanted features
@@ -222,10 +228,15 @@ class Regression():
             # split and scale the data
             X_train_resampled, z_train_resampled = resample(X_train, self.z_train)
             
-            # fit OLS model to franke function
-            betas = ols(X_train_resampled, z_train_resampled)
-            # predictions
-            z_tilde_all[:, bootstrap_cycle] = (X_test @ betas).reshape((self.z_test.shape[0], ))
+            if alpha == 0:  # ridge and ols
+                # fit OLS model to franke function
+                betas = ols(X_train_resampled, z_train_resampled, lmd=lmd)
+                # predictions
+                z_tilde_all[:, bootstrap_cycle] = (X_test @ betas).reshape((self.z_test.shape[0], ))
+            else:           # lasso with sklearn
+                lasso = Lasso(alpha=alpha)
+                lasso.fit(X_train_resampled, z_train_resampled)
+                z_tilde_all[:, bootstrap_cycle] = lasso.predict(X_test).reshape((self.z_test.shape[0], ))
 
         # compute MSE, BIAS and VAR
         mse_test = mean_squared_error(self.z_test, z_tilde_all)
@@ -234,7 +245,7 @@ class Regression():
         
         return mse_test, bias, var
     
-    def k_folds_cross_validation(self, degree: int, n_folds: int):
+    def k_folds_cross_validation(self, degree: int, n_folds: int, lmd: float = 0, alpha: float = 0):
         """
             K Folds cross validation
         """
@@ -257,9 +268,14 @@ class Regression():
             X_test = X[test_inds, :]
             z_test = self.z[test_inds]
 
-            # model and prediction
-            betas = ols(X_train, z_train)
-            z_tilde = X_test @ betas
+            if alpha == 0:  # ridge and ols
+                # model and prediction
+                betas = ols(X_train, z_train, lmd=lmd)
+                z_tilde = X_test @ betas
+            else:           # lasso
+                lasso = Lasso(alpha=alpha)
+                lasso.fit(X_train, z_train)
+                z_tilde = lasso.predict(X_test)
 
             scores_KFold[i] = mean_squared_error(z_test, z_tilde)
             i += 1
