@@ -143,8 +143,8 @@ def ols(X: np.matrix, y: np.matrix, lmd: float = 0) -> np.matrix:
 
 
 class Regression():
-    
-    def __init__(self, max_degree: int, n: int, noise: float, rng: np.random.Generator, scale: bool = True):
+
+    def __init__(self, max_degree: int, n: int, noise: float, rng: np.random.Generator, scale: bool = True, data: tuple = None):
         """
             Regression class
             
@@ -164,11 +164,16 @@ class Regression():
         self.noise = noise
         self.data_points = n
         
-        self.x = rng.uniform(0, 1, (n, 1))
-        self.y = rng.uniform(0, 1, (n, 1))
-        
-        self.z = franke_function(self.x, self.y)
-        self.z += noise * rng.normal(0, 1, self.z.shape)
+        if data is None:
+            self.x = rng.uniform(0, 1, (n, 1))
+            self.y = rng.uniform(0, 1, (n, 1))
+            
+            self.z = franke_function(self.x, self.y)
+            self.z += noise * rng.normal(0, 1, self.z.shape)
+        else:
+            self.x = data[0]
+            self.y = data[1]
+            self.z = data[2]
         
         self.X_max_deg = create_X_2D(max_degree, self.x, self.y)
         self.X_train_, self.X_test_, self.z_train, self.z_test = train_test_split(self.X_max_deg, self.z, test_size=0.25)
@@ -177,7 +182,7 @@ class Regression():
         if scale:
             self.X_train_, self.X_test_, self.z_train, self.z_test = scale_mean(self.X_train_, self.X_test_, self.z_train, self.z_test)
             self._scaled = True
-            
+
     def ordinary_least_squares(self, degree: int, scale: bool = True):
         """
             Ordrinary Least Squares function
