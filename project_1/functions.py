@@ -228,7 +228,7 @@ class Regression():
         z_tilde_all = np.zeros((self.z_test.shape[0], max_bootstrap_cycle))
         
         for bootstrap_cycle in range(max_bootstrap_cycle):
-            print(f"n={self.data_points} | bootstrap cycle {bootstrap_cycle+1}/{max_bootstrap_cycle} with degree {degree}/{self.max_degree} ", end="\r")
+            print(f"n={self.data_points} | bootstrap cycle {bootstrap_cycle+1}/{max_bootstrap_cycle} with degree {degree}/{self.max_degree} and lmd={lmd if alpha == 0 else alpha}", end="\r")
             
             # split and scale the data
             X_train_resampled, z_train_resampled = resample(X_train, self.z_train)
@@ -248,12 +248,16 @@ class Regression():
         bias = np.mean((self.z_test.reshape(self.z_test.shape[0], ) - np.mean(z_tilde_all, axis=1))**2)
         var = np.mean(np.var(z_tilde_all, axis=1))
         
+        # to update print line
+        print()
         return mse_test, bias, var
     
     def k_folds_cross_validation(self, degree: int, n_folds: int, lmd: float = 0, alpha: float = 0):
         """
             K Folds cross validation
         """
+        
+        print(f"n={self.data_points} | n_folds={n_folds} with degree {degree}/{self.max_degree} and lmd={lmd if alpha == 0 else alpha}")
         
         # select wanted features
         X = self.X_max_deg[:, :self._n_features(degree)]
