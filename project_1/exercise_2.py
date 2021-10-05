@@ -7,9 +7,9 @@ from functions import Regression
 
 # parameters
 max_degree = 15
-n_vals = [400, 600, 800, 1200]
-noise = 0.2
-max_bootstrap = 50
+n_vals = [400, 800, 1200, 1600]
+noise = 0.25
+max_bootstrap = 100
 degrees = np.arange(1, max_degree + 1)
 
 # rng and seed
@@ -43,5 +43,7 @@ for j, n in enumerate(n_vals):
     plt.xlabel(r"complexity")
     plt.legend()    
 
-plt.show()
+plt.savefig(f"./images/ex2_bias_var_bsc_{max_bootstrap}_noise_{noise}.pdf", dpi=400)
+
+# plt.show()
 

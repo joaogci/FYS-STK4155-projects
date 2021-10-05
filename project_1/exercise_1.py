@@ -8,7 +8,7 @@ from functions import Regression
 # parameters
 max_degree = 15
 n = 800
-noise = 0.2
+noise = 0.25
 
 # rng and seed
 seed = int(time())
@@ -64,6 +64,8 @@ plt.title("unscaled scaled")
 plt.xlabel(r"$i$")
 plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
+plt.savefig(f"./images/ex1_cnf_intv_betas_n_{n}_noise_{noise}.pdf", dpi=400)
+
 degrees = np.arange(1, max_degree + 1)
 
 # plot MSE and R2 over complexity
@@ -105,5 +107,7 @@ plt.xlabel(r"complexity")
 plt.ylabel(r"R2")
 plt.legend()
 
-plt.show()
+plt.savefig(f"./images/ex1_mse_r2_comp_{n}_noise_{noise}.pdf", dpi=400)
+
+#plt.show()
 
