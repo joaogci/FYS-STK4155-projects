@@ -239,7 +239,7 @@ class Regression():
                 # predictions
                 z_tilde_all[:, bootstrap_cycle] = (X_test @ betas).reshape((self.z_test.shape[0], ))
             else:           # lasso with sklearn
-                lasso = Lasso(alpha=alpha)
+                lasso = Lasso(alpha=alpha, tol=1e-2, max_iter=1e8)
                 lasso.fit(X_train_resampled, z_train_resampled)
                 z_tilde_all[:, bootstrap_cycle] = lasso.predict(X_test).reshape((self.z_test.shape[0], ))
 
@@ -272,13 +272,15 @@ class Regression():
 
             X_test = X[test_inds, :]
             z_test = self.z[test_inds]
+            
+            X_train, X_test, z_train, z_test = scale_mean(X_train, X_test, z_train, z_test)
 
             if alpha == 0:  # ridge and ols
                 # model and prediction
                 betas = ols(X_train, z_train, lmd=lmd)
                 z_tilde = X_test @ betas
             else:           # lasso
-                lasso = Lasso(alpha=alpha)
+                lasso = Lasso(alpha=alpha, tol=1e-2, max_iter=1e8)
                 lasso.fit(X_train, z_train)
                 z_tilde = lasso.predict(X_test)
 
