@@ -24,15 +24,15 @@ terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = True  #  essentially exercise 1 again
-do_bootstrap_bv = True #               2
-do_cv_bv = True #                      3
+do_ols = False  #  essentially exercise 1 again
+do_bootstrap_bv = False #               2
+do_cv_bv = False #                      3
 do_ridge_cv = True #                   4
-do_lasso_cv = True #                   5
+do_lasso_cv = False #                   5
 
 
 # Load data set
-x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=True, show_plot=False)
+x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=False, show_plot=False)
 print(x.shape[0], 'datapoints') # Show number of data points
 
 # RNG
@@ -105,6 +105,8 @@ if do_ols:
     plt.xlabel(r"$i$")
     plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
+    plt.savefig("./images/ex6_conf_int_beta.pdf", dpi=400)
+
     # plot MSE and R2 over complexity
     plt.figure("MSE and R2 vs complexity", figsize=(11, 9), dpi=80)
 
@@ -144,6 +146,8 @@ if do_ols:
     plt.ylabel(r"R2")
     plt.legend()
 
+    plt.savefig("./images/ex6_MSE_R2_vs_complexity.pdf", dpi=400)
+    
     # Plot prediction to visually compare with original data
     plot_prediction_3D(betas_last[0], max_degree_ols, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False)
 
@@ -187,7 +191,7 @@ if do_bootstrap_bv:
         plt.xlabel(r"complexity")
         plt.legend()
 
-
+        plt.savefig("./images/ex6_BVTO_bootstrap.pdf", dpi=400)
 
 # -------------------------------
 # Bias-variance trade-off with CV
@@ -218,10 +222,11 @@ if do_cv_bv:
         
         plt.subplot(2, 2, j+1)
         
-        plt.plot(degrees_cv_ols, mse_cv, '-k')
-        plt.plot(degrees_cv_ols, mse_cv_sk, 'b--') # Plot against sklearn's
+        plt.plot(degrees_cv_ols, mse_cv, '-k', label="Our code")
+        plt.plot(degrees_cv_ols, mse_cv_sk, 'b--', label="Sklearn") # Plot against sklearn's
         plt.xlabel(r"complexity")
         plt.ylabel(r"MSE")
+        plt.legend(loc="best")
         plt.title(f"k-folds cross validation with k={n_folds}")
 
     # compare with bootstrap
@@ -238,7 +243,7 @@ if do_cv_bv:
     plt.ylabel(r"MSE")
     plt.title(f"bootstrap with n_cycles={max_bootstrap}")
 
-
+    plt.savefig("./images/ex6_MSE_comparison.pdf", dpi=400)
 
 # -------------------------------
 # CV with ridge
@@ -276,6 +281,7 @@ if do_ridge_cv:
     plt.xlabel("lambdas",fontsize=14)
     plt.colorbar()
 
+    plt.savefig("./images/ex6_bootstrap_Ridge.pdf", dpi=400)
 
     for idx, n_folds in enumerate(n_folds_vals):
         # cross validation for MSE
@@ -299,6 +305,7 @@ if do_ridge_cv:
         plt.xlabel("lambdas",fontsize=14)
         plt.colorbar()
 
+        plt.savefig(f"./images/ex6_MSE_Ridge_cross_val_{n_folds}-folds.pdf", dpi=400)
 
 # -------------------------------
 # CV with lasso
@@ -336,6 +343,7 @@ if do_lasso_cv:
     plt.xlabel("lambdas",fontsize=14)
     plt.colorbar()
 
+    plt.savefig("./images/ex6_bootstrap_Lasso.pdf", dpi=400)
 
     for idx, n_folds in enumerate(n_folds_vals):
         # cross validation for MSE
@@ -359,7 +367,4 @@ if do_lasso_cv:
         plt.xlabel("lambdas",fontsize=14)
         plt.colorbar()
 
-
-
-
-plt.show()
+        plt.savefig(f"./images/ex6_MSE_Lasso_cross_val_{n_folds}-folds.pdf", dpi=400)
