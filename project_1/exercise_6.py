@@ -10,31 +10,34 @@ import matplotlib.pyplot as plt
 
 
 # constants
-max_degree = 15
+max_degree_ols = 50
+max_degree_cv = 14 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 seed = 0
 max_bootstrap = 50
 scissor = 0.05 # crop data to 5% of the full set
 downsample = 4 #2 # downsample data to 50% of the cropped set
 bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
 n_folds_vals = [ 5, 7, 10 ] # number of folds for CV
+lambdas = np.logspace(-4, 3, 10) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
 do_ols = False
 do_bootstrap_bv = False
-do_cv_bv = True
+do_cv_bv = False
+do_ridge_cv = True
 
 
 # Load data set
-# TODO: enable random sampling with rng=True to see the difference
 x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=True, show_plot=False)
 print(x.shape[0], 'datapoints') # Show number of data points
 
 # RNG
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
-degrees = np.arange(1, max_degree + 1)
+degrees_ols = np.arange(1, max_degree_ols + 1)
+degrees_cv = np.arange(1, max_degree_cv + 1)
 
 
 
@@ -48,23 +51,23 @@ if do_ols:
     print("Computing MSEs/R2 for increasing degrees & beta confidence intervals...")
 
     # Regression object
-    reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z))
+    reg = Regression(max_degree_ols, x.shape[0], noise, rng, scale=False, data=(x, y, z))
 
     # mse[0, :] -> scaled
     # mse[1, :] -> unscaled
-    mse_train = np.zeros((2, max_degree))
-    mse_test = np.zeros((2, max_degree))
-    r2_train = np.zeros((2, max_degree))
-    r2_test = np.zeros((2, max_degree))
+    mse_train = np.zeros((2, max_degree_ols))
+    mse_test = np.zeros((2, max_degree_ols))
+    r2_train = np.zeros((2, max_degree_ols))
+    r2_test = np.zeros((2, max_degree_ols))
 
     # Keep track of final betas/variance
-    features_last = int((max_degree + 1) * (max_degree + 2) / 2)
+    features_last = int((max_degree_ols + 1) * (max_degree_ols + 2) / 2)
     betas_last = np.zeros((2, features_last))
     std_betas_last = np.zeros((2, features_last))
 
     # Compute MSEs for OLS on all degrees from 1 to max_degree
-    for i, deg in enumerate(range(1, max_degree + 1)):
-        print(f"degree: {deg}/{max_degree}", end="\r")
+    for i, deg in enumerate(range(1, max_degree_ols + 1)):
+        print(f"degree: {deg}/{max_degree_ols}", end="\r")
         
         ( mse_train[0, i], r2_train[0, i],
         mse_test[0, i], r2_test[0, i],
@@ -75,7 +78,7 @@ if do_ols:
         betas_unscaled, var_betas_unscaled ) = reg.ordinary_least_squares(degree=deg, scale=False)
         
         # save betas and var_betas
-        if deg == max_degree:
+        if deg == max_degree_ols:
             betas_last[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
             betas_last[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
             std_betas_last[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
@@ -104,8 +107,8 @@ if do_ols:
 
     # MSE scaled
     plt.subplot(221)
-    plt.plot(degrees, mse_train[0, :], '-k', label="train")
-    plt.plot(degrees, mse_test[0, :], '--k', label="test")
+    plt.plot(degrees_ols, mse_train[0, :], '-k', label="train")
+    plt.plot(degrees_ols, mse_test[0, :], '--k', label="test")
     plt.title("MSE scaled")
     plt.xlabel(r"complexity")
     plt.ylabel(r"MSE")
@@ -113,8 +116,8 @@ if do_ols:
 
     # MSE unscaled
     plt.subplot(222)
-    plt.plot(degrees, mse_train[1, :], '-k', label="train")
-    plt.plot(degrees, mse_test[1, :], '--k', label="test")
+    plt.plot(degrees_ols, mse_train[1, :], '-k', label="train")
+    plt.plot(degrees_ols, mse_test[1, :], '--k', label="test")
     plt.title("MSE unscaled")
     plt.xlabel(r"complexity")
     plt.ylabel(r"MSE")
@@ -122,8 +125,8 @@ if do_ols:
 
     # R2 scaled
     plt.subplot(223)
-    plt.plot(degrees, r2_train[0, :], '-k', label="train")
-    plt.plot(degrees, r2_test[0, :], '--k', label="test")
+    plt.plot(degrees_ols, r2_train[0, :], '-k', label="train")
+    plt.plot(degrees_ols, r2_test[0, :], '--k', label="test")
     plt.title("R2 scaled")
     plt.xlabel(r"complexity")
     plt.ylabel(r"R2")
@@ -131,15 +134,16 @@ if do_ols:
 
     # R2 unscaled
     plt.subplot(224)
-    plt.plot(degrees, r2_train[1, :], '-k', label="train")
-    plt.plot(degrees, r2_test[1, :], '--k', label="test")
+    plt.plot(degrees_ols, r2_train[1, :], '-k', label="train")
+    plt.plot(degrees_ols, r2_test[1, :], '--k', label="test")
     plt.title("R2 unscaled")
     plt.xlabel(r"complexity")
     plt.ylabel(r"R2")
     plt.legend()
 
     # Plot prediction to visually compare with original data
-    plot_prediction_3D(betas_last[0], max_degree, name=terrain_set + ' OLS prediction (degree ' + str(max_degree) + ' polynomial)', show=False)
+    plot_prediction_3D(betas_last[0], max_degree_ols, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False)
+
 
 
 # -------------------------------
@@ -159,23 +163,23 @@ if do_bootstrap_bv:
         n = bx.shape[0]
 
         # regression object
-        b_reg = Regression(max_degree, bx.shape[0], noise, rng, data=(bx, by, bz))
+        b_reg = Regression(max_degree_cv, bx.shape[0], noise, rng, data=(bx, by, bz))
 
-        mse = np.zeros(max_degree)
-        bias = np.zeros(max_degree)
-        var = np.zeros(max_degree)
+        mse = np.zeros(max_degree_cv)
+        bias = np.zeros(max_degree_cv)
+        var = np.zeros(max_degree_cv)
         
-        for i, deg in enumerate(range(1, max_degree + 1)):
+        for i, deg in enumerate(range(1, max_degree_cv + 1)):
             mse[i], bias[i], var[i] = b_reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
 
         plt.subplot(2, 2, j+1)
         
         plt.title(fr"$n={n}$")
 
-        plt.plot(degrees, mse, '-r', label='MSE')
-        plt.plot(degrees, var, '--k', label='var')
-        plt.plot(degrees, bias, '--k', label='bias', alpha=0.40)
-        plt.plot(degrees, bias + var, '-.k', label='var+bias')
+        plt.plot(degrees_cv, mse, '-r', label='MSE')
+        plt.plot(degrees_cv, var, '--k', label='var')
+        plt.plot(degrees_cv, bias, '--k', label='bias', alpha=0.40)
+        plt.plot(degrees_cv, bias + var, '-.k', label='var+bias')
 
         plt.xlabel(r"complexity")
         plt.legend()
@@ -196,11 +200,11 @@ if do_cv_bv:
     # cross validation
     for j, n_folds in enumerate(n_folds_vals):
         # regression object
-        reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z))
+        reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z))
 
-        mse_cv = np.zeros(max_degree)
-        mse_cv_sk = np.zeros(max_degree)
-        for i, deg in enumerate(degrees):
+        mse_cv = np.zeros(max_degree_cv)
+        mse_cv_sk = np.zeros(max_degree_cv)
+        for i, deg in enumerate(degrees_cv):
 
             # Compute own
             mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
@@ -211,25 +215,35 @@ if do_cv_bv:
         
         plt.subplot(2, 2, j+1)
         
-        plt.plot(degrees, mse_cv, '-k')
-        plt.plot(degrees, mse_cv_sk, 'b--') # Plot against sklearn's
+        plt.plot(degrees_cv, mse_cv, '-k')
+        plt.plot(degrees_cv, mse_cv_sk, 'b--') # Plot against sklearn's
         plt.xlabel(r"complexity")
         plt.ylabel(r"MSE")
         plt.title(f"k-folds cross validation with k={n_folds}")
 
-    # compare with bootstrap (re-use results from previous section)
-    reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z))
-    mse = np.zeros(max_degree)
-    bias = np.zeros(max_degree)
-    var = np.zeros(max_degree)
-    for i, deg in enumerate(range(1, max_degree + 1)):
+    # compare with bootstrap
+    reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z))
+    mse = np.zeros(max_degree_cv)
+    bias = np.zeros(max_degree_cv)
+    var = np.zeros(max_degree_cv)
+    for i, deg in enumerate(range(1, max_degree_cv + 1)):
         mse[i], bias[i], var[i] = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
 
     plt.subplot(2, 2, 4)
-    plt.plot(degrees, mse, '-r')
+    plt.plot(degrees_cv, mse, '-r')
     plt.xlabel(r"complexity")
     plt.ylabel(r"MSE")
     plt.title(f"bootstrap with n_cycles={max_bootstrap}")
+
+
+
+# -------------------------------
+# CV with ridge
+# -------------------------------
+
+if do_ridge_cv:
+    ...
+
 
 
 plt.show()
