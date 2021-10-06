@@ -71,7 +71,7 @@ def scale_mean(X_train: np.matrix, X_test: np.matrix, y_train: np.matrix, y_test
             (numpy array) training target scaled
             (numpy array) testing target scaled
     """
-    
+        
     mean_X = np.mean(X_train, axis=0)
     X_train_scaled = X_train - mean_X
     X_test_scaled = X_test - mean_X
@@ -288,11 +288,11 @@ class Regression():
             else:           # lasso
                 X_train[:, 0] = 1
                 X_test[:, 0] = 1
-                lasso = Lasso(alpha=alpha, fit_intercept=False, normalize=True, tol=1e-2, max_iter=1e8)
+                lasso = Lasso(alpha=alpha, tol=1e-2, max_iter=1e5)
                 lasso.fit(X_train, z_train)
                 z_tilde = lasso.predict(X_test)
 
-            scores_KFold[i] = mean_squared_error(z_test, z_tilde)
+            scores_KFold[i] = mean_squared_error(z_test.ravel(), z_tilde.ravel())
             i += 1
         
         return np.mean(scores_KFold)
@@ -308,10 +308,4 @@ class Regression():
                 (int) number of features
         """
         return int((deg + 1) * (deg + 2) / 2)
-    
-        
-        
-        
-
-
 
