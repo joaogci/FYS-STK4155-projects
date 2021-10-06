@@ -11,22 +11,24 @@ import matplotlib.pyplot as plt
 
 # constants
 max_degree_ols = 50
-max_degree_cv = 14 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
+max_degree_cv_ols = 14 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
+max_degree_cv = 22 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
-max_bootstrap = 50
+max_bootstrap = 20
 scissor = 0.05 # crop data to 5% of the full set
-downsample = 4 #2 # downsample data to 50% of the cropped set
+downsample = 4 # downsample data to 25% of the cropped set
 bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
 n_folds_vals = [ 5, 7, 10 ] # number of folds for CV
-lambdas = np.logspace(-4, 3, 10) # lambda values to use for ridge/lasso regression
+lambdas = np.logspace(-8, 0, 10) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = False
-do_bootstrap_bv = False
-do_cv_bv = False
-do_ridge_cv = True
+do_ols = False  #  essentially exercise 1 again
+do_bootstrap_bv = False #               2
+do_cv_bv = True #                       3
+do_ridge_cv = False #                   4
+do_lasso_cv = False #                   5
 
 
 # Load data set
@@ -37,6 +39,7 @@ print(x.shape[0], 'datapoints') # Show number of data points
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
 degrees_ols = np.arange(1, max_degree_ols + 1)
+degrees_cv_ols = np.arange(1, max_degree_cv_ols + 1)
 degrees_cv = np.arange(1, max_degree_cv + 1)
 
 
@@ -163,23 +166,23 @@ if do_bootstrap_bv:
         n = bx.shape[0]
 
         # regression object
-        b_reg = Regression(max_degree_cv, bx.shape[0], noise, rng, data=(bx, by, bz))
+        b_reg = Regression(max_degree_cv_ols, bx.shape[0], noise, rng, data=(bx, by, bz))
 
-        mse = np.zeros(max_degree_cv)
-        bias = np.zeros(max_degree_cv)
-        var = np.zeros(max_degree_cv)
+        mse = np.zeros(max_degree_cv_ols)
+        bias = np.zeros(max_degree_cv_ols)
+        var = np.zeros(max_degree_cv_ols)
         
-        for i, deg in enumerate(range(1, max_degree_cv + 1)):
+        for i, deg in enumerate(range(1, max_degree_cv_ols + 1)):
             mse[i], bias[i], var[i] = b_reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
 
         plt.subplot(2, 2, j+1)
         
         plt.title(fr"$n={n}$")
 
-        plt.plot(degrees_cv, mse, '-r', label='MSE')
-        plt.plot(degrees_cv, var, '--k', label='var')
-        plt.plot(degrees_cv, bias, '--k', label='bias', alpha=0.40)
-        plt.plot(degrees_cv, bias + var, '-.k', label='var+bias')
+        plt.plot(degrees_cv_ols, mse, '-r', label='MSE')
+        plt.plot(degrees_cv_ols, var, '--k', label='var')
+        plt.plot(degrees_cv_ols, bias, '--k', label='bias', alpha=0.40)
+        plt.plot(degrees_cv_ols, bias + var, '-.k', label='var+bias')
 
         plt.xlabel(r"complexity")
         plt.legend()
@@ -200,11 +203,11 @@ if do_cv_bv:
     # cross validation
     for j, n_folds in enumerate(n_folds_vals):
         # regression object
-        reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z))
+        reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
 
-        mse_cv = np.zeros(max_degree_cv)
-        mse_cv_sk = np.zeros(max_degree_cv)
-        for i, deg in enumerate(degrees_cv):
+        mse_cv = np.zeros(max_degree_cv_ols)
+        mse_cv_sk = np.zeros(max_degree_cv_ols)
+        for i, deg in enumerate(degrees_cv_ols):
 
             # Compute own
             mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
@@ -215,22 +218,22 @@ if do_cv_bv:
         
         plt.subplot(2, 2, j+1)
         
-        plt.plot(degrees_cv, mse_cv, '-k')
-        plt.plot(degrees_cv, mse_cv_sk, 'b--') # Plot against sklearn's
+        plt.plot(degrees_cv_ols, mse_cv, '-k')
+        plt.plot(degrees_cv_ols, mse_cv_sk, 'b--') # Plot against sklearn's
         plt.xlabel(r"complexity")
         plt.ylabel(r"MSE")
         plt.title(f"k-folds cross validation with k={n_folds}")
 
     # compare with bootstrap
-    reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z))
-    mse = np.zeros(max_degree_cv)
-    bias = np.zeros(max_degree_cv)
-    var = np.zeros(max_degree_cv)
-    for i, deg in enumerate(range(1, max_degree_cv + 1)):
+    reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
+    mse = np.zeros(max_degree_cv_ols)
+    bias = np.zeros(max_degree_cv_ols)
+    var = np.zeros(max_degree_cv_ols)
+    for i, deg in enumerate(range(1, max_degree_cv_ols + 1)):
         mse[i], bias[i], var[i] = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
 
     plt.subplot(2, 2, 4)
-    plt.plot(degrees_cv, mse, '-r')
+    plt.plot(degrees_cv_ols, mse, '-r')
     plt.xlabel(r"complexity")
     plt.ylabel(r"MSE")
     plt.title(f"bootstrap with n_cycles={max_bootstrap}")
@@ -242,7 +245,60 @@ if do_cv_bv:
 # -------------------------------
 
 if do_ridge_cv:
-    ...
+
+    reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z), with_std=False)
+
+    n_lambdas = lambdas.shape[0]
+    
+    # bootstrap for MSE
+    mse = np.zeros((n_lambdas, max_degree_cv))
+
+    for j, deg in enumerate(degrees_cv):
+        for i, lmd in enumerate(lambdas):
+            mse[i, j], _, _ = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap, lmd=lmd)
+
+    min_mse = np.where(mse == np.min(mse))
+    lmd_min = min_mse[0][0]
+    deg_min = min_mse[1][0]
+
+    # mse vs (lambdas, degs) for bootstrap
+    plt.figure(f"bootstrap; min[(lambda, deg)] = ({lambdas[lmd_min]:.4f}, {degrees_cv[deg_min]}), with mse={np.min(mse):.4f}", figsize=(11, 9), dpi=80)
+
+    plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+    plt.plot(np.log10(lambdas[lmd_min]), degrees_cv[deg_min], 'or')
+    plt.ylabel("degrees",fontsize=14)
+    plt.xlabel("lambdas",fontsize=14)
+    plt.colorbar()
+
+    # cross validation for MSE
+    mse = np.zeros((n_lambdas, max_degree_cv))
+
+    for j, deg in enumerate(degrees_cv):
+        for i, lmd in enumerate(lambdas):
+            mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=5, lmd=lmd)
+
+    min_mse = np.where(mse == np.min(mse))
+    lmd_min = min_mse[0][0]
+    deg_min = min_mse[1][0]
+
+    # mse vs (lambdas, degs) for cross validation
+    plt.figure(f"cross validation; min[(lambda, deg)] = ({lambdas[lmd_min]:.4f}, {degrees_cv[deg_min]}), with mse={np.min(mse):.4f}", figsize=(11, 9), dpi=80)
+
+    plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+    plt.plot(np.log10(lambdas[lmd_min]), degrees_cv[deg_min], 'or')
+    plt.ylabel("degrees",fontsize=14)
+    plt.xlabel("lambdas",fontsize=14)
+    plt.colorbar()
+
+
+
+# -------------------------------
+# CV with lasso
+# -------------------------------
+
+if do_lasso_cv:
+    pass # @TODO
+
 
 
 
