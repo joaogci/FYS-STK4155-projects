@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import cm
 
-def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: float = 1, min_y: float = 0, max_y: float = 1, name: str = 'Prediction', display_steps: int = 100) -> None:
+def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: float = 1, min_y: float = 0, max_y: float = 1, name: str = 'Prediction', display_steps: int = 100, show: bool = True) -> None:
     """
         Given a beta feature matrix of a certain degree, plots the estimate of a 2D function over a certain domain
 
@@ -17,6 +17,7 @@ def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: fl
             max_y (float): End of the domain to show on Y
             name (str): Name of the plot to display
             display_steps (int): Number of points to show on X and Y; the overall number of data points computed is display_steps^2
+            show (bool): Whether to show() the plot at the end
     """
 
     # Show prediction as a smooth plot
@@ -41,4 +42,6 @@ def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: fl
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title(name)
-    plt.show()
+
+    if show:
+        plt.show()

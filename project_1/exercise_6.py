@@ -8,24 +8,23 @@ import matplotlib.pyplot as plt
 
 
 # constants
-max_degree = 50
-scissor=0.05 # crop data
-downsample = 0.5 # downsample data
-terrain_set = TERRAIN_1
+max_degree = 20 #50
 seed = 0
-noise = 1.0 # a constant that's used to assume the std
+max_bootstrap = 15 #100
+scissor = 0.05 # crop data to 5% of the full set
+downsample = 2 # downsample data to 50% of the cropped set
+bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
+terrain_set = TERRAIN_1 # pick terrain file to open
+noise = 1.0 # assumed constant used to compute the std
 
 
 # Load data set
 # TODO: enable random sampling with rng=True to see the difference
-x, y, z = load_terrain(terrain_set, downsample=downsample, rng=None, plot=True, scissor=scissor, show_plot=False)
-print(x.shape[0]**2, 'datapoints')
+x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=True, show_plot=False)
+print(x.shape[0], 'datapoints') # Show number of data points
 
 # RNG
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
-
-# Regression object
-reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z))
 
 
 
@@ -35,6 +34,11 @@ reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z)
 # Computing confidence intervals for beta values for last degree
 # -------------------------------
 
+print("Computing MSEs/R2 for increasing degrees & beta confidence intervals...")
+
+# Regression object
+reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z))
+
 # mse[0, :] -> scaled
 # mse[1, :] -> unscaled
 mse_train = np.zeros((2, max_degree))
@@ -42,10 +46,12 @@ mse_test = np.zeros((2, max_degree))
 r2_train = np.zeros((2, max_degree))
 r2_test = np.zeros((2, max_degree))
 
+# Keep track of final betas/variance
 features_last = int((max_degree + 1) * (max_degree + 2) / 2)
 betas_last = np.zeros((2, features_last))
 std_betas_last = np.zeros((2, features_last))
 
+# Compute MSEs for OLS on all degrees from 1 to max_degree
 for i, deg in enumerate(range(1, max_degree + 1)):
     print(f"degree: {deg}/{max_degree}", end="\r")
     
@@ -123,8 +129,49 @@ plt.xlabel(r"complexity")
 plt.ylabel(r"R2")
 plt.legend()
 
-# Prediction
-plot_prediction_3D(betas_last[0], max_degree, name=terrain_set + ' OLS prediction (degree ' + str(max_degree) + ' polynomial)')
+# Plot prediction to visually compare with original data
+plot_prediction_3D(betas_last[0], max_degree, name=terrain_set + ' OLS prediction (degree ' + str(max_degree) + ' polynomial)', show=False)
+
+
+# -------------------------------
+# Bias-variance trade-off with bootstrap
+# -------------------------------
+
+print("Computing bias-variance trade-off")
+
+plt.figure("bias-variance trade-off", figsize=(11, 9), dpi=80)
+
+# bootstrap for bias and var
+for j, ds in enumerate(bootstrap_downsamples):
+
+    bx, by, bz = load_terrain(terrain_set, downsample=ds, scissor=scissor, rng=None)
+    n = bx.shape[0]
+
+    # regression object
+    b_reg = Regression(max_degree, bx.shape[0], noise, rng, data=(bx, by, bz))
+
+    mse = np.zeros(max_degree)
+    bias = np.zeros(max_degree)
+    var = np.zeros(max_degree)
+    
+    for i, deg in enumerate(range(1, max_degree + 1)):
+        mse[i], bias[i], var[i] = b_reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
+
+    plt.subplot(2, 2, j+1)
+    
+    plt.title(fr"$n={n}$")
+
+    plt.plot(degrees, mse, '-r', label='MSE')
+    plt.plot(degrees, var, '--k', label='var')
+    plt.plot(degrees, bias, '--k', label='bias', alpha=0.40)
+    plt.plot(degrees, bias + var, '-.k', label='var+bias')
+
+    plt.xlabel(r"complexity")
+    plt.legend()
+
+
+
+
 
 plt.show()
 
