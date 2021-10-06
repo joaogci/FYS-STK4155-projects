@@ -12,13 +12,13 @@ ex1:
         -> Use own code for tts
 
 ex2:
-    - Generate franke-data (with and without noise)
-    - Split the data in train-test
-    - Use ols-code (we can choose either our own or sklearn)
-    - Replicate the firgure in Hastie et al. that shows how complexity of the model (i.e., the polynomial degree in our case) will increase the MSE for the test data
+    - DONE - Generate franke-data (with and without noise)
+    - DONE - Split the data in train-test
+    - DONE - Use ols-code (we can choose either our own or sklearn)
+    - DONE - Replicate the firgure in Hastie et al. that shows how complexity of the model (i.e., the polynomial degree in our case) will increase the MSE for the test data
     - Show (analytically) bias-variance-decomposition (abbreviated BVD)
     - Explain the different terms in the BVD in detail
-    - Calculate the bias-variance-MSE for the franke-data
+    - DONE - Calculate the bias-variance-MSE for the franke-data
         -> Do this for different amount of datapoints
         -> Do this for different train/test-size
         -> Everything must be done using bootstrap
@@ -29,18 +29,18 @@ ex2:
         -> Test putting  in f instead of y in BVD
 
 ex3:
-    - Write own code for cross-validation (abbreviated CV) for kfold
-    - Repeate ex2 with CV and compare with sklearn's CV and our own bootstrap
+    - DONE - Write own code for cross-validation (abbreviated CV) for kfold
+    - DONE - Repeate ex2 with CV and compare with sklearn's CV and our own bootstrap
 
 ex4:
-    - Write own code for Ridge
-    - Do ex2 and ex3 with Ridge
-    - Compare with ex2 and ex3 (for normal ols)
+    - DONE - Write own code for Ridge
+    - DONE - Do ex2 and ex3 with Ridge
+    - DONE - Compare with ex2 and ex3 (for normal ols)
     - Discuss BVTO as a function of the lambda values
         -> NB! Here we MUST use bootstrap
     
 ex5:
-    - Do ex4 with lasso
+    - DONE - Do ex4 with lasso
     - Discuss which model fits best
     - Do BVTO with bootstrap and do MSE analysis with CV
 
