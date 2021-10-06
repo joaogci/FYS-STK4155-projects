@@ -49,7 +49,7 @@ if do_ols:
     print("Computing MSEs/R2 for increasing degrees & beta confidence intervals...")
 
     # Regression object
-    reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z))
+    reg = Regression(max_degree, x.shape[0], noise, rng, scale=False, data=(x, y, z), with_std=True)
 
     # mse[0, :] -> scaled
     # mse[1, :] -> unscaled
@@ -160,7 +160,7 @@ if do_bootstrap_bv:
         n = bx.shape[0]
 
         # regression object
-        b_reg = Regression(max_degree, bx.shape[0], noise, rng, data=(bx, by, bz))
+        b_reg = Regression(max_degree, bx.shape[0], noise, rng, data=(bx, by, bz), with_std=True)
 
         mse = np.zeros(max_degree)
         bias = np.zeros(max_degree)
@@ -197,15 +197,14 @@ if do_cv_bv:
     # cross validation
     for j, n_folds in enumerate(n_folds_vals):
         # regression object
-        reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z))
+        reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z), with_std=True)
 
         mse_cv = np.zeros(max_degree)
         for i, deg in enumerate(degrees):
-            ...
-            model = Ridge()
-            X = create_X_2D(deg, x, y)
-            mse_cv[i] = np.mean(-cross_val_score(model, X, z, cv=n_folds, scoring="neg_mean_squared_error"))
-            # mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
+            # model = Ridge(fit_intercept=False)
+            # X = create_X_2D(deg, x, y)
+            # mse_cv[i] = np.mean(-cross_val_score(model, X, z, cv=n_folds, scoring="neg_mean_squared_error"))
+            mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=0.0001)
         
         plt.subplot(2, 2, j+1)
         
@@ -215,7 +214,7 @@ if do_cv_bv:
         plt.title(f"k-folds cross validation with k={n_folds}")
 
     # compare with bootstrap (re-use results from previous section)
-    reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z))
+    reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z), with_std=True)
     mse = np.zeros(max_degree)
     bias = np.zeros(max_degree)
     var = np.zeros(max_degree)
