@@ -291,14 +291,18 @@ class Regression():
         # perform the cross-validation to estimate MSE
         scores_KFold = np.zeros(n_folds)
 
+        for i in range(X.shape[1]):
+            X[:, i] = self.rng.permutation(X[:, i])
+        z = self.rng.permutation(self.z)
+
         i = 0
         for train_inds, test_inds in kfolds.split(X):
             # select k_folds data
             X_train = X[train_inds, :]
-            z_train = self.z[train_inds]
+            z_train = z[train_inds]
 
             X_test = X[test_inds, :]
-            z_test = self.z[test_inds]
+            z_test = z[test_inds]
             
             do_scale = scale_mean if not self.with_std else scale_mean_std
             X_train, X_test, z_train, z_test = do_scale(X_train, X_test, z_train, z_test)
@@ -308,8 +312,6 @@ class Regression():
                 betas = ols(X_train, z_train, lmd=lmd)
                 z_tilde = X_test @ betas
             else:           # lasso
-                X_train[:, 0] = 1
-                X_test[:, 0] = 1
                 lasso = Lasso(alpha=alpha, tol=1e-2, max_iter=1e5)
                 lasso.fit(X_train, z_train)
                 z_tilde = lasso.predict(X_test)
