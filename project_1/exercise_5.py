@@ -33,9 +33,10 @@ for j, deg in enumerate(degrees):
     for i, alpha in enumerate(alphas):
         mse[i, j], _, _ = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap, alpha=alpha)
 
-min_mse[0] = np.where(mse == np.min(mse))
-lmd_min[0] = min_mse[0][0]
-deg_min[0] = min_mse[1][0]
+min_mse_where = np.where(mse == np.min(mse))
+lmd_min[0] = alphas[min_mse_where[0][0]]
+deg_min[0] = degrees[min_mse_where[1][0]]
+min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
 # mse vs (lambdas, degs) for bootstrap
 plt.figure(f"bootstrap", figsize=(11, 9), dpi=80)
@@ -56,9 +57,10 @@ for idx, n_folds in enumerate(n_folds_vals):
         for i, alpha in enumerate(alphas):
             mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, alpha=alpha)
 
-    min_mse[idx + 1] = np.where(mse == np.min(mse))
-    lmd_min[idx + 1] = min_mse[0][0]
-    deg_min[idx + 1] = min_mse[1][0]
+    min_mse_where = np.where(mse == np.min(mse))
+    lmd_min[idx + 1] = alphas[min_mse_where[0][0]]
+    deg_min[idx + 1] = degrees[min_mse_where[1][0]]
+    min_mse[idx + 1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
     
     # mse vs (lambdas, degs) for cross validation
     plt.figure(f"cross validation", figsize=(11, 9), dpi=80)
