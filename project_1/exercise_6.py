@@ -14,11 +14,11 @@ max_degree_ols = 50
 max_degree_cv_ols = 14 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 22 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
-max_bootstrap = 20
+max_bootstrap = 100
 scissor = 0.05 # crop data to 5% of the full set
 downsample = 4 # downsample data to 25% of the cropped set
 bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
-n_folds_vals = [ 5, 7, 10 ] # number of folds for CV
+n_folds_vals = np.array([ 5, 7, 10 ]) # number of folds for CV
 lambdas = np.logspace(-8, 0, 10) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
@@ -26,9 +26,9 @@ noise = 1.0 # assumed constant used to compute the std
 # Selectively turn on/off certain parts of the exercise
 do_ols = False  #  essentially exercise 1 again
 do_bootstrap_bv = False #               2
-do_cv_bv = True #                       3
-do_ridge_cv = False #                   4
-do_lasso_cv = False #                   5
+do_cv_bv = False #                       3
+do_ridge_cv = True #                   4
+do_lasso_cv = True #                   5
 
 
 # Load data set
@@ -249,7 +249,12 @@ if do_ridge_cv:
     reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z), with_std=False)
 
     n_lambdas = lambdas.shape[0]
-    
+
+    # min lmd and deg arrays
+    min_mse = np.zeros(n_folds_vals.shape[0] + 1)
+    lmd_min = np.zeros(n_folds_vals.shape[0] + 1)
+    deg_min = np.zeros(n_folds_vals.shape[0] + 1)
+
     # bootstrap for MSE
     mse = np.zeros((n_lambdas, max_degree_cv))
 
@@ -257,39 +262,42 @@ if do_ridge_cv:
         for i, lmd in enumerate(lambdas):
             mse[i, j], _, _ = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap, lmd=lmd)
 
-    min_mse = np.where(mse == np.min(mse))
-    lmd_min = min_mse[0][0]
-    deg_min = min_mse[1][0]
+    min_mse_where = np.where(mse == np.min(mse))
+    lmd_min[0] = lambdas[min_mse_where[0][0]]
+    deg_min[0] = degrees_cv[min_mse_where[1][0]]
+    min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
     # mse vs (lambdas, degs) for bootstrap
-    plt.figure(f"bootstrap; min[(lambda, deg)] = ({lambdas[lmd_min]:.4f}, {degrees_cv[deg_min]}), with mse={np.min(mse):.4f}", figsize=(11, 9), dpi=80)
+    plt.figure(f"bootstrap Ridge", figsize=(11, 9), dpi=80)
 
     plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
-    plt.plot(np.log10(lambdas[lmd_min]), degrees_cv[deg_min], 'or')
+    plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
     plt.ylabel("degrees",fontsize=14)
     plt.xlabel("lambdas",fontsize=14)
     plt.colorbar()
 
-    # cross validation for MSE
-    mse = np.zeros((n_lambdas, max_degree_cv))
 
-    for j, deg in enumerate(degrees_cv):
-        for i, lmd in enumerate(lambdas):
-            mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=5, lmd=lmd)
+    for idx, n_folds in enumerate(n_folds_vals):
+        # cross validation for MSE
+        mse = np.zeros((n_lambdas, max_degree_cv))
 
-    min_mse = np.where(mse == np.min(mse))
-    lmd_min = min_mse[0][0]
-    deg_min = min_mse[1][0]
+        for j, deg in enumerate(degrees_cv):
+            for i, lmd in enumerate(lambdas):
+                mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=lmd)
 
-    # mse vs (lambdas, degs) for cross validation
-    plt.figure(f"cross validation; min[(lambda, deg)] = ({lambdas[lmd_min]:.4f}, {degrees_cv[deg_min]}), with mse={np.min(mse):.4f}", figsize=(11, 9), dpi=80)
+        min_mse_where = np.where(mse == np.min(mse))
+        lmd_min[idx + 1] = lambdas[min_mse_where[0][0]]
+        deg_min[idx + 1] = degrees_cv[min_mse_where[1][0]]
+        min_mse[idx + 1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
-    plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
-    plt.plot(np.log10(lambdas[lmd_min]), degrees_cv[deg_min], 'or')
-    plt.ylabel("degrees",fontsize=14)
-    plt.xlabel("lambdas",fontsize=14)
-    plt.colorbar()
+        # mse vs (lambdas, degs) for cross validation
+        plt.figure(fr"cross validation Ridge, {n_folds} folds", figsize=(11, 9), dpi=80)
 
+        plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+        plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
+        plt.ylabel("degrees",fontsize=14)
+        plt.xlabel("lambdas",fontsize=14)
+        plt.colorbar()
 
 
 # -------------------------------
@@ -297,7 +305,59 @@ if do_ridge_cv:
 # -------------------------------
 
 if do_lasso_cv:
-    pass # @TODO
+
+    reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z), with_std=False)
+
+    n_lambdas = lambdas.shape[0]
+    
+    # min lmd and deg arrays
+    min_mse_where = np.where(mse == np.min(mse))
+    lmd_min[0] = lambdas[min_mse_where[0][0]]
+    deg_min[0] = degrees_cv[min_mse_where[1][0]]
+    min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
+
+    # bootstrap for MSE
+    mse = np.zeros((n_lambdas, max_degree_cv))
+
+    for j, deg in enumerate(degrees_cv):
+        for i, alpha in enumerate(lambdas):
+            mse[i, j], _, _ = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap, alpha=alpha)
+
+    min_mse_where = np.where(mse == np.min(mse))
+    lmd_min[0] = lambdas[min_mse_where[0][0]]
+    deg_min[0] = degrees_cv[min_mse_where[1][0]]
+    min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
+
+    # mse vs (lambdas, degs) for bootstrap
+    plt.figure(f"bootstrap Lasso", figsize=(11, 9), dpi=80)
+    plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+    plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
+    plt.ylabel("degrees",fontsize=14)
+    plt.xlabel("lambdas",fontsize=14)
+    plt.colorbar()
+
+
+    for idx, n_folds in enumerate(n_folds_vals):
+        # cross validation for MSE
+        mse = np.zeros((n_lambdas, max_degree_cv))
+
+        for j, deg in enumerate(degrees_cv):
+            for i, alpha in enumerate(lambdas):
+                mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, alpha=alpha)
+
+        min_mse_where = np.where(mse == np.min(mse))
+        lmd_min[idx + 1] = lambdas[min_mse_where[0][0]]
+        deg_min[idx + 1] = degrees_cv[min_mse_where[1][0]]
+        min_mse[idx + 1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
+        
+        # mse vs (lambdas, degs) for cross validation
+        plt.figure(fr"cross validation Lasso, {n_folds} folds", figsize=(11, 9), dpi=80)
+
+        plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+        plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
+        plt.ylabel("degrees",fontsize=14)
+        plt.xlabel("lambdas",fontsize=14)
+        plt.colorbar()
 
 
 
