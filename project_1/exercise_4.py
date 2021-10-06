@@ -28,15 +28,9 @@ for j, deg in enumerate(degrees):
     for i, lmd in enumerate(lambdas):
         mse[i, j], _, _ = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap, lmd=lmd)
 
-print()
-
 min_mse = np.where(mse == np.min(mse))
 lmd_min = min_mse[0][0]
 deg_min = min_mse[1][0]
-
-print(np.min(mse))
-print(np.log10(lambdas[lmd_min]))
-print(degrees[deg_min])
 
 # mse vs (lambdas, degs) for bootstrap
 plt.figure(f"bootstrap; min[(lambda, deg)] = ({lambdas[lmd_min]:.4f}, {degrees[deg_min]}), with mse={np.min(mse):.4f}", figsize=(11, 9), dpi=80)
@@ -47,13 +41,14 @@ plt.ylabel("degrees",fontsize=14)
 plt.xlabel("lambdas",fontsize=14)
 plt.colorbar()
 
+plt.savefig(f"./images/ex4_bootstrap_btc_{max_bootstrap}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
 
 # cross validation for MSE
 mse = np.zeros((n_lambdas, max_degree))
 
 for j, deg in enumerate(degrees):
     for i, lmd in enumerate(lambdas):
-        mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=5, lmd=lmd)
+        mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=lmd)
 
 min_mse = np.where(mse == np.min(mse))
 lmd_min = min_mse[0][0]
@@ -68,6 +63,7 @@ plt.ylabel("degrees",fontsize=14)
 plt.xlabel("lambdas",fontsize=14)
 plt.colorbar()
 
+plt.savefig(f"./images/ex4_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
 
-plt.show()
+# plt.show()
 
