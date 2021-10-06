@@ -284,8 +284,6 @@ class Regression():
                 betas = ols(X_train, z_train, lmd=lmd)
                 z_tilde = X_test @ betas
             else:           # lasso
-                X_train[:, 0] = 1
-                X_test[:, 0] = 1
                 lasso = Lasso(alpha=alpha, tol=1e-2, max_iter=1e5)
                 lasso.fit(X_train, z_train)
                 z_tilde = lasso.predict(X_test)
