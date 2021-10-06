@@ -1,9 +1,9 @@
 
 from numpy.core.numeric import cross
 from terrain import load_terrain, TERRAIN_1, TERRAIN_2
-from functions import Regression, create_X_2D
+from functions import Regression, create_X_2D, scale_mean
 from plots import plot_prediction_3D
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, LinearRegression
 from sklearn.model_selection import cross_val_score
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 
 
 # constants
-max_degree = 20 #50
+max_degree = 15
 seed = 0
-max_bootstrap = 15 # 100
+max_bootstrap = 50
 scissor = 0.05 # crop data to 5% of the full set
 downsample = 4 #2 # downsample data to 50% of the cropped set
 bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
@@ -200,16 +200,16 @@ if do_cv_bv:
         reg = Regression(max_degree, x.shape[0], noise, rng, data=(x, y, z))
 
         mse_cv = np.zeros(max_degree)
+        mse_cv_sk = np.zeros(max_degree)
         for i, deg in enumerate(degrees):
-            ...
-            model = Ridge()
-            X = create_X_2D(deg, x, y)
-            mse_cv[i] = np.mean(-cross_val_score(model, X, z, cv=n_folds, scoring="neg_mean_squared_error"))
-            # mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
+            r = LinearRegression(fit_intercept=False)
+            mse_cv_sk[i] = np.mean(-cross_val_score(r, create_X_2D(deg, x, y), z, cv=n_folds, scoring="neg_mean_squared_error"))
+            mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
         
         plt.subplot(2, 2, j+1)
         
         plt.plot(degrees, mse_cv, '-k')
+        #plt.plot(degrees, mse_cv_sk, 'b--') # Plot against sklearn's
         plt.xlabel(r"complexity")
         plt.ylabel(r"MSE")
         plt.title(f"k-folds cross validation with k={n_folds}")

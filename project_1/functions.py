@@ -82,20 +82,36 @@ def scale_mean(X_train: np.matrix, X_test: np.matrix, y_train: np.matrix, y_test
     
     return X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled
 
-def scale_mean_svd(X: np.matrix, y: np.matrix) -> tuple:
+def scale_mean_std(X_train: np.matrix, X_test: np.matrix, y_train: np.matrix, y_test: np.matrix) -> tuple:
     """
         Subtracts the mean value and divides by the standard deviation
 
         Parameters:
-            X (np.matrix): Design matrix
-            y (np.matrix): Outcome
-
+            X_train (numpy matrix) training design matrix
+            X_test (numpy matrix) testing design matrix
+            y_train (numpy array) training target
+            y_test (numpy array) testing target
+            
         Returns:
-            (np.matrix): Scaled design matrix
-            (np.matrix): Scaled outcome
+            (numpy matrix) training design matrix scaled
+            (numpy matrix) testing design matrix scaled
+            (numpy array) training target scaled
+            (numpy array) testing target scaled
     """
-    compute = lambda m: (m - np.mean(m)) / np.std(m)
-    return compute(X), compute(y)
+    
+    X_train[0, :] = 0
+
+    mean_X = np.mean(X_train, axis=0)
+    std_X = np.std(X_train, axis=0)
+    X_train_scaled = (X_train - mean_X) / std_X
+    X_test_scaled = (X_test - mean_X) / std_X
+
+    mean_y = np.mean(y_train)
+    std_y = np.std(y_train)
+    y_train_scaled = (y_train - mean_y) / std_y
+    y_test_scaled = (y_test - mean_y) / std_y
+    
+    return X_train_scaled, X_test_scaled, y_train_scaled, y_test_scaled
 
 def mean_squared_error(y_data: np.matrix, y_model: np.matrix):
     """
@@ -144,7 +160,7 @@ def ols(X: np.matrix, y: np.matrix, lmd: float = 0) -> np.matrix:
 
 class Regression():
 
-    def __init__(self, max_degree: int, n: int, noise: float, rng: np.random.Generator, scale: bool = True, data: tuple = None):
+    def __init__(self, max_degree: int, n: int, noise: float, rng: np.random.Generator, scale: bool = True, data: tuple = None, with_std: bool = False):
         """
             Regression class
             
@@ -156,13 +172,16 @@ class Regression():
                 n (int): number of data points
                 noise (float): variance for the noise
                 rng (numpy Generator): random number generator
-                scale (bool): wheter to scale or not the data
+                scale (bool): whether to scale or not the data
+                data (np.matrix, np.matrix, np.matrix): optional data (x, y, z) to use; if not provided, uses the Franke function by default
+                with_std (bool): if true, will divide by the standard deviation when scaling
         """
         
         self.max_degree = max_degree
         self.rng = rng
         self.noise = noise
         self.data_points = n
+        self.with_std = with_std
         
         if data is None:
             self.x = rng.uniform(0, 1, (n, 1))
@@ -180,7 +199,8 @@ class Regression():
         
         self._scaled = False
         if scale:
-            self.X_train_, self.X_test_, self.z_train, self.z_test = scale_mean(self.X_train_, self.X_test_, self.z_train, self.z_test)
+            do_scale = scale_mean if not self.with_std else scale_mean_std
+            self.X_train_, self.X_test_, self.z_train, self.z_test = do_scale(self.X_train_, self.X_test_, self.z_train, self.z_test)
             self._scaled = True
 
     def ordinary_least_squares(self, degree: int, scale: bool = True):
@@ -189,7 +209,8 @@ class Regression():
         """
         
         if not self._scaled and scale:
-            X_train_, X_test_, z_train, z_test = scale_mean(self.X_train_, self.X_test_, self.z_train, self.z_test)
+            do_scale = scale_mean if not self.with_std else scale_mean_std
+            X_train_, X_test_, z_train, z_test = do_scale(self.X_train_, self.X_test_, self.z_train, self.z_test)
             X_train = X_train_[:, :self._n_features(degree)]
             X_test = X_test_[:, :self._n_features(degree)]
         else:
@@ -268,16 +289,21 @@ class Regression():
         # perform the cross-validation to estimate MSE
         scores_KFold = np.zeros(n_folds)
 
+        for i in range(X.shape[1]):
+            X[:, i] = self.rng.permutation(X[:, i])
+        z = self.rng.permutation(self.z)
+
         i = 0
         for train_inds, test_inds in kfolds.split(X):
             # select k_folds data
             X_train = X[train_inds, :]
-            z_train = self.z[train_inds]
+            z_train = z[train_inds]
 
             X_test = X[test_inds, :]
-            z_test = self.z[test_inds]
+            z_test = z[test_inds]
             
-            X_train, X_test, z_train, z_test = scale_mean(X_train, X_test, z_train, z_test)
+            do_scale = scale_mean if not self.with_std else scale_mean_std
+            X_train, X_test, z_train, z_test = do_scale(X_train, X_test, z_train, z_test)
 
             if alpha == 0:  # ridge and ols
                 # model and prediction
