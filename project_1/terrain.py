@@ -13,18 +13,18 @@ TERRAIN_1 = 'SRTM_data_Norway_1'
 TERRAIN_2 = 'SRTM_data_Norway_2'
 
 
-def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, scissor: float = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True) -> np.matrix:
+def load_terrain(name: str, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, downsample: int = 1, scissor: float = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True) -> np.matrix:
     """
         From an image filename, loads the terrain matrix with optional downsampling
 
         Parameters:
             name (str): Name of the tif file to load in
-            downsample (float): Optional float in 0..1 to multiply the loaded image size in by to downsample (nearest filtering)
             min_xy (float|None): Desired minimum X & Y to use in order to scale the axes; if None, won't scale
             max_xy (float|None): Desired maximum X & Y to use in order to scale the axes; if None, won't scale
             min_z (float|None): Desired minimum Z to use in order to scale the input data; if None, won't scale
             max_z (float|None): Desired maximum Z to use in order to scale the input data; if None, won't scale
             rng (np.random.Generator|None): Random number generator to use to sample the input data non linearly (None to sample linearly)
+            downsample (int): Optional value (>1) to downsample by nearest filtering - only every nth value will be kept
             scissor (float|None): If !None, the fraction of the normal terrain to keep (cropping out the rest)
             sparse_sample (float): If rng is not None, the fraction of data points to keep out of the initial data
             plot (bool): Whether to show a 3D plot of the input data before returning the results
@@ -49,9 +49,8 @@ def load_terrain(name: str, downsample: float = 1, min_xy: float = 0, max_xy: fl
         terrain = terrain[:N, :N]
 
     # Downsample if needed
-    if downsample > 0 and downsample < 1:
-        n = math.floor(1 / downsample)
-        terrain = terrain[::n, ::n]
+    if downsample > 1:
+        terrain = terrain[::downsample, ::downsample]
         N = terrain.shape[0] # i.e. N = N / downsample
     
     # Remap (normalize to 0..1 by default) input data (invlerp -> lerp)
