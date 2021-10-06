@@ -41,7 +41,7 @@ min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 # mse vs (lambdas, degs) for bootstrap
 plt.figure(f"bootstrap", figsize=(11, 9), dpi=80)
 plt.contourf(np.log10(alphas), degrees, mse.T)
-plt.plot(np.log10(alphas[lmd_min]), degrees[deg_min], 'or')
+plt.plot(np.log10(alphas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
 plt.ylabel("degrees",fontsize=14)
 plt.xlabel("lambdas",fontsize=14)
 plt.colorbar()
@@ -66,7 +66,7 @@ for idx, n_folds in enumerate(n_folds_vals):
     plt.figure(f"cross validation", figsize=(11, 9), dpi=80)
 
     plt.contourf(np.log10(alphas), degrees, mse.T)
-    plt.plot(np.log10(alphas[lmd_min]), degrees[deg_min], 'or')
+    plt.plot(np.log10(alphas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
     plt.ylabel("degrees",fontsize=14)
     plt.xlabel("lambdas",fontsize=14)
     plt.colorbar()
