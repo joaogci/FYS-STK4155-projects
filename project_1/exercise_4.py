@@ -41,7 +41,7 @@ plt.ylabel("degrees",fontsize=14)
 plt.xlabel("lambdas",fontsize=14)
 plt.colorbar()
 
-plt.savefig(f"ex4_bootstrap_btc_{max_bootstrap}_n_{n}_noise_{noise}.pdf", dpi=400)
+plt.savefig(f"./images/ex4_bootstrap_btc_{max_bootstrap}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
 
 # cross validation for MSE
 mse = np.zeros((n_lambdas, max_degree))
@@ -63,7 +63,7 @@ plt.ylabel("degrees",fontsize=14)
 plt.xlabel("lambdas",fontsize=14)
 plt.colorbar()
 
-plt.savefig(f"ex4_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
+plt.savefig(f"./images/ex4_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
 
 # plt.show()
 
