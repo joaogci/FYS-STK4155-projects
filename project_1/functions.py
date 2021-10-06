@@ -289,9 +289,9 @@ class Regression():
         # perform the cross-validation to estimate MSE
         scores_KFold = np.zeros(n_folds)
 
-        for i in range(X.shape[1]):
-            X[:, i] = self.rng.permutation(X[:, i])
-        z = self.rng.permutation(self.z)
+        perm = self.rng.permuted(np.arange(0, X.shape[0]))
+        X = X[perm, :]
+        z = self.z[perm]
 
         i = 0
         for train_inds, test_inds in kfolds.split(X):
