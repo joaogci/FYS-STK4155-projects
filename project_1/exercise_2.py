@@ -9,7 +9,7 @@ from functions import Regression
 max_degree = 15
 n_vals = [400, 800, 1200, 1600]
 noise = 0.25
-max_bootstrap = 100
+max_bootstrap = n_vals
 degrees = np.arange(1, max_degree + 1)
 
 # rng and seed
@@ -29,7 +29,7 @@ for j, n in enumerate(n_vals):
     var = np.zeros(max_degree)
     
     for i, deg in enumerate(range(1, max_degree + 1)):
-        mse[i], bias[i], var[i] = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
+        mse[i], bias[i], var[i] = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap[j])
 
     plt.subplot(2, 2, j+1)
     
