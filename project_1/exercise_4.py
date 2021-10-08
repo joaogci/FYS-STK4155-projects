@@ -79,10 +79,10 @@ for idx, n_folds in enumerate(n_folds_vals):
 
 # save min to file
 with open("./ex4_min.txt", "w") as file:
-    file.write("Bootstrap: ")
+    file.write("Bootstrap: \n")
     file.write(f"mse: {min_mse[0]}; lmd: {lmd_min[0]}; deg: {deg_min[0]} \n")
     
-    file.write("Cross Validation:")
+    file.write("Cross Validation: \n")
     for i, n_folds in enumerate(n_folds_vals):    
         file.write(f"n_folds: {n_folds}; mse: {min_mse[i + 1]}; lmd: {lmd_min[i + 1]}; deg: {deg_min[i + 1]} \n")
 

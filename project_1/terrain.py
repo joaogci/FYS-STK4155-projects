@@ -13,7 +13,7 @@ TERRAIN_1 = 'SRTM_data_Norway_1'
 TERRAIN_2 = 'SRTM_data_Norway_2'
 
 
-def load_terrain(name: str, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, downsample: int = 1, scissor: float = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True) -> np.matrix:
+def load_terrain(name: str, min_xy: float = 0, max_xy: float = 1, min_z: float = 0, max_z: float = 1, rng: np.random.Generator = None, downsample: int = 1, scissor: float = None, sparse_sample: float = 0.5, plot: bool = False, show_plot: bool = True, save_fig: bool = False) -> np.matrix:
     """
         From an image filename, loads the terrain matrix with optional downsampling
 
@@ -92,6 +92,8 @@ def load_terrain(name: str, min_xy: float = 0, max_xy: float = 1, min_z: float =
         plt.ylabel('y')
         if show_plot:
             plt.show()
+        if save_fig:
+            plt.savefig("./images/ex6_original_data.pdf", dpi=400)
 
     ravel = lambda m: np.ravel(m).reshape((np.ravel(m).shape[0], 1))
     return ravel(x), ravel(y), ravel(terrain)
