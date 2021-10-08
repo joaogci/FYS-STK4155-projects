@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import cm
 
-def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: float = 1, min_y: float = 0, max_y: float = 1, name: str = 'Prediction', display_steps: int = 100, show: bool = True) -> None:
+def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: float = 1, min_y: float = 0, max_y: float = 1, name: str = 'Prediction', display_steps: int = 100, show: bool = True, save_fig: bool = False) -> None:
     """
         Given a beta feature matrix of a certain degree, plots the estimate of a 2D function over a certain domain
 
@@ -45,3 +45,5 @@ def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: fl
 
     if show:
         plt.show()
+    if save_fig: 
+        plt.savefig("./images/ex6_pred_OLS.pdf")

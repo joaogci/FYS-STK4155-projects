@@ -1,25 +1,25 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.linear_model import Ridge, LinearRegression
+from sklearn.model_selection import cross_val_score, KFold
 
 from terrain import load_terrain, TERRAIN_1, TERRAIN_2
 from functions import Regression, create_X_2D, scale_mean
 from plots import plot_prediction_3D
-from sklearn.linear_model import Ridge, LinearRegression
-from sklearn.model_selection import cross_val_score, KFold
-import numpy as np
-import matplotlib.pyplot as plt
-
 
 
 # constants
-max_degree_ols = 50
+max_degree_ols = 20
 max_degree_cv_ols = 14 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 22 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
 max_bootstrap = 300
-scissor = 0.05 # crop data to 5% of the full set
-downsample = 4 # downsample data to 25% of the cropped set
+scissor = 1 # crop data to 5% of the full set
+downsample = 10 # downsample data to 25% of the cropped set
 bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
 n_folds_vals = np.array([ 5, 7, 10 ]) # number of folds for CV
-lambdas = np.logspace(-8, 0, 100) # lambda values to use for ridge/lasso regression
+lambdas = np.logspace(-6, 1, 100) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
@@ -27,12 +27,12 @@ noise = 1.0 # assumed constant used to compute the std
 do_ols = False  #  essentially exercise 1 again
 do_bootstrap_bv = False #               2
 do_cv_bv = False #                      3
-do_ridge_cv = True #                   4
+do_ridge_cv = False #                   4
 do_lasso_cv = False #                   5
 
 
 # Load data set
-x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=False, show_plot=False)
+x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=True, show_plot=False, save_fig=True)
 print(x.shape[0], 'datapoints') # Show number of data points
 
 # RNG
@@ -64,7 +64,7 @@ if do_ols:
     r2_test = np.zeros((2, max_degree_ols))
 
     # Keep track of final betas/variance
-    features_last = int((max_degree_ols + 1) * (max_degree_ols + 2) / 2)
+    features_last = int((5 + 1) * (5 + 2) / 2)
     betas_last = np.zeros((2, features_last))
     std_betas_last = np.zeros((2, features_last))
 
@@ -81,7 +81,7 @@ if do_ols:
         betas_unscaled, var_betas_unscaled ) = reg.ordinary_least_squares(degree=deg, scale=False)
         
         # save betas and var_betas
-        if deg == max_degree_ols:
+        if deg == 5:
             betas_last[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
             betas_last[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
             std_betas_last[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
@@ -146,10 +146,10 @@ if do_ols:
     plt.ylabel(r"R2")
     plt.legend()
 
-    plt.savefig("./images/ex6_MSE_R2_vs_complexity.pdf", dpi=400)
+    plt.savefig("./images/ex6_mse_r2_comp.pdf", dpi=400)
     
     # Plot prediction to visually compare with original data
-    plot_prediction_3D(betas_last[0], max_degree_ols, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False)
+    plot_prediction_3D(betas_last[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False, save_fig=True)
 
 
 
@@ -166,7 +166,7 @@ if do_bootstrap_bv:
     # bootstrap for bias and var
     for j, ds in enumerate(bootstrap_downsamples):
 
-        bx, by, bz = load_terrain(terrain_set, downsample=ds, scissor=scissor, rng=None)
+        bx, by, bz = load_terrain(terrain_set, downsample=ds, scissor=scissor, rng=None, show_plot=False, plot=False, save_fig=False)
         n = bx.shape[0]
 
         # regression object
@@ -191,7 +191,7 @@ if do_bootstrap_bv:
         plt.xlabel(r"complexity")
         plt.legend()
 
-        plt.savefig("./images/ex6_BVTO_bootstrap.pdf", dpi=400)
+    plt.savefig("./images/ex6_bv_bootstrap_various_n.pdf", dpi=400)
 
 # -------------------------------
 # Bias-variance trade-off with CV
@@ -243,7 +243,7 @@ if do_cv_bv:
     plt.ylabel(r"MSE")
     plt.title(f"bootstrap with n_cycles={max_bootstrap}")
 
-    plt.savefig("./images/ex6_MSE_comparison.pdf", dpi=400)
+    plt.savefig("./images/ex6_bv_bootstrap_cv_comp.pdf", dpi=400)
 
 # -------------------------------
 # CV with ridge
@@ -281,7 +281,7 @@ if do_ridge_cv:
     plt.xlabel("lambdas",fontsize=14)
     plt.colorbar()
 
-    plt.savefig("./images/ex6_bootstrap_Ridge.pdf", dpi=400)
+    plt.savefig(f"./images/ex6_bootstrap_bsc_{max_bootstrap}_ridge.pdf", dpi=400)
 
     for idx, n_folds in enumerate(n_folds_vals):
         # cross validation for MSE
@@ -305,8 +305,17 @@ if do_ridge_cv:
         plt.xlabel("lambdas",fontsize=14)
         plt.colorbar()
 
-        plt.savefig(f"./images/ex6_MSE_Ridge_cross_val_{n_folds}-folds.pdf", dpi=400)
-
+        plt.savefig(f"./images/ex6_cv_n_folds_{n_folds}_lasso.pdf", dpi=400)
+    
+    # save min to file
+    with open("./ex6_min_ridge.txt", "w") as file:
+        file.write("Bootstrap: \n")
+        file.write(f"mse: {min_mse[0]}; lmd: {lmd_min[0]}; deg: {deg_min[0]} \n")
+        
+        file.write("Cross Validation: \n")
+        for i, n_folds in enumerate(n_folds_vals):    
+            file.write(f"n_folds: {n_folds}; mse: {min_mse[i + 1]}; lmd: {lmd_min[i + 1]}; deg: {deg_min[i + 1]} \n")
+    
 # -------------------------------
 # CV with lasso
 # -------------------------------
@@ -343,7 +352,7 @@ if do_lasso_cv:
     plt.xlabel("lambdas",fontsize=14)
     plt.colorbar()
 
-    plt.savefig("./images/ex6_bootstrap_Lasso.pdf", dpi=400)
+    plt.savefig("./images/ex6_bootstrap_bsc_{max_bootstrap}_lasso.pdf", dpi=400)
 
     for idx, n_folds in enumerate(n_folds_vals):
         # cross validation for MSE
@@ -367,4 +376,14 @@ if do_lasso_cv:
         plt.xlabel("lambdas",fontsize=14)
         plt.colorbar()
 
-        plt.savefig(f"./images/ex6_MSE_Lasso_cross_val_{n_folds}-folds.pdf", dpi=400)
+        plt.savefig(f"./images/ex6_cv_n_folds_{n_folds}_lasso.pdf", dpi=400)
+    
+    # save min to file
+    with open("./ex6_min_lasso.txt", "w") as file:
+        file.write("Bootstrap: \n")
+        file.write(f"mse: {min_mse[0]}; lmd: {lmd_min[0]}; deg: {deg_min[0]} \n")
+        
+        file.write("Cross Validation: \n")
+        for i, n_folds in enumerate(n_folds_vals):    
+            file.write(f"n_folds: {n_folds}; mse: {min_mse[i + 1]}; lmd: {lmd_min[i + 1]}; deg: {deg_min[i + 1]} \n")
+
