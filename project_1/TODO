@@ -45,5 +45,5 @@ ex5:
     - Do BVTO with bootstrap and do MSE analysis with CV
 
 ex6:
-    - Do ex1 to ex5 for real terrain data
+    - DONE - Do ex1 to ex5 for real terrain data
     - Use CV to say which model fits best
