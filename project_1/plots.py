@@ -39,8 +39,8 @@ def plot_prediction_3D(beta: np.matrix, degree: int, min_x: float = 0, max_x: fl
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
     fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.xlabel('x')
-    plt.ylabel('y')
+    plt.xlabel(r"$x$")
+    plt.ylabel(r"$y$")   
     plt.title(name)
 
     if show:

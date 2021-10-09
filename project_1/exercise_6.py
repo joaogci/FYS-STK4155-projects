@@ -18,8 +18,8 @@ max_bootstrap = 100
 scissor = 1 # crop data to 5% of the full set
 downsample = 20 # downsample data to 25% of the cropped set
 bootstrap_downsamples = [ 25, 20, 15, 10 ] # 20%, 25%, 33%, 50%
-n_folds_vals = np.array([ 5, 7, 10 ]) # number of folds for CV
-lambdas = np.logspace(-5, 1, 100) # lambda values to use for ridge/lasso regression
+n_folds = 7 # number of folds for CV
+lambdas = np.logspace(-5, 1, 50) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
@@ -89,68 +89,93 @@ if do_ols:
 
 
     # confidence interval beta values plots
-    plt.figure("Confidence intervals for beta values", figsize=(7, 9), dpi=80)
+    plt.figure("Confidence intervals for beta values", figsize=(8, 4))
 
-    ax = plt.subplot(211)
+    ax = plt.subplot(121)
     plt.errorbar(np.arange(betas_d5[0, :].shape[0]), betas_d5[0], yerr=2*std_betas_d5[0, :], fmt='xb', capsize=4)
-    plt.title("scaled")
+    plt.title("scaled")#,fontsize=20)
     plt.xlim((-1, betas_d5[0].shape[0]+1))
-    plt.xlabel(r"$i$")
-    plt.ylabel(r"$\beta_i \pm 2\sigma$")
+    plt.xlabel(r"$i$")#,fontsize=20)
+    plt.ylabel(r"$\beta_i \pm 2\sigma$")#,fontsize=20)
+    #plt.yticks(fontsize=20)
+    #plt.xticks(fontsize=20)
 
-    ax = plt.subplot(212)
+    ax = plt.subplot(122)
     plt.errorbar(np.arange(betas_d5[1, :].shape[0]), betas_d5[1, :], yerr=2*std_betas_d5[1, :], fmt='xb', capsize=4)
     plt.xlim((-1, betas_d5[1, :].shape[0]+1))
-    plt.title("unscaled scaled")
-    plt.xlabel(r"$i$")
-    plt.ylabel(r"$\beta_i \pm 2\sigma$")
+    plt.title("unscaled")#,fontsize=20)
+    plt.xlabel(r"$i$")#,fontsize=20)
+    plt.ylabel(r"$\beta_i \pm 2\sigma$")#,fontsize=20)
+    #plt.yticks(fontsize=20)
+    #plt.xticks(fontsize=20)
 
-    plt.savefig("./images/ex6_conf_int_beta.pdf", dpi=400)
+    plt.subplots_adjust(left=0.11,
+                        bottom=0.1, 
+                        right=0.95, 
+                        top=0.95, 
+                        wspace=0.3, 
+                        hspace=0.6)
+
+    plt.savefig(f"./images/ex6_cnf_intv_betas.pdf")
 
     # plot MSE and R2 over complexity
-    plt.figure("MSE and R2 vs complexity", figsize=(11, 9), dpi=80)
+    plt.figure("MSE and R2 vs complexity")#, figsize=(18, 14))
 
     # MSE scaled
     plt.subplot(221)
     plt.plot(degrees_ols, mse_train[0, :], '-k', label="train")
     plt.plot(degrees_ols, mse_test[0, :], '--k', label="test")
-    plt.title("MSE scaled")
-    plt.xlabel(r"complexity")
-    plt.ylabel(r"MSE")
+    plt.title("MSE scaled")#,fontsize=20)
+    plt.xlabel(r"complexity")#,fontsize=20)
+    plt.ylabel(r"MSE")#,fontsize=20)
+    #plt.yticks(fontsize=20)
+    #plt.xticks(fontsize=20)
     plt.legend()
 
     # MSE unscaled
     plt.subplot(222)
     plt.plot(degrees_ols, mse_train[1, :], '-k', label="train")
     plt.plot(degrees_ols, mse_test[1, :], '--k', label="test")
-    plt.title("MSE unscaled")
-    plt.xlabel(r"complexity")
-    plt.ylabel(r"MSE")
+    plt.title("MSE unscaled")#,fontsize=20)
+    plt.xlabel(r"complexity")#,fontsize=20)
+    plt.ylabel(r"MSE")#,fontsize=20)
+    #plt.yticks(fontsize=20)
+    #plt.xticks(fontsize=20)
     plt.legend()
 
     # R2 scaled
     plt.subplot(223)
     plt.plot(degrees_ols, r2_train[0, :], '-k', label="train")
     plt.plot(degrees_ols, r2_test[0, :], '--k', label="test")
-    plt.title("R2 scaled")
-    plt.xlabel(r"complexity")
-    plt.ylabel(r"R2")
+    plt.title("R2 scaled")#,fontsize=20)
+    plt.xlabel(r"complexity")#,fontsize=20)
+    plt.ylabel(r"R2")#,fontsize=20)
+    #plt.yticks(fontsize=20)
+    #plt.xticks(fontsize=20)
     plt.legend()
 
     # R2 unscaled
     plt.subplot(224)
     plt.plot(degrees_ols, r2_train[1, :], '-k', label="train")
     plt.plot(degrees_ols, r2_test[1, :], '--k', label="test")
-    plt.title("R2 unscaled")
-    plt.xlabel(r"complexity")
-    plt.ylabel(r"R2")
+    plt.title("R2 unscaled")#,fontsize=20)
+    plt.xlabel(r"complexity")#,fontsize=20)
+    plt.ylabel(r"R2")#,fontsize=20)
+    #plt.yticks(fontsize=20)
+    #plt.xticks(fontsize=20)
     plt.legend()
 
-    plt.savefig("./images/ex6_mse_r2_comp.pdf", dpi=400)
-    
+    plt.subplots_adjust(left=0.1,
+                        bottom=0.1, 
+                        right=0.95, 
+                        top=0.95, 
+                        wspace=0.3, 
+                        hspace=0.4)
+
+    plt.savefig(f"./images/ex6_mse_r2_comp.pdf")    
+
     # Plot prediction to visually compare with original data
     plot_prediction_3D(betas_d5[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False, save_fig=True)
-
 
 
 # -------------------------------
@@ -161,7 +186,7 @@ if do_bootstrap_bv:
 
     print("Computing bias-variance trade-off with Bootstrap")
 
-    plt.figure("bias-variance trade-off", figsize=(11, 9), dpi=80)
+    plt.figure("bias-variance trade-off", figsize=(9, 7))
 
     # bootstrap for bias and var
     for j, ds in enumerate(bootstrap_downsamples):
@@ -189,9 +214,17 @@ if do_bootstrap_bv:
         plt.plot(degrees_cv_ols, bias + var, '-.k', label='var+bias')
 
         plt.xlabel(r"complexity")
-        plt.legend()
+        plt.ylabel(r"MSE")
+        plt.legend()    
 
-    plt.savefig("./images/ex6_bv_bootstrap_various_n.pdf", dpi=400)
+    plt.subplots_adjust(left=0.1,
+                        bottom=0.1, 
+                        right=0.95, 
+                        top=0.95, 
+                        wspace=0.25, 
+                        hspace=0.25)
+
+    plt.savefig(f"./images/ex2_bias_var_bsc_{max_bootstrap}_noise_{noise}.pdf", dpi=400)
 
 # -------------------------------
 # Bias-variance trade-off with CV
@@ -202,32 +235,31 @@ if do_cv_bv:
     print("Computing bias-variance trade-off with CV")
 
     # figure plot
-    plt.figure("MSE comparison", figsize=(11, 9), dpi=80)
-
+    plt.figure("MSE comparison", figsize=(9, 7))
+    
     # cross validation
-    for j, n_folds in enumerate(n_folds_vals):
-        # regression object
-        reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
+    # regression object
+    reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
 
-        mse_cv = np.zeros(max_degree_cv_ols)
-        mse_cv_sk = np.zeros(max_degree_cv_ols)
-        for i, deg in enumerate(degrees_cv_ols):
+    mse_cv = np.zeros(max_degree_cv_ols)
+    mse_cv_sk = np.zeros(max_degree_cv_ols)
+    for i, deg in enumerate(degrees_cv_ols):
 
-            # Compute own
-            mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
+        # Compute own
+        mse_cv[i] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds)
 
-            # Compute SKLearn
-            sk_kfold = KFold(n_splits=n_folds, shuffle=True)
-            mse_cv_sk[i] = np.mean(-cross_val_score(LinearRegression(fit_intercept=False), create_X_2D(deg, x, y), z, cv=sk_kfold, scoring="neg_mean_squared_error"))
-        
-        plt.subplot(2, 2, j+1)
-        
-        plt.plot(degrees_cv_ols, mse_cv, '-k', label="Our code")
-        plt.plot(degrees_cv_ols, mse_cv_sk, 'b--', label="Sklearn") # Plot against sklearn's
-        plt.xlabel(r"complexity")
-        plt.ylabel(r"MSE")
-        plt.legend(loc="best")
-        plt.title(f"k-folds cross validation with k={n_folds}")
+        # Compute SKLearn
+        sk_kfold = KFold(n_splits=n_folds, shuffle=True)
+        mse_cv_sk[i] = np.mean(-cross_val_score(LinearRegression(fit_intercept=False), create_X_2D(deg, x, y), z, cv=sk_kfold, scoring="neg_mean_squared_error"))
+    
+    plt.subplot(2, 2, j+1)
+    
+    plt.plot(degrees_cv_ols, mse_cv, '-k', label="Our code")
+    plt.plot(degrees_cv_ols, mse_cv_sk, 'b--', label="Sklearn") # Plot against sklearn's
+    plt.xlabel(r"complexity")
+    plt.ylabel(r"MSE")
+    plt.legend(loc="best")
+    plt.title(f"k-folds cross validation with k={n_folds}")
 
     # compare with bootstrap
     reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
@@ -242,6 +274,13 @@ if do_cv_bv:
     plt.xlabel(r"complexity")
     plt.ylabel(r"MSE")
     plt.title(f"bootstrap with n_cycles={max_bootstrap}")
+    
+    plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.95, 
+                    top=0.95, 
+                    wspace=0.25, 
+                    hspace=0.25)
 
     plt.savefig("./images/ex6_bv_bootstrap_cv_comp.pdf", dpi=400)
 
@@ -256,9 +295,11 @@ if do_ridge_cv:
     n_lambdas = lambdas.shape[0]
 
     # min lmd and deg arrays
-    min_mse = np.zeros(n_folds_vals.shape[0] + 1)
-    lmd_min = np.zeros(n_folds_vals.shape[0] + 1)
-    deg_min = np.zeros(n_folds_vals.shape[0] + 1)
+    min_mse = np.zeros(2)
+    lmd_min = np.zeros(2)
+    deg_min = np.zeros(2)
+    
+    plt.figure(f"bootstrap vs cv", figsize=(11, 5))
 
     # bootstrap for MSE
     mse = np.zeros((n_lambdas, max_degree_cv))
@@ -272,40 +313,42 @@ if do_ridge_cv:
     deg_min[0] = degrees_cv[min_mse_where[1][0]]
     min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
-    # mse vs (lambdas, degs) for bootstrap
-    plt.figure(f"bootstrap Ridge", figsize=(11, 9), dpi=80)
-
+    plt.subplot(121)
     plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
     plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
-    plt.ylabel("degrees",fontsize=14)
-    plt.xlabel("lambdas",fontsize=14)
+    plt.title(f"MSE for OLS with bootstrap with {max_bootstrap} cycles")
+    plt.ylabel(r"complexity")
+    plt.xlabel(r"$\lambda$")
     plt.colorbar()
 
-    plt.savefig(f"./images/ex6_bootstrap_bsc_{max_bootstrap}_ridge.pdf", dpi=400)
+    # cross validation for MSE
+    mse = np.zeros((n_lambdas, max_degree_cv))
 
-    for idx, n_folds in enumerate(n_folds_vals):
-        # cross validation for MSE
-        mse = np.zeros((n_lambdas, max_degree_cv))
+    for j, deg in enumerate(degrees_cv):
+        for i, lmd in enumerate(lambdas):
+            mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=lmd)
 
-        for j, deg in enumerate(degrees_cv):
-            for i, lmd in enumerate(lambdas):
-                mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=lmd)
+    min_mse_where = np.where(mse == np.min(mse))
+    lmd_min[1] = lambdas[min_mse_where[0][0]]
+    deg_min[1] = degrees_cv[min_mse_where[1][0]]
+    min_mse[1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
-        min_mse_where = np.where(mse == np.min(mse))
-        lmd_min[idx + 1] = lambdas[min_mse_where[0][0]]
-        deg_min[idx + 1] = degrees_cv[min_mse_where[1][0]]
-        min_mse[idx + 1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
+    plt.subplot(122)
+    plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+    plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
+    plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
+    plt.ylabel(r"complexity")
+    plt.xlabel(r"$\lambda$")
+    plt.colorbar()
 
-        # mse vs (lambdas, degs) for cross validation
-        plt.figure(fr"cross validation Ridge, {n_folds} folds", figsize=(11, 9), dpi=80)
+    plt.subplots_adjust(left=0.05,
+                        bottom=0.1, 
+                        right=0.95, 
+                        top=0.95, 
+                        wspace=0.15, 
+                        hspace=0.25)
 
-        plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
-        plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
-        plt.ylabel("degrees",fontsize=14)
-        plt.xlabel("lambdas",fontsize=14)
-        plt.colorbar()
-
-        plt.savefig(f"./images/ex6_cv_n_folds_{n_folds}_lasso.pdf", dpi=400)
+    plt.savefig(f"./images/ex6_bs_bcs_{max_bootstrap}_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_ridge.pdf", dpi=400)
     
     # save min to file
     with open("./ex6_min_ridge.txt", "w") as file:
@@ -313,9 +356,7 @@ if do_ridge_cv:
         file.write(f"mse: {min_mse[0]}; lmd: {lmd_min[0]}; deg: {deg_min[0]} \n")
         
         file.write("Cross Validation: \n")
-        for i, n_folds in enumerate(n_folds_vals):    
-            file.write(f"n_folds: {n_folds}; mse: {min_mse[i + 1]}; lmd: {lmd_min[i + 1]}; deg: {deg_min[i + 1]} \n")
-    
+        file.write(f"mse: {min_mse[1]}; lmd: {lmd_min[1]}; deg: {deg_min[1]} \n")    
 # -------------------------------
 # CV with lasso
 # -------------------------------
@@ -332,6 +373,8 @@ if do_lasso_cv:
     deg_min[0] = degrees_cv[min_mse_where[1][0]]
     min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
+    plt.figure(f"bootstrap", figsize=(11, 5))
+
     # bootstrap for MSE
     mse = np.zeros((n_lambdas, max_degree_cv))
 
@@ -345,45 +388,49 @@ if do_lasso_cv:
     min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
     # mse vs (lambdas, degs) for bootstrap
-    plt.figure(f"bootstrap Lasso", figsize=(11, 9), dpi=80)
+    plt.subplot(121)
     plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
     plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
-    plt.ylabel("degrees",fontsize=14)
-    plt.xlabel("lambdas",fontsize=14)
+    plt.title(f"MSE for OLS with bootstrap with {max_bootstrap} cycles")
+    plt.ylabel(r"complexity")
+    plt.xlabel(r"$\lambda$")
     plt.colorbar()
 
-    plt.savefig("./images/ex6_bootstrap_bsc_{max_bootstrap}_lasso.pdf", dpi=400)
+    # cross validation for MSE
+    mse = np.zeros((n_lambdas, max_degree_cv))
 
-    for idx, n_folds in enumerate(n_folds_vals):
-        # cross validation for MSE
-        mse = np.zeros((n_lambdas, max_degree_cv))
+    for j, deg in enumerate(degrees_cv):
+        for i, alpha in enumerate(lambdas):
+            mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, alpha=alpha)
 
-        for j, deg in enumerate(degrees_cv):
-            for i, alpha in enumerate(lambdas):
-                mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, alpha=alpha)
-
-        min_mse_where = np.where(mse == np.min(mse))
-        lmd_min[idx + 1] = lambdas[min_mse_where[0][0]]
-        deg_min[idx + 1] = degrees_cv[min_mse_where[1][0]]
-        min_mse[idx + 1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
-        
-        # mse vs (lambdas, degs) for cross validation
-        plt.figure(fr"cross validation Lasso, {n_folds} folds", figsize=(11, 9), dpi=80)
-
-        plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
-        plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
-        plt.ylabel("degrees",fontsize=14)
-        plt.xlabel("lambdas",fontsize=14)
-        plt.colorbar()
-
-        plt.savefig(f"./images/ex6_cv_n_folds_{n_folds}_lasso.pdf", dpi=400)
+    min_mse_where = np.where(mse == np.min(mse))
+    lmd_min[1] = lambdas[min_mse_where[0][0]]
+    deg_min[1] = degrees_cv[min_mse_where[1][0]]
+    min_mse[1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
     
+    # mse vs (lambdas, degs) for cross validation
+    plt.subplot(122)
+    plt.contourf(np.log10(lambdas), degrees_cv, mse.T)
+    plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
+    plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
+    plt.ylabel(r"complexity")
+    plt.xlabel(r"$\lambda$")
+    plt.colorbar()
+
+    plt.subplots_adjust(left=0.05,
+                        bottom=0.1, 
+                        right=0.95, 
+                        top=0.95, 
+                        wspace=0.15, 
+                        hspace=0.25)
+
+    plt.savefig(f"./images/ex6_bs_bcs_{max_bootstrap}_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_lasso.pdf", dpi=400)
+
     # save min to file
     with open("./ex6_min_lasso.txt", "w") as file:
         file.write("Bootstrap: \n")
         file.write(f"mse: {min_mse[0]}; lmd: {lmd_min[0]}; deg: {deg_min[0]} \n")
         
         file.write("Cross Validation: \n")
-        for i, n_folds in enumerate(n_folds_vals):    
-            file.write(f"n_folds: {n_folds}; mse: {min_mse[i + 1]}; lmd: {lmd_min[i + 1]}; deg: {deg_min[i + 1]} \n")
+        file.write(f"mse: {min_mse[1]}; lmd: {lmd_min[1]}; deg: {deg_min[1]} \n")
 

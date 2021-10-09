@@ -88,8 +88,8 @@ def load_terrain(name: str, min_xy: float = 0, max_xy: float = 1, min_z: float =
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
         fig.colorbar(surf, shrink=0.5, aspect=5)
         plt.title(name)
-        plt.xlabel('x')
-        plt.ylabel('y')
+        plt.xlabel(r"$x$")
+        plt.ylabel(r"$y$")
         if show_plot:
             plt.show()
         if save_fig:
