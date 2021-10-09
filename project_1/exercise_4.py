@@ -27,7 +27,7 @@ rng = np.random.default_rng(np.random.MT19937(seed=seed))
 reg = Regression(max_degree, n, noise, rng)
 
 
-plt.figure(f"bootstrap vs cv", figsize=(14, 7))
+plt.figure(f"bootstrap vs cv", figsize=(11, 5))
 
 # mse vs (lambdas, degs) for bootstrap
 # bootstrap for MSE
@@ -71,6 +71,13 @@ plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
 plt.ylabel(r"complexity")
 plt.xlabel(r"\lambda")
 plt.colorbar()
+
+plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.95, 
+                    top=0.95, 
+                    wspace=0.25, 
+                    hspace=0.25)
 
 plt.savefig(f"./images/ex4_bs_bcs_{max_bootstrap}_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
 
