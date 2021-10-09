@@ -14,17 +14,10 @@ max_degree_ols = 50
 max_degree_cv_ols = 20 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 20 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
-<<<<<<< HEAD
 max_bootstrap = 100
 scissor = 1 # crop data to 5% of the full set
 downsample = 20 # downsample data to 25% of the cropped set
 bootstrap_downsamples = [ 25, 20, 15, 10 ] # 20%, 25%, 33%, 50%
-=======
-max_bootstrap = 300
-scissor = 1 # crop data to 100% of the full set (no cropping in final data)
-downsample = 10 # downsample data to 10% of the cropped set
-bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
->>>>>>> 1d8c61be676b41f578f3b5910e2a535aca2f59ed
 n_folds_vals = np.array([ 5, 7, 10 ]) # number of folds for CV
 lambdas = np.logspace(-5, 1, 100) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
