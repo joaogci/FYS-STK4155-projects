@@ -27,7 +27,7 @@ rng = np.random.default_rng(np.random.MT19937(seed=seed))
 reg = Regression(max_degree, n, noise, rng)
 
 
-plt.figure(f"bootstrap vs cv", figsize=(9, 9))
+plt.figure(f"bootstrap vs cv", figsize=(9, 18))
 
 # mse vs (lambdas, degs) for bootstrap
 # bootstrap for MSE
