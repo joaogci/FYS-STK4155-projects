@@ -64,7 +64,6 @@ deg_min[1] = degrees[min_mse_where[1][0]]
 min_mse[1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
 plt.subplot(122)
-
 plt.contourf(np.log10(lambdas), degrees, mse.T)
 plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
 plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
