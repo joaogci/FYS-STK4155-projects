@@ -1,0 +1,4 @@
+Bootstrap: 
+mse: 0.0720221295988734; lmd: 1e-05; deg: 9.0 
+Cross Validation: 
+mse: 0.06423326441599872; lmd: 1.3257113655901082e-05; deg: 10.0 
