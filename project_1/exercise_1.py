@@ -48,66 +48,92 @@ for i, deg in enumerate(range(1, max_degree + 1)):
 
 
 # confidence interval beta values plots
-plt.figure("Confidence intervals for beta values", figsize=(7, 9), dpi=80)
+plt.figure("Confidence intervals for beta values", figsize=(8, 4))
 
-ax = plt.subplot(211)
+ax = plt.subplot(121)
 plt.errorbar(np.arange(betas_5[0, :].shape[0]), betas_5[0], yerr=2*std_betas_5[0, :], fmt='xb', capsize=4)
-plt.title("scaled")
+plt.title("scaled")#,fontsize=20)
 plt.xlim((-1, betas_5[0].shape[0]+1))
-plt.xlabel(r"$i$")
-plt.ylabel(r"$\beta_i \pm 2\sigma$")
+plt.xlabel(r"$i$")#,fontsize=20)
+plt.ylabel(r"$\beta_i \pm 2\sigma$")#,fontsize=20)
+#plt.yticks(fontsize=20)
+#plt.xticks(fontsize=20)
 
-ax = plt.subplot(212)
+ax = plt.subplot(122)
 plt.errorbar(np.arange(betas_5[1, :].shape[0]), betas_5[1, :], yerr=2*std_betas_5[1, :], fmt='xb', capsize=4)
 plt.xlim((-1, betas_5[1, :].shape[0]+1))
-plt.title("unscaled scaled")
-plt.xlabel(r"$i$")
-plt.ylabel(r"$\beta_i \pm 2\sigma$")
+plt.title("unscaled")#,fontsize=20)
+plt.xlabel(r"$i$")#,fontsize=20)
+plt.ylabel(r"$\beta_i \pm 2\sigma$")#,fontsize=20)
+#plt.yticks(fontsize=20)
+#plt.xticks(fontsize=20)
 
-plt.savefig(f"./images/ex1_cnf_intv_betas_n_{n}_noise_{noise}.pdf", dpi=400)
+plt.subplots_adjust(left=0.11,
+                    bottom=0.1, 
+                    right=0.95, 
+                    top=0.95, 
+                    wspace=0.3, 
+                    hspace=0.6)
+
+plt.savefig(f"./images/ex1_cnf_intv_betas_n_{n}_noise_{noise}.pdf")
 
 degrees = np.arange(1, max_degree + 1)
 
 # plot MSE and R2 over complexity
-plt.figure("MSE and R2 vs complexity", figsize=(11, 9), dpi=80)
+plt.figure("MSE and R2 vs complexity")#, figsize=(18, 14))
 
 # MSE scaled
 plt.subplot(221)
 plt.plot(degrees, mse_train[0, :], '-k', label="train")
 plt.plot(degrees, mse_test[0, :], '--k', label="test")
-plt.title("MSE scaled")
-plt.xlabel(r"complexity")
-plt.ylabel(r"MSE")
+plt.title("MSE scaled")#,fontsize=20)
+plt.xlabel(r"complexity")#,fontsize=20)
+plt.ylabel(r"MSE")#,fontsize=20)
+#plt.yticks(fontsize=20)
+#plt.xticks(fontsize=20)
 plt.legend()
 
 # MSE unscaled
 plt.subplot(222)
 plt.plot(degrees, mse_train[1, :], '-k', label="train")
 plt.plot(degrees, mse_test[1, :], '--k', label="test")
-plt.title("MSE unscaled")
-plt.xlabel(r"complexity")
-plt.ylabel(r"MSE")
+plt.title("MSE unscaled")#,fontsize=20)
+plt.xlabel(r"complexity")#,fontsize=20)
+plt.ylabel(r"MSE")#,fontsize=20)
+#plt.yticks(fontsize=20)
+#plt.xticks(fontsize=20)
 plt.legend()
 
 # R2 scaled
 plt.subplot(223)
 plt.plot(degrees, r2_train[0, :], '-k', label="train")
 plt.plot(degrees, r2_test[0, :], '--k', label="test")
-plt.title("R2 scaled")
-plt.xlabel(r"complexity")
-plt.ylabel(r"R2")
+plt.title("R2 scaled")#,fontsize=20)
+plt.xlabel(r"complexity")#,fontsize=20)
+plt.ylabel(r"R2")#,fontsize=20)
+#plt.yticks(fontsize=20)
+#plt.xticks(fontsize=20)
 plt.legend()
 
 # R2 unscaled
 plt.subplot(224)
 plt.plot(degrees, r2_train[1, :], '-k', label="train")
 plt.plot(degrees, r2_test[1, :], '--k', label="test")
-plt.title("R2 unscaled")
-plt.xlabel(r"complexity")
-plt.ylabel(r"R2")
+plt.title("R2 unscaled")#,fontsize=20)
+plt.xlabel(r"complexity")#,fontsize=20)
+plt.ylabel(r"R2")#,fontsize=20)
+#plt.yticks(fontsize=20)
+#plt.xticks(fontsize=20)
 plt.legend()
 
-plt.savefig(f"./images/ex1_mse_r2_comp_{n}_noise_{noise}.pdf", dpi=400)
+plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.95, 
+                    top=0.95, 
+                    wspace=0.3, 
+                    hspace=0.4)
+
+plt.savefig(f"./images/ex1_mse_r2_comp_{n}_noise_{noise}.pdf")
 
 #plt.show()
 

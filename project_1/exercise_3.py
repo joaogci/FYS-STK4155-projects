@@ -9,7 +9,7 @@ from functions import Regression
 max_degree = 15
 n = 800
 noise = 0.25
-max_bootstrap = n
+max_bootstrap = 100
 n_folds_vals = [5, 7, 10]
 degrees = np.arange(1, max_degree + 1)
 
@@ -18,7 +18,7 @@ seed = int(time())
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
 # figure plot
-plt.figure("MSE comparison", figsize=(11, 9), dpi=80)
+plt.figure("MSE comparison", figsize=(9, 7))
 
 # cross validation
 for j, n_folds in enumerate(n_folds_vals):
@@ -52,6 +52,13 @@ plt.plot(degrees, mse, '-r')
 plt.xlabel(r"complexity")
 plt.ylabel(r"MSE")
 plt.title(f"bootstrap with n_cycles={max_bootstrap}")
+
+plt.subplots_adjust(left=0.1,
+                    bottom=0.1, 
+                    right=0.95, 
+                    top=0.95, 
+                    wspace=0.25, 
+                    hspace=0.25)
 
 plt.savefig(f"./images/ex3_cv_bs_n_{n}_noise_{noise}.pdf", dpi=400)
 
