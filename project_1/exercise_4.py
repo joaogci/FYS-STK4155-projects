@@ -8,17 +8,17 @@ from functions import Regression
 # parameters
 max_degree = 15
 degrees = np.arange(1, max_degree + 1)
-n = 800
+n = 400
 noise = 0.25
-max_bootstrap = n
-n_folds_vals = np.array([5, 7, 10])
-lambdas = np.logspace(-6, 1, 100)
+max_bootstrap = 100
+n_folds = 7
+lambdas = np.logspace(-5, 1, 50)
 n_lambdas = lambdas.shape[0]
 
 # min lmd and deg arrays
-min_mse = np.zeros(n_folds_vals.shape[0] + 1)
-lmd_min = np.zeros(n_folds_vals.shape[0] + 1)
-deg_min = np.zeros(n_folds_vals.shape[0] + 1)
+min_mse = np.zeros(2)
+lmd_min = np.zeros(2)
+deg_min = np.zeros(2)
 
 # rng and seed
 seed = int(time())
@@ -26,6 +26,10 @@ rng = np.random.default_rng(np.random.MT19937(seed=seed))
 # regression object
 reg = Regression(max_degree, n, noise, rng)
 
+
+plt.figure(f"bootstrap vs cv", figsize=(9, 9))
+
+# mse vs (lambdas, degs) for bootstrap
 # bootstrap for MSE
 mse = np.zeros((n_lambdas, max_degree))
 
@@ -39,41 +43,36 @@ deg_min[0] = degrees[min_mse_where[1][0]]
 min_mse[0] = mse[min_mse_where[0][0], min_mse_where[1][0]]
 
 
-# mse vs (lambdas, degs) for bootstrap
-plt.figure(f"bootstrap", figsize=(11, 9), dpi=80)
+plt.contourf(np.log10(lambdas), degrees, mse.T)
+plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
+plt.title(f"MSE for OLS with bootstrap with {max_bootstrap} cycles")
+plt.ylabel(r"complexity")
+plt.xlabel(r"\lambda")
+plt.colorbar()
+
+# mse vs (lambdas, degs) for cross validation
+# cross validation for MSE
+mse = np.zeros((n_lambdas, max_degree))
+
+for j, deg in enumerate(degrees):
+    for i, lmd in enumerate(lambdas):
+        mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=lmd)
+
+min_mse_where = np.where(mse == np.min(mse))
+lmd_min[1] = lambdas[min_mse_where[0][0]]
+deg_min[1] = degrees[min_mse_where[1][0]]
+min_mse[1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
+
+plt.subplot(1, 2, 2)
 
 plt.contourf(np.log10(lambdas), degrees, mse.T)
 plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
-plt.ylabel("degrees",fontsize=14)
-plt.xlabel("lambdas",fontsize=14)
+plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
+plt.ylabel(r"complexity")
+plt.xlabel(r"\lambda")
 plt.colorbar()
 
-plt.savefig(f"./images/ex4_bootstrap_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
-
-
-for idx, n_folds in enumerate(n_folds_vals):
-    # cross validation for MSE
-    mse = np.zeros((n_lambdas, max_degree))
-
-    for j, deg in enumerate(degrees):
-        for i, lmd in enumerate(lambdas):
-            mse[i, j] = reg.k_folds_cross_validation(degree=deg, n_folds=n_folds, lmd=lmd)
-
-    min_mse_where = np.where(mse == np.min(mse))
-    lmd_min[idx + 1] = lambdas[min_mse_where[0][0]]
-    deg_min[idx + 1] = degrees[min_mse_where[1][0]]
-    min_mse[idx + 1] = mse[min_mse_where[0][0], min_mse_where[1][0]]
-
-    # mse vs (lambdas, degs) for cross validation
-    plt.figure(f"cross validation {idx}", figsize=(11, 9), dpi=80)
-
-    plt.contourf(np.log10(lambdas), degrees, mse.T)
-    plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
-    plt.ylabel("degrees",fontsize=14)
-    plt.xlabel("lambdas",fontsize=14)
-    plt.colorbar()
-
-    plt.savefig(f"./images/ex4_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
+plt.savefig(f"./images/ex4_bs_bcs_{max_bootstrap}_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
 
 # plt.show()
 
@@ -83,6 +82,5 @@ with open("./ex4_min.txt", "w") as file:
     file.write(f"mse: {min_mse[0]}; lmd: {lmd_min[0]}; deg: {deg_min[0]} \n")
     
     file.write("Cross Validation: \n")
-    for i, n_folds in enumerate(n_folds_vals):    
-        file.write(f"n_folds: {n_folds}; mse: {min_mse[i + 1]}; lmd: {lmd_min[i + 1]}; deg: {deg_min[i + 1]} \n")
+    file.write(f"mse: {min_mse[1]}; lmd: {lmd_min[1]}; deg: {deg_min[1]} \n")
 
