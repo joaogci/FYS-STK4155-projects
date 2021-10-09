@@ -14,10 +14,17 @@ max_degree_ols = 50
 max_degree_cv_ols = 20 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 20 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
+<<<<<<< HEAD
 max_bootstrap = 100
 scissor = 1 # crop data to 5% of the full set
 downsample = 20 # downsample data to 25% of the cropped set
 bootstrap_downsamples = [ 25, 20, 15, 10 ] # 20%, 25%, 33%, 50%
+=======
+max_bootstrap = 300
+scissor = 1 # crop data to 100% of the full set (no cropping in final data)
+downsample = 10 # downsample data to 10% of the cropped set
+bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
+>>>>>>> 1d8c61be676b41f578f3b5910e2a535aca2f59ed
 n_folds_vals = np.array([ 5, 7, 10 ]) # number of folds for CV
 lambdas = np.logspace(-5, 1, 100) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
@@ -63,10 +70,10 @@ if do_ols:
     r2_train = np.zeros((2, max_degree_ols))
     r2_test = np.zeros((2, max_degree_ols))
 
-    # Keep track of final betas/variance
-    features_last = int((5 + 1) * (5 + 2) / 2)
-    betas_last = np.zeros((2, features_last))
-    std_betas_last = np.zeros((2, features_last))
+    # Keep track of betas/variance for degree 5 polynomial
+    features_d5 = int((5 + 1) * (5 + 2) / 2)
+    betas_d5 = np.zeros((2, features_d5))
+    std_betas_d5 = np.zeros((2, features_d5))
 
     # Compute MSEs for OLS on all degrees from 1 to max_degree
     for i, deg in enumerate(range(1, max_degree_ols + 1)):
@@ -82,25 +89,25 @@ if do_ols:
         
         # save betas and var_betas
         if deg == 5:
-            betas_last[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
-            betas_last[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
-            std_betas_last[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
-            std_betas_last[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
+            betas_d5[0, :] = betas_scaled.reshape((betas_scaled.shape[0], ))
+            betas_d5[1, :] = betas_unscaled.reshape((betas_unscaled.shape[0], ))
+            std_betas_d5[0, :] = np.sqrt(var_betas_scaled.reshape((betas_scaled.shape[0], )))
+            std_betas_d5[1, :] = np.sqrt(var_betas_unscaled.reshape((betas_unscaled.shape[0], )))
 
 
     # confidence interval beta values plots
     plt.figure("Confidence intervals for beta values", figsize=(7, 9), dpi=80)
 
     ax = plt.subplot(211)
-    plt.errorbar(np.arange(betas_last[0, :].shape[0]), betas_last[0], yerr=2*std_betas_last[0, :], fmt='xb', capsize=4)
+    plt.errorbar(np.arange(betas_d5[0, :].shape[0]), betas_d5[0], yerr=2*std_betas_d5[0, :], fmt='xb', capsize=4)
     plt.title("scaled")
-    plt.xlim((-1, betas_last[0].shape[0]+1))
+    plt.xlim((-1, betas_d5[0].shape[0]+1))
     plt.xlabel(r"$i$")
     plt.ylabel(r"$\beta_i \pm 2\sigma$")
 
     ax = plt.subplot(212)
-    plt.errorbar(np.arange(betas_last[1, :].shape[0]), betas_last[1, :], yerr=2*std_betas_last[1, :], fmt='xb', capsize=4)
-    plt.xlim((-1, betas_last[1, :].shape[0]+1))
+    plt.errorbar(np.arange(betas_d5[1, :].shape[0]), betas_d5[1, :], yerr=2*std_betas_d5[1, :], fmt='xb', capsize=4)
+    plt.xlim((-1, betas_d5[1, :].shape[0]+1))
     plt.title("unscaled scaled")
     plt.xlabel(r"$i$")
     plt.ylabel(r"$\beta_i \pm 2\sigma$")
@@ -149,7 +156,7 @@ if do_ols:
     plt.savefig("./images/ex6_mse_r2_comp.pdf", dpi=400)
     
     # Plot prediction to visually compare with original data
-    plot_prediction_3D(betas_last[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False, save_fig=True)
+    plot_prediction_3D(betas_d5[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False, save_fig=True)
 
 
 
