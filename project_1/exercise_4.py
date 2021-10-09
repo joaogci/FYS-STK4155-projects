@@ -72,11 +72,11 @@ plt.ylabel(r"complexity")
 plt.xlabel(r"\lambda")
 plt.colorbar()
 
-plt.subplots_adjust(left=0.1,
+plt.subplots_adjust(left=0.05,
                     bottom=0.1, 
                     right=0.95, 
                     top=0.95, 
-                    wspace=0.25, 
+                    wspace=0.15, 
                     hspace=0.25)
 
 plt.savefig(f"./images/ex4_bs_bcs_{max_bootstrap}_cv_k_folds_{n_folds}_n_lmd_{n_lambdas}_n_{n}_noise_{noise}.pdf", dpi=400)
