@@ -10,25 +10,25 @@ from plots import plot_prediction_3D
 
 
 # constants
-max_degree_ols = 20
-max_degree_cv_ols = 14 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
-max_degree_cv = 22 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
+max_degree_ols = 50
+max_degree_cv_ols = 20 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
+max_degree_cv = 20 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
-max_bootstrap = 300
+max_bootstrap = 100
 scissor = 1 # crop data to 5% of the full set
-downsample = 10 # downsample data to 25% of the cropped set
-bootstrap_downsamples = [ 5, 4, 3, 2 ] # 20%, 25%, 33%, 50%
+downsample = 20 # downsample data to 25% of the cropped set
+bootstrap_downsamples = [ 25, 20, 15, 10 ] # 20%, 25%, 33%, 50%
 n_folds_vals = np.array([ 5, 7, 10 ]) # number of folds for CV
-lambdas = np.logspace(-6, 1, 100) # lambda values to use for ridge/lasso regression
+lambdas = np.logspace(-5, 1, 100) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = False  #  essentially exercise 1 again
-do_bootstrap_bv = False #               2
-do_cv_bv = False #                      3
-do_ridge_cv = False #                   4
-do_lasso_cv = False #                   5
+do_ols = True  #  essentially exercise 1 again
+do_bootstrap_bv = True #               2
+do_cv_bv = True #                      3
+do_ridge_cv = True #                   4
+do_lasso_cv = True #                   5
 
 
 # Load data set
