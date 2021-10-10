@@ -11,8 +11,8 @@ from plots import plot_prediction_3D
 
 # constants
 max_degree_ols = 50
-max_degree_cv_ols = 20 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
-max_degree_cv = 20 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
+max_degree_cv_ols = 25 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
+max_degree_cv = 25 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
 max_bootstrap = 100
 scissor = 0.2 # crop data to 5% of the full set
@@ -24,11 +24,11 @@ terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = False  #  essentially exercise 1 again
-do_bootstrap_bv = False #               2
+do_ols = True  #  essentially exercise 1 again
+do_bootstrap_bv = True #               2
 do_cv_bv = True #                      3
-do_ridge_cv = False #                   4
-do_lasso_cv = False #                   5
+do_ridge_cv = True #                   4
+do_lasso_cv = True #                   5
 
 
 # Load data set
@@ -165,17 +165,17 @@ if do_ols:
     #plt.xticks(fontsize=20)
     plt.legend()
 
-    plt.subplots_adjust(left=0.1,
+    plt.subplots_adjust(left=0.2,
                         bottom=0.1, 
                         right=0.95, 
                         top=0.95, 
-                        wspace=0.3, 
+                        wspace=0.4, 
                         hspace=0.4)
 
     plt.savefig(f"./images/ex6_mse_r2_comp.pdf")    
 
     # Plot prediction to visually compare with original data
-    plot_prediction_3D(betas_d5[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(max_degree_ols) + ' polynomial)', show=False, save_fig=True)
+    plot_prediction_3D(betas_d5[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(5) + ' polynomial)', show=False, save_fig=True)
 
 
 # -------------------------------
