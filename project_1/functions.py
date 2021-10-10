@@ -220,7 +220,7 @@ class Regression():
             z_test = self.z_test
         
         betas = ols(X_train, z_train)
-        var_betas = self.noise**2 * np.diag(np.linalg.pinv(X_test.T @ X_test))
+        var_betas = self.noise**2 * np.diag(np.linalg.pinv(X_train.T @ X_train))
         
         z_pred = X_train @ betas
         z_tilde = X_test @ betas
