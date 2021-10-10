@@ -318,7 +318,7 @@ if do_ridge_cv:
     plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
     plt.title(f"MSE for OLS with bootstrap with {max_bootstrap} cycles")
     plt.ylabel(r"complexity")
-    plt.xlabel(r"$\lambda$")
+    plt.xlabel(r"$\log_{10}(\lambda)$")
     plt.colorbar()
 
     # cross validation for MSE
@@ -338,7 +338,7 @@ if do_ridge_cv:
     plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
     plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
     plt.ylabel(r"complexity")
-    plt.xlabel(r"$\lambda$")
+    plt.xlabel(r"$\log_{10}(\lambda)$")
     plt.colorbar()
 
     plt.subplots_adjust(left=0.05,
@@ -393,7 +393,7 @@ if do_lasso_cv:
     plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
     plt.title(f"MSE for OLS with bootstrap with {max_bootstrap} cycles")
     plt.ylabel(r"complexity")
-    plt.xlabel(r"$\lambda$")
+    plt.xlabel(r"$\log_{10}(\lambda)$")
     plt.colorbar()
 
     # cross validation for MSE
@@ -414,7 +414,7 @@ if do_lasso_cv:
     plt.plot(np.log10(lambdas[min_mse_where[0][0]]), degrees_cv[min_mse_where[1][0]], 'or')
     plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
     plt.ylabel(r"complexity")
-    plt.xlabel(r"$\lambda$")
+    plt.xlabel(r"$\log_{10}(\lambda)$")
     plt.colorbar()
 
     plt.subplots_adjust(left=0.05,

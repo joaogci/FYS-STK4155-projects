@@ -47,7 +47,7 @@ plt.contourf(np.log10(alphas), degrees, mse.T)
 plt.plot(np.log10(alphas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
 plt.title(f"MSE for OLS with bootstrap with {max_bootstrap} cycles")
 plt.ylabel(r"complexity")
-plt.xlabel(r"$\lambda$")
+plt.xlabel(r"$\log_{10}(\lambda)$")
 plt.colorbar()
 
 # mse vs (lambdas, degs) for cross validation
@@ -68,7 +68,7 @@ plt.contourf(np.log10(alphas), degrees, mse.T)
 plt.plot(np.log10(alphas[min_mse_where[0][0]]), degrees[min_mse_where[1][0]], 'or')
 plt.title(f"MSE for OLS with k-folds cross-validation with {n_folds} folds")
 plt.ylabel(r"complexity")
-plt.xlabel(r"$\lambda$")
+plt.xlabel(r"$\log_{10}(\lambda)$")
 plt.colorbar()
 
 plt.subplots_adjust(left=0.05,
