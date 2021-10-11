@@ -21,10 +21,9 @@ lmd_min = np.zeros(2)
 deg_min = np.zeros(2)
 
 # rng and seed
-seed = int(time())
-rng = np.random.default_rng(np.random.MT19937(seed=seed))
+seed = 1963
 # regression object
-reg = Regression(max_degree, n, noise, rng)
+reg = Regression(max_degree, n, noise, seed)
 
 
 plt.figure(f"bootstrap", figsize=(11, 5))
@@ -49,6 +48,10 @@ plt.title(f"MSE for Lasso with bootstrap with {max_bootstrap} cycles")
 plt.ylabel(r"complexity")
 plt.xlabel(r"$\log_{10}(\lambda)$")
 plt.colorbar()
+
+
+# regression object
+reg = Regression(max_degree, n, noise, seed)
 
 # mse vs (lambdas, degs) for cross validation
 # cross validation for MSE

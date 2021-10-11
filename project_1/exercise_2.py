@@ -7,14 +7,13 @@ from functions import Regression
 
 # parameters
 max_degree = 15
-n_vals = [400, 800, 1200, 1600]
+n_vals = [400, 600, 800, 1000]
 noise = 0.25
 max_bootstrap = 100
 degrees = np.arange(1, max_degree + 1)
 
 # rng and seed
-seed = int(time())
-rng = np.random.default_rng(np.random.MT19937(seed=seed))
+seed = 1963
 
 # plot bias-variance trade-off
 plt.figure("bias-variance trade-off", figsize=(9, 7))
@@ -22,7 +21,7 @@ plt.figure("bias-variance trade-off", figsize=(9, 7))
 # bootstrap for bias and var
 for j, n in enumerate(n_vals):
     # regression object
-    reg = Regression(max_degree, n, noise, rng)
+    reg = Regression(max_degree, n, noise, seed)
 
     mse = np.zeros(max_degree)
     bias = np.zeros(max_degree)
