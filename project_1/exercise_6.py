@@ -11,12 +11,12 @@ from plots import plot_prediction_3D
 
 # constants
 max_degree_ols = 40
-max_degree_cv_ols = 30 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
+max_degree_cv_ols = 23 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 25 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
 max_bootstrap = 100
 scissor = 0.2 # crop data to x% of the full set
-downsample = 11 # downsample data to 1/x% of the cropped set
+downsample = 14 # downsample data to 1/x% of the cropped set
 bootstrap_downsamples = [ 10, 9, 8, 7 ]
 n_folds = 7 # number of folds for CV
 lambdas = np.logspace(-5, 1, 50) # lambda values to use for ridge/lasso regression
@@ -24,9 +24,9 @@ terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = True  #  essentially exercise 1 again
+do_ols = False  #  essentially exercise 1 again
 do_bootstrap_bv = False #               2
-do_cv_bv = False #                      3
+do_cv_bv = True #                      3
 do_ridge_cv = False #                   4
 do_lasso_cv = False #                   5
 
@@ -235,7 +235,7 @@ if do_cv_bv:
     print("Computing bias-variance trade-off with CV")
 
     # figure plot
-    plt.figure("MSE comparison", figsize=(8, 4))
+    plt.figure("MSE comparison")
     
     # cross validation
     # regression object
@@ -252,14 +252,6 @@ if do_cv_bv:
         # sk_kfold = KFold(n_splits=n_folds, shuffle=True)
         # mse_cv_sk[i] = np.mean(-cross_val_score(LinearRegression(fit_intercept=False), create_X_2D(deg, x, y), z, cv=sk_kfold, scoring="neg_mean_squared_error"))
     
-    plt.subplot(1, 2, 1)
-    
-    plt.plot(degrees_cv_ols, mse_cv, '-k')#, label="Our k-folds implementation")
-    # plt.plot(degrees_cv_ols, mse_cv_sk, 'b--', label="sklearn") # Plot against sklearn's
-    plt.xlabel(r"complexity")
-    plt.ylabel(r"MSE")
-    # plt.legend(loc="best")
-    plt.title(f"k-folds cross validation with k={n_folds}")
 
     # compare with bootstrap
     reg = Regression(max_degree_cv_ols, x.shape[0], noise, seed=seed, data=(x, y, z))
@@ -269,18 +261,13 @@ if do_cv_bv:
     for i, deg in enumerate(range(1, max_degree_cv_ols + 1)):
         mse[i], bias[i], var[i] = reg.bootstrap(degree=deg, max_bootstrap_cycle=max_bootstrap)
 
-    plt.subplot(1, 2, 2)
-    plt.plot(degrees_cv_ols, mse, '-r')
+    plt.plot(degrees_cv_ols, mse_cv, '-k', label=f"k-folds cross-validation with k={n_folds}")
+    plt.plot(degrees_cv_ols, mse, '-r', label=f"bootstrap with n_cycles={max_bootstrap}")
+    # plt.plot(degrees_cv_ols, mse_cv_sk, 'b--', label="sklearn") # Plot against sklearn's
     plt.xlabel(r"complexity")
     plt.ylabel(r"MSE")
-    plt.title(f"bootstrap with n_cycles={max_bootstrap}")
-    
-    plt.subplots_adjust(left=0.1,
-                    bottom=0.1, 
-                    right=0.95, 
-                    top=0.9, 
-                    wspace=0.25, 
-                    hspace=0.25)
+    plt.legend(loc="best")
+    plt.title(f"Cross-validation comparisons")
 
     plt.savefig("./images/ex6_bv_bootstrap_cv_comp.pdf", dpi=400)
 
