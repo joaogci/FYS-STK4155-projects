@@ -7,15 +7,14 @@ from functions import Regression
 
 # parameters
 max_degree = 15
-n = 800
+n = 600
 noise = 0.25
 
 # rng and seed
-seed = int(time())
-rng = np.random.default_rng(np.random.MT19937(seed=seed))
+seed = 1963
 
 # regression objects
-reg = Regression(max_degree, n, noise, rng, scale=False)
+reg = Regression(max_degree, n, noise, seed, scale=False)
 
 # mse[0, :] -> scaled
 # mse[1, :] -> unscaled
@@ -126,7 +125,7 @@ plt.ylabel(r"R2")#,fontsize=20)
 #plt.xticks(fontsize=20)
 plt.legend()
 
-plt.subplots_adjust(left=0.1,
+plt.subplots_adjust(left=0.11,
                     bottom=0.1, 
                     right=0.95, 
                     top=0.95, 

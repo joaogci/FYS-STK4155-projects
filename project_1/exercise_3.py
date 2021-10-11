@@ -7,15 +7,14 @@ from functions import Regression
 
 # parameters
 max_degree = 15
-n = 800
+n = 600
 noise = 0.25
 max_bootstrap = 100
 n_folds_vals = [5, 7, 10]
 degrees = np.arange(1, max_degree + 1)
 
 # rng and seed
-seed = int(time())
-rng = np.random.default_rng(np.random.MT19937(seed=seed))
+seed = 1963
 
 # figure plot
 plt.figure("MSE comparison", figsize=(9, 7))
@@ -23,7 +22,7 @@ plt.figure("MSE comparison", figsize=(9, 7))
 # cross validation
 for j, n_folds in enumerate(n_folds_vals):
     # regression object
-    reg = Regression(max_degree, n, noise, rng)
+    reg = Regression(max_degree, n, noise, seed)
 
     mse_cv = np.zeros(max_degree)
     for i, deg in enumerate(degrees):
@@ -38,7 +37,7 @@ for j, n_folds in enumerate(n_folds_vals):
 
 # bootstrap
 # regression object
-reg = Regression(max_degree, n, noise, rng)
+reg = Regression(max_degree, n, noise, seed)
 
 mse = np.zeros(max_degree)
 bias = np.zeros(max_degree)

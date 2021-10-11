@@ -8,7 +8,7 @@ from functions import Regression
 # parameters
 max_degree = 15
 degrees = np.arange(1, max_degree + 1)
-n = 400
+n = 600
 noise = 0.25
 max_bootstrap = 100
 n_folds = 7
@@ -21,10 +21,9 @@ lmd_min = np.zeros(2)
 deg_min = np.zeros(2)
 
 # rng and seed
-seed = int(time())
-rng = np.random.default_rng(np.random.MT19937(seed=seed))
+seed = 1693
 # regression object
-reg = Regression(max_degree, n, noise, rng)
+reg = Regression(max_degree, n, noise, seed)
 
 
 plt.figure(f"bootstrap vs cv", figsize=(11, 5))
@@ -49,6 +48,10 @@ plt.title(f"MSE for Ridge with bootstrap with {max_bootstrap} cycles")
 plt.ylabel(r"complexity")
 plt.xlabel(r"$\log_{10}(\lambda)$")
 plt.colorbar()
+
+# regression object
+reg = Regression(max_degree, n, noise, seed)
+
 
 # mse vs (lambdas, degs) for cross validation
 # cross validation for MSE
