@@ -160,7 +160,7 @@ def ols(X: np.matrix, y: np.matrix, lmd: float = 0) -> np.matrix:
 
 class Regression():
 
-    def __init__(self, max_degree: int, n: int, noise: float, rng: np.random.Generator, scale: bool = True, data: tuple = None, with_std: bool = False):
+    def __init__(self, max_degree: int, n: int, noise: float, seed: int, scale: bool = True, data: tuple = None, with_std: bool = False):
         """
             Regression class
             
@@ -178,24 +178,25 @@ class Regression():
         """
         
         self.max_degree = max_degree
-        self.rng = rng
+        self.rng = np.random.default_rng(np.random.MT19937(seed=seed))
+        self.seed = seed
         self.noise = noise
         self.data_points = n
         self.with_std = with_std
         
         if data is None:
-            self.x = rng.uniform(0, 1, (n, 1))
-            self.y = rng.uniform(0, 1, (n, 1))
+            self.x = self.rng.uniform(0, 1, (n, 1))
+            self.y = self.rng.uniform(0, 1, (n, 1))
             
             self.z = franke_function(self.x, self.y)
-            self.z += noise * rng.normal(0, 1, self.z.shape)
+            self.z += noise * self.rng.normal(0, 1, self.z.shape)
         else:
             self.x = data[0]
             self.y = data[1]
             self.z = data[2]
         
         self.X_max_deg = create_X_2D(max_degree, self.x, self.y)
-        self.X_train_, self.X_test_, self.z_train, self.z_test = train_test_split(self.X_max_deg, self.z, test_size=0.25)
+        self.X_train_, self.X_test_, self.z_train, self.z_test = train_test_split(self.X_max_deg, self.z, test_size=0.25, random_state=self.seed)
         
         self._scaled = False
         if scale:
@@ -252,7 +253,7 @@ class Regression():
             print(f"n={self.data_points} | bootstrap cycle {bootstrap_cycle+1}/{max_bootstrap_cycle} with degree {degree}/{self.max_degree} and lmd={lmd if alpha == 0 else alpha}", end="\r")
             
             # split and scale the data
-            X_train_resampled, z_train_resampled = resample(X_train, self.z_train)
+            X_train_resampled, z_train_resampled = resample(X_train, self.z_train, random_state=self.seed * bootstrap_cycle)    
             
             if alpha == 0:  # ridge and ols
                 # fit OLS model to franke function
@@ -289,7 +290,9 @@ class Regression():
         # perform the cross-validation to estimate MSE
         scores_KFold = np.zeros(n_folds)
 
-        perm = self.rng.permuted(np.arange(0, X.shape[0]))
+        rng = np.random.default_rng(np.random.MT19937(seed=self.seed * n_folds))
+        
+        perm = rng.permuted(np.arange(0, X.shape[0]))
         X = X[perm, :]
         z = self.z[perm]
 
