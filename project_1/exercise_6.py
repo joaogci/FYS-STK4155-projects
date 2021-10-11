@@ -24,19 +24,16 @@ terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = False  #  essentially exercise 1 again
-do_bootstrap_bv = True #               2
+do_ols = True  #  essentially exercise 1 again
+do_bootstrap_bv = False #               2
 do_cv_bv = False #                      3
 do_ridge_cv = False #                   4
 do_lasso_cv = False #                   5
 
 
 # Load data set
-x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=True, show_plot=False, save_fig=True)
+x, y, z = load_terrain(terrain_set, downsample=downsample, scissor=scissor, rng=None, plot=True, show_plot=False, save_fig=False)
 print(x.shape[0], 'datapoints') # Show number of data points
-
-# RNG
-rng = np.random.default_rng(np.random.MT19937(seed=seed))
 
 degrees_ols = np.arange(1, max_degree_ols + 1)
 degrees_cv_ols = np.arange(1, max_degree_cv_ols + 1)
@@ -54,7 +51,7 @@ if do_ols:
     print("Computing MSEs/R2 for increasing degrees & beta confidence intervals...")
 
     # Regression object
-    reg = Regression(max_degree_ols, x.shape[0], noise, rng, scale=False, data=(x, y, z))
+    reg = Regression(max_degree_ols, x.shape[0], noise, seed=seed, scale=False, data=(x, y, z))
 
     # mse[0, :] -> scaled
     # mse[1, :] -> unscaled
@@ -196,7 +193,7 @@ if do_bootstrap_bv:
         n = bx.shape[0]
 
         # regression object
-        b_reg = Regression(max_degree_cv_ols, bx.shape[0], noise, rng, data=(bx, by, bz))
+        b_reg = Regression(max_degree_cv_ols, bx.shape[0], noise, seed=seed, data=(bx, by, bz))
 
         mse = np.zeros(max_degree_cv_ols)
         bias = np.zeros(max_degree_cv_ols)
@@ -242,7 +239,7 @@ if do_cv_bv:
     
     # cross validation
     # regression object
-    reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
+    reg = Regression(max_degree_cv_ols, x.shape[0], noise, seed=seed, data=(x, y, z))
 
     mse_cv = np.zeros(max_degree_cv_ols)
     mse_cv_sk = np.zeros(max_degree_cv_ols)
@@ -265,7 +262,7 @@ if do_cv_bv:
     plt.title(f"k-folds cross validation with k={n_folds}")
 
     # compare with bootstrap
-    reg = Regression(max_degree_cv_ols, x.shape[0], noise, rng, data=(x, y, z))
+    reg = Regression(max_degree_cv_ols, x.shape[0], noise, seed=seed, data=(x, y, z))
     mse = np.zeros(max_degree_cv_ols)
     bias = np.zeros(max_degree_cv_ols)
     var = np.zeros(max_degree_cv_ols)
@@ -295,7 +292,7 @@ if do_cv_bv:
 
 if do_ridge_cv:
 
-    reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z), with_std=False)
+    reg = Regression(max_degree_cv, x.shape[0], noise, seed=seed, data=(x, y, z), with_std=False)
 
     n_lambdas = lambdas.shape[0]
 
@@ -371,7 +368,7 @@ if do_ridge_cv:
 
 if do_lasso_cv:
 
-    reg = Regression(max_degree_cv, x.shape[0], noise, rng, data=(x, y, z), with_std=False)
+    reg = Regression(max_degree_cv, x.shape[0], noise, seed=seed, data=(x, y, z), with_std=False)
 
     n_lambdas = lambdas.shape[0]
     
