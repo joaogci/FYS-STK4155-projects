@@ -11,24 +11,24 @@ from plots import plot_prediction_3D
 
 # constants
 max_degree_ols = 50
-max_degree_cv_ols = 25 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
+max_degree_cv_ols = 20 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 25 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
 max_bootstrap = 100
-scissor = 0.2 # crop data to 5% of the full set
-downsample = 7 # downsample data to 25% of the cropped set
-bootstrap_downsamples = [ 25, 20, 15, 10 ] # 20%, 25%, 33%, 50%
+scissor = 0.2 # crop data to x% of the full set
+downsample = 14 # downsample data to 1/x% of the cropped set
+bootstrap_downsamples = [ 5, 4, 3, 2 ]
 n_folds = 7 # number of folds for CV
 lambdas = np.logspace(-5, 1, 50) # lambda values to use for ridge/lasso regression
 terrain_set = TERRAIN_1 # pick terrain file to open
 noise = 1.0 # assumed constant used to compute the std
 
 # Selectively turn on/off certain parts of the exercise
-do_ols = True  #  essentially exercise 1 again
-do_bootstrap_bv = True #               2
+do_ols = False  #  essentially exercise 1 again
+do_bootstrap_bv = False #               2
 do_cv_bv = True #                      3
-do_ridge_cv = True #                   4
-do_lasso_cv = True #                   5
+do_ridge_cv = False #                   4
+do_lasso_cv = False #                   5
 
 
 # Load data set
@@ -178,6 +178,7 @@ if do_ols:
     plot_prediction_3D(betas_d5[0], 5, name=terrain_set + ' OLS prediction (degree ' + str(5) + ' polynomial)', show=False, save_fig=True)
 
 
+
 # -------------------------------
 # Bias-variance trade-off with bootstrap
 # -------------------------------
@@ -225,6 +226,8 @@ if do_bootstrap_bv:
                         hspace=0.25)
 
     plt.savefig(f"./images/ex6_bias_var_bsc_{max_bootstrap}_noise_{noise}.pdf", dpi=400)
+
+
 
 # -------------------------------
 # Bias-variance trade-off with CV
@@ -283,6 +286,8 @@ if do_cv_bv:
                     hspace=0.25)
 
     plt.savefig("./images/ex6_bv_bootstrap_cv_comp.pdf", dpi=400)
+
+
 
 # -------------------------------
 # CV with ridge
@@ -357,6 +362,9 @@ if do_ridge_cv:
         
         file.write("Cross Validation: \n")
         file.write(f"mse: {min_mse[1]}; lmd: {lmd_min[1]}; deg: {deg_min[1]} \n")    
+
+
+
 # -------------------------------
 # CV with lasso
 # -------------------------------
@@ -434,3 +442,5 @@ if do_lasso_cv:
         file.write("Cross Validation: \n")
         file.write(f"mse: {min_mse[1]}; lmd: {lmd_min[1]}; deg: {deg_min[1]} \n")
 
+
+# plt.show()
