@@ -8,7 +8,7 @@ from functions import Regression
 # parameters
 max_degree = 15
 degrees = np.arange(1, max_degree + 1)
-n = 400
+n = 600
 noise = 0.25
 max_bootstrap = 100
 n_folds = 7
