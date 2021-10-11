@@ -10,13 +10,13 @@ from plots import plot_prediction_3D
 
 
 # constants
-max_degree_ols = 50
+max_degree_ols = 40
 max_degree_cv_ols = 30 # Lower max degree for CV/bootstrap than ols calculations since it takes much longer
 max_degree_cv = 25 # Higher max degree for ridge/lasso CV than OLS CV since that's where it gets interesting
 seed = 0
 max_bootstrap = 100
 scissor = 0.2 # crop data to x% of the full set
-downsample = 14 # downsample data to 1/x% of the cropped set
+downsample = 11 # downsample data to 1/x% of the cropped set
 bootstrap_downsamples = [ 10, 9, 8, 7 ]
 n_folds = 7 # number of folds for CV
 lambdas = np.logspace(-5, 1, 50) # lambda values to use for ridge/lasso regression
