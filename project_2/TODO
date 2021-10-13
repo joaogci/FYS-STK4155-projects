@@ -1,0 +1,49 @@
+Part a:
+    - Write our own Stochastic Gradient Descent (SGD)
+    - Use it on OLS and Ridge
+    - Fit Franke function with OLS and Ridge using SGD
+    - Discuss the results as function of hyperparameter lambda and learningrate gamma
+
+    Extra:
+        -> Implement momentum SGD
+        -> Implement RMSprop
+        -> Implement ADAgrad
+        -> Implement ADAM
+
+Part b:
+    - Write own Feed Forward Neural Network (FFNN)
+        -> Have flexible number of hidden layers
+        -> Use sigmoid as activation function for hidden layers
+    - Find out how to initialize the biases
+    - Find a fitting activation function for final layer
+    - Find good cost function for the FFNN (discuss the choice)
+    - Train the network
+    - Test/compare/discuss agains OLS, Ridge and sklearn's FFNN
+    - Analyse regularization parameters and the learning rate for optimal MSE/R^2 score
+
+    Extra:
+        -> - Test our FFNN agains TensorFlow's FFNN
+
+Part c:
+    - Try RELU and Leaky RELU as activation for hidden layers instead of Sigmoid
+    - Try different ways of initializing weights and biases
+
+Part d:
+    - Use our own FFNN to analyse breast cancer data for different activation functions (for both hidden and output layer), # of hidden layers and # of nodes.
+    - Discuss the results for different learning rate and regularization parameter
+
+    Extra:
+        -> Compare with sklearn, TensorFlow and pytorch
+Part e:
+    - Define cost function and design matrix (NB! This must be done first (according to problem text)!)
+    - Write own logistic regression using SGD
+    - Study results as function of learning rate
+    - Add l_2 regularization parameter
+    - Compare with own FFNN and sklearn's logistic regression
+
+    Extra:
+        -> Use normal gradient descent instead of SGD
+
+Part f:
+    - Summarize various algorithms and evaluate pros and cons
+    - Decide which algo is best for classification
