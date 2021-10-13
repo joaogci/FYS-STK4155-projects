@@ -14,15 +14,17 @@ Part b:
     - Write own Feed Forward Neural Network (FFNN)
         -> Have flexible number of hidden layers
         -> Use sigmoid as activation function for hidden layers
+			> Will need to be flexible enough to use any activation function rather than just sigmoid - function pointer might be the best way to pass that in
     - Find out how to initialize the biases
     - Find a fitting activation function for final layer
     - Find good cost function for the FFNN (discuss the choice)
+		> See http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function
     - Train the network
     - Test/compare/discuss agains OLS, Ridge and sklearn's FFNN
     - Analyse regularization parameters and the learning rate for optimal MSE/R^2 score
 
     Extra:
-        -> - Test our FFNN agains TensorFlow's FFNN
+        -> Test our FFNN agains TensorFlow's FFNN
 
 Part c:
     - Try RELU and Leaky RELU as activation for hidden layers instead of Sigmoid
