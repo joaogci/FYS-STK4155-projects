@@ -10,7 +10,7 @@ class Model:
         """
             Artificial neural network class
             Parameters:
-                input_size (int): Size of the input layer, which will determine the number of weights in the first hidden layer
+                input_size (int): Size of the input layer (i.e. number of features), which will determine the number of weights in the first hidden layer
                 random_state (int): Seed value to use for RNG
         """
 
@@ -44,7 +44,7 @@ class Model:
         n_inputs = self._input_size
         if len(self.layers) > 0:
             n_inputs = self.layers[len(self.layers) - 1].get_size()
-        layer.init_weights_and_biases(n_inputs, self.rng)
+        layer.init_weights(n_inputs, self.rng)
         
         # Add layer
         if layer.NAME == "OUTPUT":

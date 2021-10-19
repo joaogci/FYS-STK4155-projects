@@ -16,13 +16,12 @@ class Layer(ABC):
             Parameters:
                 size (int): Number of nodes in the hidden layer
                 activation_function (ActivationFunction): The activation function to use for the layer
-                initial_bias (float): Initial value to initialize the bias to, typically zero or a small value
+                initial_bias (float): Initial value to initialize the bias to, typically zero or a small value (see https://cs231n.github.io/neural-networks-2/)
         """
         self._size = size
         self._activationFn = activation_function
         self._weights = None
-        self._biases = None
-        self._initial_bias = initial_bias
+        self._biases = np.ones(self._size) * initial_bias
 
     def get_size(self) -> int:
         """
@@ -32,16 +31,15 @@ class Layer(ABC):
         """
         return self._size
 
-    def init_weights_and_biases(self, size: int, rng: np.random.Generator):
+    def init_weights(self, size: int, rng: np.random.Generator):
         """
-            Initialises the weights array for the layer with stochastic noise, and the biases with zeros/small value (see https://cs231n.github.io/neural-networks-2/)
+            Initialises the weights array for the layer with stochastic noise
             The size corresponding to the number of nodes in the previous layer
             Parameters:
                 size (int): Number of inputs the layer will be receiving, i.e. number of nodes in the previous layer
                 rng (np.random.Generator): Random number generator to use when selecting initial weights
         """
         self._weights = rng.uniform(0, 1, (self._size, size))
-        self._biases = np.ones((self._size, size)) * self._initial_bias
 
     def forward(self, inputs: np.matrix) -> np.matrix:
         """
@@ -67,7 +65,7 @@ class Layer(ABC):
                 # a'_i = σ( Σ_j( a_j * w_ij + b_ij ) )
                 sum = 0
                 for j in range(self._weights.shape[1]):
-                    sum += inputs[input_idx, j] * self._weights[i, j] + self._biases[i, j]
+                    sum += inputs[input_idx, j] * self._weights[i, j] + self._biases[i]
                 outputs[input_idx, i] = self._activationFn(sum)
 
         return outputs
