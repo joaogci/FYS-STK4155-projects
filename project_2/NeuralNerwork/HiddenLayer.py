@@ -1,11 +1,12 @@
-import Layer
+
+from .Layer import Layer
 
 class HiddenLayer(Layer):
     
     NAME = "HIDDEN"
     
-    def __init__(self):
-        ...
+    def tbd(self) -> ...:
+        pass
         
     
 
