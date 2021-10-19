@@ -63,13 +63,15 @@ class Model:
 
 
 
-    def feed_forward(self, inputs: np.matrix) -> np.matrix:
+    def feed_forward(self, inputs: np.matrix, training: bool = False) -> tuple:
         """
             Runs through the network once with a given list of inputs and returns the obtained outputs
             Parameters:
-                inputs (np.matrix|list): The set of inputs to give to the network
+                inputs (np.matrix|list<float>): The set of inputs to give to the network
+                training (bool): If true, will return hidden layer activations alongside the actual outputs
             Returns:
-                (np.matrix|list): Outputs obtained out of the output layer after running through all layers
+                (np.matrix|list<float>): Outputs obtained out of the output layer after running through all layers
+                (list<np.matrix>): Hidden layer activation outputs, returned only if `training` was `true`
         """
 
         # If the input is given as a 1D array, we're wanting to use that as a single row in the input matrix (i.e. run with a single set of input data)
@@ -88,14 +90,47 @@ class Model:
 
         # Process from layer to layer sequentially, passing the output of each layer into the next
         tmp = inputs
+        if training:
+            a_h = []
         for layer in self.layers:
+
+            # Activate the layer
             tmp = layer.forward(tmp)
+
             if tmp is None:
                 print('\033[91mLayer gave invalid results; see above for details regarding the error.\033[0m')
                 return None
+            
+            # In training, keep track of hidden layer outputs
+            if training and layer.NAME != 'OUTPUT':
+                a_h.append(tmp)
         
         # Output of final layer = output of network
         if output_list:
-            return tmp[0] # Output as a list if the input was given as such
+            tmp = tmp[0] # Output as a list if the input was given as such
+        if training:
+            return tmp, a_h
         return tmp
 
+
+    def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1):
+        """
+            Back-propagates once with a set of actual and desired outputs, so the next run will match the targets closer (hopefully)
+            Parameters:
+                inputs (np.matrix): Inputs to train for
+                targets (np.matrix): Desired outcome values
+                learning_rate (float): Learning rate η to use to update the weights & biases
+        """
+
+        if not self.is_ready():
+            print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
+            return
+
+        # Feed forward once to obtain outputs
+        outputs, a_h = self.feed_forward(inputs, training=True)
+
+        if outputs.shape != targets.shape or outputs.shape[1] != self.layers[len(self.layers) - 1].get_size():
+            print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', outputs.shape, 'and', targets.shape, 'instead..\033[0m')
+            return
+        
+        # @todo
