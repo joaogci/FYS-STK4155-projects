@@ -6,10 +6,16 @@ from NeuralNetwork.HiddenLayer import HiddenLayer
 from NeuralNetwork.OutputLayer import OutputLayer
 from NeuralNetwork.Model import Model
 
-model = Model(5, random_state=0)
+model = Model(2, random_state=0)
+model.add_layer(HiddenLayer(100, Sigmoid()))
+model.add_layer(OutputLayer(2, Sigmoid())) # <- should probably be using softmax instead for the output layer in classification problems!
 
-model.add_layer(HiddenLayer(7, Sigmoid()))
-model.add_layer(OutputLayer(3, Sigmoid()))
-
-outputs = model.feed_forward([0, 0, 0, 1, 0])
+outputs = model.feed_forward(np.matrix([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+]))
+# To run with a single input set instead of several, the following is possible:
+# outputs = model.feed_forward([0, 0])
 print(outputs)

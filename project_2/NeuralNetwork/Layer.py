@@ -54,15 +54,18 @@ class Layer(ABC):
             print('\033[91mLayer hasn\'t been assigned weights and biases! Ensure init_weights_and_biases is called before starting.\033[0m')
             return None
 
-        if len(inputs) != len(self._weights[0]):
-            print('\033[91mLayer hasn\'t been initialised with the right amount of weights/biases! Expected', len(self._weights[0]), 'inputs, given', len(inputs), '!\033[0m')
+        if inputs.shape[1] != len(self._weights[0]):
+            print('\033[91mLayer hasn\'t been initialised with the right amount of weights/biases! Expected', len(self._weights[0]), 'inputs, given', inputs.shape, '!\033[0m')
             return None
         
         # Accumulate inputs for each node
-        outputs = np.zeros(self._size)
-        for i in range(self._size):
-            # a'_i = σ( Σ_j( a_j * w_ij + b_ij ) )
-            sum = np.sum(inputs * self._weights[i,:] + self._biases[i,:])
-            outputs[i] = self._activationFn(sum)
+        outputs = np.zeros((inputs.shape[0], self._size))
+        for input_idx in range(inputs.shape[0]):
+            for i in range(self._size):
+                # a'_i = σ( Σ_j( a_j * w_ij + b_ij ) )
+                sum = 0
+                for j in range(self._weights.shape[1]):
+                    sum += inputs[input_idx, j] * self._weights[i, j] + self._biases[i, j]
+                outputs[input_idx, i] = self._activationFn(sum)
 
         return outputs
