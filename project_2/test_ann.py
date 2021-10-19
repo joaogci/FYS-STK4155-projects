@@ -1,5 +1,5 @@
 
-from NeuralNerwork.Sigmoid import Sigmoid
+from NeuralNerwork.activation.Sigmoid import Sigmoid
 from NeuralNerwork.HiddenLayer import HiddenLayer
 from NeuralNerwork.OutputLayer import OutputLayer
 from NeuralNerwork.Model import Model
