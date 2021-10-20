@@ -1,6 +1,6 @@
 
 import numpy as np
-from abc import ABC, abstractmethod
+from abc import ABC
 from .activation.ActivationFunction import ActivationFunction
 
 class Layer(ABC):
@@ -58,13 +58,13 @@ class Layer(ABC):
         
         # Accumulate inputs for each node
         outputs = np.zeros((inputs.shape[0], self._size))
+        sums = np.zeros((inputs.shape[0], self._size))
         for input_idx in range(inputs.shape[0]):
             for i in range(self._size):
                 # a'_i = σ( Σ_j( a_j * w_ij + b_ij ) )
-                sum = 0
                 for j in range(self._weights.shape[1]):
-                    sum += inputs[input_idx, j] * self._weights[i, j] + self._biases[0, i]
-                outputs[input_idx, i] = self._activationFn(sum)
+                    sums[input_idx, i] += inputs[input_idx, j] * self._weights[i, j] + self._biases[0, i]
+        outputs = self._activationFn(sums)
 
         return outputs
 
