@@ -157,27 +157,12 @@ class Model:
         
         # Compute errors & gradient descent for each layer
         # Going backwards from last to first layer
-        next_layer_err = 0
+        prev_layer_err = outputs - targets
         for i in range(len(self.layers)-1, -1, -1):
-            # Backwards
-            if i < len(self.layers) - 1: # Hidden layer
-                weighted = np.matmul(next_layer_err, self.layers[i+1]._weights)
-                error = np.multiply(weighted, np.multiply(a_h[i], (1.0 - a_h[i])))
-            else: # Output layer
-                error = outputs - targets
-            next_layer_err = error # for next iteration downwards
 
             # In the first layer, the input is just straight-up the data
-            lin = a_h[i-1] if i > 0 else inputs
-            
-            # Compute gradients
-            # Simple gradient descent - @todo
-            weights_gradient = lin.T @ error
-            bias_gradient = np.sum(error, axis=0)
+            layer_in = a_h[i-1] if i > 0 else inputs
 
-            # Adjust weights and biases
-            self.layers[i]._weights -= learning_rate * weights_gradient.T
-            self.layers[i]._biases -= learning_rate * bias_gradient
-        
-
+            # Update layer
+            prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate)
         
