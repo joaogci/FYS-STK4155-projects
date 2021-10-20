@@ -8,6 +8,7 @@ class CostFunction(ABC):
     """
     
     n_features = 0
+    n = 0
     
     @abstractmethod
     def __init__(self, X: np.matrix, y: np.matrix):

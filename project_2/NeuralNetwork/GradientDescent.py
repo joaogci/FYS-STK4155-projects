@@ -26,7 +26,7 @@ class GradientDescent(Optimizer):
         """
         beta = np.zeros((self.n_features, 1))
         
-        for i in range(iter_max):
+        for epoch in range(1, iter_max + 1):
             dif = - eta * self.cost_function.grad_C(beta)
             if np.abs(dif) <= tol:
                 break
@@ -46,7 +46,7 @@ class GradientDescent(Optimizer):
         """
         beta = np.zeros((self.n_features, 1))
         
-        for i in range(iter_max):
+        for epoch in range(1, iter_max + 1):
             dif = - eta * self.cost_function.grad_C_autograd(beta)
             if np.abs(dif) <= tol:
                 break
