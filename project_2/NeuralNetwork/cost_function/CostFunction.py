@@ -21,7 +21,7 @@ class CostFunction(ABC):
         return None
     
     @abstractmethod
-    def C(self, beta: np.matrix) -> np.matrix:
+    def C(self, beta: np.matrix, indx: np.array = None) -> np.matrix:
         """
             Calls the cost function
         """
@@ -29,7 +29,7 @@ class CostFunction(ABC):
         return None
     
     @abstractmethod
-    def grad_C(self, beta: np.matrix) -> np.matrix:
+    def grad_C(self, beta: np.matrix, indx: np.array = None) -> np.matrix:
         """
             Class the gradient of the cost function
         """
@@ -37,7 +37,7 @@ class CostFunction(ABC):
         return None
     
     @abstractmethod
-    def grad_C_autograd(self, beta: np.matrix) -> np.matrix:
+    def grad_C_autograd(self, beta: np.matrix, indx: np.array = None) -> np.matrix:
         """
             Class the gradient of the cost function
         """
