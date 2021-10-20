@@ -13,6 +13,7 @@ class Softmax(ActivationFunction):
             Returns f(x)
         """
         # ln(sum(a_i)) = ln(a_0) + ln(sum(a_i / a_0))
+        # ^ This might give better results without completely exploding, @todo try this
         expTerm = np.exp(x)
         return expTerm / np.sum(expTerm, axis=1, keepdims=True)
 
