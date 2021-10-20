@@ -39,7 +39,7 @@ class Layer(ABC):
                 size (int): Number of inputs the layer will be receiving, i.e. number of nodes in the previous layer
                 rng (np.random.Generator): Random number generator to use when selecting initial weights
         """
-        self._weights = rng.uniform(0, 1, (self._size, size))
+        self._weights = rng.uniform(-1, 1, (self._size, size))
 
     def forward(self, inputs: np.matrix) -> np.matrix:
         """
