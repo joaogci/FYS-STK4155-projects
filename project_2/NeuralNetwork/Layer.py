@@ -8,7 +8,7 @@ class Layer(ABC):
         Abstract class that can be inherited to define two different types of Layers (hidden and output).
     """
     
-    NAME = ""
+    NAME = "" # Used to distinguish hidden and output layers
 
     def __init__(self, size: int, activation_function: ActivationFunction, initial_bias: float = 1e-3):
         """
@@ -21,7 +21,7 @@ class Layer(ABC):
         self._size = size
         self._activationFn = activation_function
         self._weights = None
-        self._biases = np.ones(self._size) * initial_bias
+        self._biases = np.ones((1, self._size)) * initial_bias
 
     def get_size(self) -> int:
         """
@@ -50,7 +50,7 @@ class Layer(ABC):
                 (np.matrix): Outputs from the different nodes - size corresponds to size of the layer
         """
         
-        if self._weights is None or self._biases is None or len(self._weights) != len(self._biases):
+        if self._weights is None or self._biases is None or len(self._weights) != self._biases.shape[1]:
             print('\033[91mLayer hasn\'t been assigned weights and biases! Ensure init_weights_and_biases is called before starting.\033[0m')
             return None
 
@@ -65,7 +65,7 @@ class Layer(ABC):
                 # a'_i = σ( Σ_j( a_j * w_ij + b_ij ) )
                 sum = 0
                 for j in range(self._weights.shape[1]):
-                    sum += inputs[input_idx, j] * self._weights[i, j] + self._biases[i]
+                    sum += inputs[input_idx, j] * self._weights[i, j] + self._biases[0, i]
                 outputs[input_idx, i] = self._activationFn(sum)
 
         return outputs
