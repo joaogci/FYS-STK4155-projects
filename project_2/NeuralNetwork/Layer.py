@@ -7,8 +7,6 @@ class Layer(ABC):
     """
         Abstract class that can be inherited to define two different types of Layers (hidden and output).
     """
-    
-    NAME = "" # Used to distinguish hidden and output layers
 
     def __init__(self, size: int, activation_function: ActivationFunction, initial_bias: float = 1e-3):
         """
@@ -93,3 +91,11 @@ class Layer(ABC):
         weighted_err = np.matmul(error, self._weights)
         return np.multiply(weighted_err, np.multiply(inputs, (1.0 - inputs)))
 
+
+
+# Declare Hidden and Output layer classes for nicer syntax
+class HiddenLayer(Layer):
+    ...
+
+class OutputLayer(Layer):
+    ...

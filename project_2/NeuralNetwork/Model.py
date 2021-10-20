@@ -2,7 +2,7 @@
 import numpy as np
 from time import time
 
-from .Layer import Layer
+from .Layer import Layer, HiddenLayer, OutputLayer
 
 class Model:
     
@@ -37,7 +37,7 @@ class Model:
             return
         
         # Ensure at least one hidden layer
-        if layer.NAME == "OUTPUT" and len(self.layers) <= 0:
+        if isinstance(layer, OutputLayer) and len(self.layers) <= 0:
             print('\033[91mCannot add an output layer before adding at least one hidden layer! Make sure layers are being added in the correct order.\033[0m')
             return
 
@@ -48,7 +48,7 @@ class Model:
         layer.init_weights(n_inputs, self.rng)
         
         # Add layer
-        if layer.NAME == "OUTPUT":
+        if isinstance(layer, OutputLayer):
             self.layers.append(layer)
             self._has_output = True # Locks the layers array to prevent adding more after the output layer
         else:
@@ -115,7 +115,7 @@ class Model:
                 return None
             
             # In training, keep track of hidden layer outputs
-            if training and layer.NAME != 'OUTPUT':
+            if training and isinstance(layer, HiddenLayer):
                 a_h.append(np.matrix(tmp))
         
         # Output of final layer = output of network

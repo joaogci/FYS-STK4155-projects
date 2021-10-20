@@ -2,8 +2,7 @@
 import numpy as np
 from NeuralNetwork.activation.Sigmoid import Sigmoid
 from NeuralNetwork.activation.Linear import Linear
-from NeuralNetwork.HiddenLayer import HiddenLayer
-from NeuralNetwork.OutputLayer import OutputLayer
+from NeuralNetwork.Layer import HiddenLayer, OutputLayer
 from NeuralNetwork.Model import Model
 
 # Settings
