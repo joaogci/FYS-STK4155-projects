@@ -23,6 +23,7 @@ class Model:
         self._has_output = False
         
     
+
     def add_layer(self, layer: Layer):
         """
             Adds a layer to the Model class. 
@@ -60,6 +61,18 @@ class Model:
                 (bool): Whether the network is ready, i.e. has been given all its layers
         """
         return self._has_output
+
+    def one_hot(self, vec: np.matrix) -> np.matrix:
+        """
+            Converts an array to a categorical representation matrix (one-hot)
+            Parameters:
+                vec (np.array): Array to convert to one-hot
+            Returns:
+                (np.matrix): One-hot representation
+        """
+        onehot = np.zeros((vec.shape[1], np.max(vec) + 1))
+        onehot[range(vec.shape[1]), vec] = 1
+        return onehot
 
 
 
@@ -103,7 +116,7 @@ class Model:
             
             # In training, keep track of hidden layer outputs
             if training and layer.NAME != 'OUTPUT':
-                a_h.append(tmp)
+                a_h.append(np.matrix(tmp))
         
         # Output of final layer = output of network
         if output_list:
@@ -111,6 +124,7 @@ class Model:
         if training:
             return tmp, a_h
         return tmp
+
 
 
     def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1):
@@ -122,6 +136,13 @@ class Model:
                 learning_rate (float): Learning rate η to use to update the weights & biases
         """
 
+        # For now, each training set needs to be fed one by one
+        # @todo Remove this check and implement passing all training sets at once, much like feed_forward
+        if inputs.shape[0] != 1:
+            print('\033[91mERROR: for now, back_prop only supports passing in ONE input set at a time')
+            print('This will be extended to supporting an array of input & output sets instead of one at a time later.\033[0m')
+            exit()
+
         if not self.is_ready():
             print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
             return
@@ -129,8 +150,19 @@ class Model:
         # Feed forward once to obtain outputs
         outputs, a_h = self.feed_forward(inputs, training=True)
 
+        # Dimensionality check
         if outputs.shape != targets.shape or outputs.shape[1] != self.layers[len(self.layers) - 1].get_size():
             print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', outputs.shape, 'and', targets.shape, 'instead..\033[0m')
             return
         
-        # @todo
+        # Compute errors & gradient descent for each layer
+        # Going backwards from last to first layer
+        prev_layer_err = outputs - targets
+        for i in range(len(self.layers)-1, -1, -1):
+
+            # In the first layer, the input is just straight-up the data
+            layer_in = a_h[i-1] if i > 0 else inputs
+
+            # Update layer
+            prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate)
+        
