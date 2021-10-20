@@ -62,18 +62,6 @@ class Model:
         """
         return self._has_output
 
-    def one_hot(self, vec: np.matrix) -> np.matrix:
-        """
-            Converts an array to a categorical representation matrix (one-hot)
-            Parameters:
-                vec (np.array): Array to convert to one-hot
-            Returns:
-                (np.matrix): One-hot representation
-        """
-        onehot = np.zeros((vec.shape[1], np.max(vec) + 1))
-        onehot[range(vec.shape[1]), vec] = 1
-        return onehot
-
 
 
     def feed_forward(self, inputs: np.matrix, training: bool = False) -> tuple:
