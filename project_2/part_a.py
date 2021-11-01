@@ -31,7 +31,7 @@ y = 4 + 3 * x**2 + rng.normal(0, 1, size=n)
 linear_reg = LinearRegression(X, y)
 sgd = StochasticGradientDescent(linear_reg, M, t0, t1, rng)
 theta_sgd_class = sgd.optimize()
-# theta_sgd_class_autograd = sgd.optimize_autograd()
+theta_sgd_class_autograd = sgd.optimize_autograd()
 
 
 # learning rate and grad of MSE
@@ -50,8 +50,8 @@ print("theta from class: ")
 print(theta_sgd_class)
 
 
-# print("theta from class autograd: ")
-# print(theta_sgd_class_autograd)
+print("theta from class autograd: ")
+print(theta_sgd_class_autograd)
 
 print("theta from SGD: ")
 print(theta)

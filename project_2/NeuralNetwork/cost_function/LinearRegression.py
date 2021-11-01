@@ -1,6 +1,7 @@
 
+from autograd.differential_operators import elementwise_grad
 import numpy as np
-from autograd import grad
+from autograd import elementwise_grad as egrad
 from .CostFunction import CostFunction
 
 class LinearRegression(CostFunction):
@@ -43,11 +44,12 @@ class LinearRegression(CostFunction):
             Parameters:
                 beta (np.matrix): features vector
         """
-        def cost(beta):
-            tmp = np.power((self.X[indx] @ beta - self.y[indx]), 2) / self.n
-            return tmp
-        temp_grad = grad(cost, 0)
+        def cost(x):
+            return self.C(x, indx)
+        
+        temp_grad = egrad(cost)
 
         print(temp_grad(beta))
         self.calculated_grad = True
         return temp_grad(beta)
+    
