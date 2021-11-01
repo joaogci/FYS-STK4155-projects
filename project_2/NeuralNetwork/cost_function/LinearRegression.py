@@ -1,7 +1,7 @@
 
 import numpy as np
 from autograd import grad
-from CostFunction import CostFunction
+from .CostFunction import CostFunction
 
 class LinearRegression(CostFunction):
     
@@ -46,5 +46,4 @@ class LinearRegression(CostFunction):
         if not self.calculated_grad:    
             temp_grad = grad(self.C)
             self.calculated_grad = True
-        
         return temp_grad(beta)

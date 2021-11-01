@@ -8,7 +8,7 @@ class Optimizer(ABC):
     """
     
     @abstractmethod
-    def optimize(self, eta: float, tol: float = 1e-7, iter_max: int = 1e5) -> ...:
+    def optimize(self, tol: float = 1e-7, iter_max: int = int(1e5)) -> ...:
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
             If there is no analytical expression for the gradient, it uses autograd. 
@@ -17,7 +17,7 @@ class Optimizer(ABC):
         return None
     
     @abstractmethod
-    def optimize_autograd(self, eta: float, tol: float = 1e-7, iter_max: int = 1e5) -> ...:
+    def optimize_autograd(self, tol: float = 1e-7, iter_max: int = int(1e5)) -> ...:
         """
             Finds the minimum of the inpute CostFunction using autograd.
         """
