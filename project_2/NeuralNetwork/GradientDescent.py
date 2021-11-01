@@ -24,16 +24,16 @@ class GradientDescent(Optimizer):
                 tol (float): tolerance
                 iter_max (int): maximum number of iterations
         """
-        beta = np.zeros((self.n_features, 1))
+        theta = np.zeros((self.n_features, 1))
         
         for epoch in range(1, iter_max + 1):
-            dif = - eta * self.cost_function.grad_C(beta)
+            dif = - eta * self.cost_function.grad_C(theta)
             if np.abs(dif) <= tol:
                 break
             
-            beta = beta + dif
+            theta = theta + dif
             
-        return beta
+        return theta
     
     def optimize_autograd(self, eta: float, tol: float = 1e-7, iter_max: int = 1e5) -> np.matrix:
         """
@@ -44,13 +44,13 @@ class GradientDescent(Optimizer):
                 tol (float): tolerance
                 iter_max (int): maximum number of iterations
         """
-        beta = np.zeros((self.n_features, 1))
+        theta = np.zeros((self.n_features, 1))
         
         for epoch in range(1, iter_max + 1):
-            dif = - eta * self.cost_function.grad_C_autograd(beta)
+            dif = - eta * self.cost_function.grad_C_autograd(theta)
             if np.abs(dif) <= tol:
                 break
             
-            beta = beta + dif
+            theta = theta + dif
             
-        return beta
+        return theta
