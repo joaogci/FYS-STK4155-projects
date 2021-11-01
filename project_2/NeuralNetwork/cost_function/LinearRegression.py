@@ -43,7 +43,11 @@ class LinearRegression(CostFunction):
             Parameters:
                 beta (np.matrix): features vector
         """
-        if not self.calculated_grad:    
-            temp_grad = grad(self.C)
-            self.calculated_grad = True
+        def cost(beta):
+            tmp = np.power((self.X[indx] @ beta - self.y[indx]), 2) / self.n
+            return tmp
+        temp_grad = grad(cost, 0)
+
+        print(temp_grad(beta))
+        self.calculated_grad = True
         return temp_grad(beta)
