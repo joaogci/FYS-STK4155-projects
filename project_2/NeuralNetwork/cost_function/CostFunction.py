@@ -37,10 +37,3 @@ class CostFunction(ABC):
         print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides grad_C()!')
         return None
     
-    @abstractmethod
-    def grad_C_autograd(self, beta: np.matrix, indx: np.array = None) -> np.matrix:
-        """
-            Class the gradient of the cost function
-        """
-        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides grad_C_autograd()!')
-        return None

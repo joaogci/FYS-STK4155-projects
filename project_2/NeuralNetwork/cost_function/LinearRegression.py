@@ -19,37 +19,24 @@ class LinearRegression(CostFunction):
         self.n_features = X.shape[1]
         self.calculated_grad = False
          
-    def C(self, beta: np.matrix, indx: np.matrix = None) -> np.matrix:
+    def C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
             Returuns the value of the cost function at a new beta values
             Parameters:
                 beta (np.matrix): features vector
         """
-        return np.power((self.X[indx] @ beta - self.y[indx]), 2) / self.n
+        if indx.size == 0:
+            return np.power((self.X @ beta - self.y), 2) / self.n
+        return np.power((self.X[indx] @ beta - self.y[indx]), 2) / self.y[indx].shape[0]
 
-    def grad_C(self, beta: np.matrix, indx: np.matrix = None) -> np.matrix:
+    def grad_C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
             Returns the gradient of the function evaluated at a new beta values, 
-            using the analytical expression. If no analytical expression is available,
-            autograd will do the numerical approximation of the gradient.
+            using the analytical expression.
             Parameters:
                 beta (np.matrix): features vector
         """
-        return (2 / self.n) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx])
+        if indx.size == 0:
+            return (2 / self.n) * self.X.T @ (self.X @ beta - self.y) 
+        return (2 / self.y[indx].shape[0]) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx])
         
-    def grad_C_autograd(self, beta: np.matrix, indx: np.matrix = None) -> np.matrix:
-        """
-            Returns the gradient of the function evaluated at a new beta values,
-            using autograd module.
-            Parameters:
-                beta (np.matrix): features vector
-        """
-        def cost(x):
-            return self.C(x, indx)
-        
-        temp_grad = egrad(cost)
-
-        print(temp_grad(beta))
-        self.calculated_grad = True
-        return temp_grad(beta)
-    
