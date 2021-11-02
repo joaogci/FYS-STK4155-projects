@@ -8,15 +8,15 @@ from time import time
 
 from NeuralNetwork.StochasticGradientDescent import StochasticGradientDescent
 from NeuralNetwork.cost_function.LinearRegression import  LinearRegression
-
+from NeuralNetwork.GradientDescent import GradientDescent
 
 # parameters
-n = 1000
+n = 500
 M = 5 # size of each minibatch 
 m = n // M # number of minibatches
-n_epochs = 100
-t0 = 40
-t1 = 50
+n_epochs = 10000
+t0 = 25
+t1 = 1
 
 
 # random number generator
@@ -26,20 +26,21 @@ rng = np.random.default_rng(np.random.MT19937(seed=seed))
 # compute the function
 x = rng.uniform(0, 1, size=n)
 X = np.c_[np.ones((n, 1)), x, x**2]
-y = 4 + 3 * x**2 + rng.normal(0, 1, size=n)
+y = 4 + 3 * x**2# + rng.normal(0, 1, size=n)
 
 linear_reg = LinearRegression(X, y)
 sgd = StochasticGradientDescent(linear_reg, M, t0, t1, rng)
 theta_sgd_class = sgd.optimize()
-theta_sgd_class_autograd = sgd.optimize_autograd()
 
+# gd = GradientDescent(linear_reg, eta=0.1)
+# theta_gd_class = gd.optimize()
 
 # learning rate and grad of MSE
 eta = lambda t: t0 / (t + t1)
 grad_MSE = lambda xi, yi, theta: 2 * xi.T @ ((xi @ theta) - yi)
 theta = np.zeros(X.shape[1])
 
-# SGD
+# SGD 
 for epoch in range(1, n_epochs + 1):
     for i in range(m):
         # pick the kth minibath 
@@ -49,9 +50,8 @@ for epoch in range(1, n_epochs + 1):
 print("theta from class: ")
 print(theta_sgd_class)
 
-
-print("theta from class autograd: ")
-print(theta_sgd_class_autograd)
+# print("theta from GD class: ")
+# print(theta_gd_class)
 
 print("theta from SGD: ")
 print(theta)
