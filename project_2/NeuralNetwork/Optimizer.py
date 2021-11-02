@@ -16,10 +16,3 @@ class Optimizer(ABC):
         print('Error: cannot instantiate/use the default Optimzer class - use a base class that overrides optimize()!')
         return None
     
-    @abstractmethod
-    def optimize_autograd(self, tol: float = 1e-7, iter_max: int = int(1e5)) -> ...:
-        """
-            Finds the minimum of the inpute CostFunction using autograd.
-        """
-        print('Error: cannot instantiate/use the default Optimzer class - use a base class that overrides optimize_autograd()!')
-        return None
