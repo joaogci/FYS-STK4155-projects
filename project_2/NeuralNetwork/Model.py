@@ -81,6 +81,9 @@ class Model:
         if isinstance(inputs, list):
             inputs = np.matrix([inputs])
             output_list = True
+        
+        if inputs.ndim == 1:
+            inputs = np.matrix(inputs)
 
         if not self.is_ready():
             print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
@@ -106,7 +109,7 @@ class Model:
                 return None
             
             # In training, keep track of hidden layer outputs
-            if training and isinstance(layer, HiddenLayer):
+            if training:
                 z_h.append(z)
                 a_h.append(tmp)
         
@@ -159,7 +162,7 @@ class Model:
             
             # Compute errors & gradient descent for each layer
             # Going backwards from last to first layer
-            prev_layer_err = self.cost_function.grad_C_nn(a_h[-1]) * self.layers[-1]._activationFn.d(z_h[-1])
+            prev_layer_err = np.multiply(self.cost_function.grad_C_nn(targs, outputs), self.layers[-1]._activationFn.d(z_h[-1]))
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)

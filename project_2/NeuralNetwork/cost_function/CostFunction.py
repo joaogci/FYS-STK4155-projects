@@ -40,7 +40,7 @@ class CostFunction(ABC):
         return None
 
     @abstractmethod
-    def grad_C_nn(self, y_tilde: np.matrix) -> np.matrix:
+    def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
         """
             Class the gradient of the cost function
         """

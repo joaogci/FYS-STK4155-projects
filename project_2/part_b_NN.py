@@ -6,6 +6,7 @@ from NeuralNetwork.Model import Model
 from NeuralNetwork.Layer import Layer, HiddenLayer, OutputLayer
 from NeuralNetwork.activation.Sigmoid import Sigmoid
 from NeuralNetwork.activation.Linear import Linear
+from NeuralNetwork.cost_function.LinearRegression import LinearRegression
 
 from functions import *
 
@@ -43,7 +44,7 @@ z_train, z_test = np.matrix(z_train).T, np.matrix(z_test).T
 n_data_points = X_train.shape[0]
 
 # input shape = (n, 2)   |   output shape = (n, 1)
-neural_network = Model(2, random_state=seed)
+neural_network = Model(2, random_state=seed, cost_function=LinearRegression(X_train, z_train, X_test, z_test))
 neural_network.add_layer(HiddenLayer(100, Sigmoid()))
 neural_network.add_layer(HiddenLayer(100, Sigmoid()))
 neural_network.add_layer(OutputLayer(1, Linear()))
@@ -53,20 +54,9 @@ outputs = neural_network.feed_forward(X_train)
 print()
 for i in range(iterations):
     print(int(i / iterations * 100), '%', end='\r')
-    neural_network.back_prop(X_train, z_train, learning_rate=0.02)
+    neural_network.back_prop(X_train, z_train, learning_rate=0.005)
 print('100%')
 
 # Print final outputs
-print("Train data: ")
-print('\nAfter training:')
-print(neural_network.feed_forward(X_train))
-print('\nTargets:')
-print(z_train)
-print('\nMSE:', neural_network.fwd_mse(X_train, z_train))
-
-print("\n\nTest data: ")
-print('\nAfter training:')
-print(neural_network.feed_forward(X_test))
-print('\nTargets:')
-print(z_test)
-print('\nMSE:', neural_network.fwd_mse(X_test, z_test))
+print('\nTrain MSE:', neural_network.fwd_mse(X_train, z_train))
+print('\nTest MSE:', neural_network.fwd_mse(X_test, z_test))

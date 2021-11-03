@@ -6,12 +6,13 @@ from NeuralNetwork.activation.Linear import Linear
 from NeuralNetwork.activation.Softmax import Softmax
 from NeuralNetwork.Layer import HiddenLayer, OutputLayer
 from NeuralNetwork.Model import Model
+from NeuralNetwork.cost_function.LinearRegression import LinearRegression
 
 
 # Settings
-learning_rate = 0.12
+learning_rate = 0.5
 lmbda = 8e-4
-plot_from = 250 # Train iteration at which to start plotting MSEs
+plot_from = 100 # Train iteration at which to start plotting MSEs
 train_iterations = 2000 # Max training iteration
 
 # Train for XOR, AND, OR as a test
@@ -30,7 +31,7 @@ targets = np.matrix([ # First column: ^, second column: &, third column: |
 
 
 # Init network + layers
-model = Model(2, random_state=0)
+model = Model(2, random_state=0, cost_function=LinearRegression(inputs, targets, inputs, targets))
 model.add_layer(HiddenLayer(60, Sigmoid()))
 model.add_layer(OutputLayer(3, Sigmoid()))
 
