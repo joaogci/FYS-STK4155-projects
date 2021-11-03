@@ -114,45 +114,54 @@ class Model:
             return tmp, a_h
         return tmp
 
+    def fwd_mse(self, inputs: np.matrix, targets: np.matrix) -> float:
+        """
+            Feeds forward once, then returns the mean squared error between targets and outputs
+            Parameters:
+                inputs (np.matrix): Inputs to run the network on
+                targets (np.matrix): Expected outputs
+            Returns:
+                (float): Mean squared error after prediction
+        """
+        diff = targets - self.feed_forward(inputs)
+        return np.mean(np.multiply(diff, diff))
 
 
-    def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1, lmbda: float = 0):
+    def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1, regularization: float = 0):
         """
             Back-propagates once with a set of actual and desired outputs, so the next run will match the targets closer (hopefully)
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
                 learning_rate (float): Learning rate η to use to update the weights & biases
-                lmbda (float): Additional hyperparameter lambda to control rate of descent
+                regularization (float): Regularization parameter λ to control rate of descent
         """
-
-        # For now, each training set needs to be fed one by one
-        # @todo Remove this check and implement passing all training sets at once, much like feed_forward
-        if inputs.shape[0] != 1:
-            print('\033[91mERROR: for now, back_prop only supports passing in ONE input set at a time')
-            print('This will be extended to supporting an array of input & output sets instead of one at a time later.\033[0m')
-            exit()
 
         if not self.is_ready():
             print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
             return
 
-        # Feed forward once to obtain outputs
-        outputs, a_h = self.feed_forward(inputs, training=True)
+        # Iterate over list of inputs/targets if passing more than 1
+        for i in range(inputs.shape[0]):
+            ins = inputs[i]
+            targs = targets[i]
 
-        # Dimensionality check
-        if outputs.shape != targets.shape or outputs.shape[1] != self.layers[len(self.layers) - 1].get_size():
-            print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', outputs.shape, 'and', targets.shape, 'instead..\033[0m')
-            return
-        
-        # Compute errors & gradient descent for each layer
-        # Going backwards from last to first layer
-        prev_layer_err = outputs - targets
-        for i in range(len(self.layers)-1, -1, -1):
+            # Feed forward once to obtain outputs
+            outputs, a_h = self.feed_forward(ins, training=True)
 
-            # In the first layer, the input is just straight-up the data
-            layer_in = a_h[i-1] if i > 0 else inputs
+            # Dimensionality check
+            if outputs.shape != targs.shape or outputs.shape[1] != self.layers[len(self.layers) - 1].get_size():
+                print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', outputs.shape, 'and', targs.shape, 'instead..\033[0m')
+                return
+            
+            # Compute errors & gradient descent for each layer
+            # Going backwards from last to first layer
+            prev_layer_err = outputs - targs
+            for i in range(len(self.layers)-1, -1, -1):
 
-            # Update layer
-            prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate, lmbda)
+                # In the first layer, the input is just straight-up the data
+                layer_in = a_h[i-1] if i > 0 else ins
+
+                # Update layer
+                prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate, regularization)
         

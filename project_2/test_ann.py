@@ -1,13 +1,19 @@
 
 import numpy as np
+import matplotlib.pyplot as plt
 from NeuralNetwork.activation.Sigmoid import Sigmoid
 from NeuralNetwork.activation.Linear import Linear
 from NeuralNetwork.activation.Softmax import Softmax
 from NeuralNetwork.Layer import HiddenLayer, OutputLayer
 from NeuralNetwork.Model import Model
 
+
 # Settings
-train_iterations = 500
+learning_rate = 0.12
+lmbda = 8e-4
+plot_from = 250 # Train iteration at which to start plotting MSEs
+train_iterations = 2000 # Max training iteration
+
 # Train for XOR, AND, OR as a test
 inputs = np.matrix([
     [0, 0],
@@ -37,14 +43,24 @@ print(outputs.round(1))
 
 # Train network
 print()
+mses = np.zeros(train_iterations-plot_from)
 for i in range(train_iterations):
     print(int(i / train_iterations * 100), '%', end='\r')
-    for j in range(len(targets)): # For now, back_prop only deals with these one row at a time
-        model.back_prop(inputs[j], targets[j], learning_rate=0.8, lmbda=1e-3)
+    model.back_prop(inputs, targets, learning_rate=learning_rate, regularization=lmbda)
+    if i >= plot_from:
+        mses[i-plot_from] = model.fwd_mse(inputs, targets)
 print('100%')
+
+plt.plot(range(plot_from, train_iterations), mses)
+plt.ylabel('MSE')
+plt.xlabel('backprop iterations')
+plt.title(fr'MSE as a function of backpropagation iterations, $\eta={learning_rate}$, $\lambda={lmbda}$')
 
 # Print final outputs
 print('\nAfter training:')
-print(model.feed_forward(inputs).round(8))
+results = model.feed_forward(inputs)
+print(results.round(8))
 print('\nTargets:')
 print(targets)
+
+plt.show()
