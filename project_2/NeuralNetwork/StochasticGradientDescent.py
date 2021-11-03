@@ -88,7 +88,7 @@ class StochasticGradientDescent(Optimizer):
         """
             Plots MSE as a function of epochs
         """
-        plt.figure("MSE vs epochs") 
+        plt.figure("MSE vs epochs - SGD") 
         
         plt.plot(range(1, len(self.MSE)+1), self.MSE, label=f"eta={self.eta}")
         plt.xlabel("epochs")
