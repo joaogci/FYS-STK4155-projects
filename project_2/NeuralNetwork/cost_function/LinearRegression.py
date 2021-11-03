@@ -1,22 +1,25 @@
 
-from autograd.differential_operators import elementwise_grad
 import numpy as np
-from autograd import elementwise_grad as egrad
+from numpy.core.fromnumeric import mean
 from .CostFunction import CostFunction
 
 class LinearRegression(CostFunction):
     
-    def __init__(self, X: np.matrix, y: np.matrix):
+    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix):
         """
-            Initiates LinearRegerssion class
+            Initiates the LinearRegression class 
             Parameters
-                X (np.matrix): design matrix
-                y (np.matrix): target values
+                X_train (np.matrix): design train matrix
+                y_train (np.matrix): target train values
+                X_test (np.matrix): design test matrix
+                y_test (np.matrix): target test values
         """
-        self.X = X
-        self.y = y
-        self.n = y.shape[0]
-        self.n_features = X.shape[1]
+        self.X = X_train
+        self.y = y_train
+        self.X_test = X_test
+        self.y_test = y_test
+        self.n = self.y.shape[0]
+        self.n_features = self.X.shape[1]
         self.calculated_grad = False
          
     def C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
@@ -39,4 +42,11 @@ class LinearRegression(CostFunction):
         if indx.size == 0:
             return (2 / self.n) * self.X.T @ (self.X @ beta - self.y) 
         return (2 / self.y[indx].shape[0]) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx])
-        
+    
+    def MSE(self, beta: np.matrix) -> np.matrix:
+        """
+            Computes the MSE for the test data given the beta values.
+            Parameters:
+                beta (np.matrix): features vector
+        """
+        return np.mean((self.y_test - self.X_test @ beta)**2)
