@@ -52,6 +52,12 @@ def create_X_2D(degree: int, X: np.matrix, Y: np.matrix):
     
     return design_matrix
 
+def n_features(deg):
+    """
+        Returns the number of features for a 2D polynomial fit
+    """
+    return int((deg + 1) * (deg + 2) / 2)
+
 def scale_mean_std(X_train: np.matrix, X_test: np.matrix, y_train: np.matrix, y_test: np.matrix) -> tuple:
     """
         Subtracts the mean value and divides by the standard deviation
