@@ -70,7 +70,8 @@ class Model:
                 training (bool): If true, will return hidden layer activations alongside the actual outputs
             Returns:
                 (np.matrix|list<float>): Outputs obtained out of the output layer after running through all layers
-                (list<np.matrix>): Hidden layer activation outputs, returned only if `training` was `true`
+                (list<np.matrix>): Hidden layer activated outputs, returned only if `training` was `true`
+                (list<np.matrix>): Hidden layer outputs (no activation function), returned only if `training` was `true`
         """
 
         # If the input is given as a 1D array, we're wanting to use that as a single row in the input matrix (i.e. run with a single set of input data)
@@ -91,10 +92,11 @@ class Model:
         tmp = inputs
         if training:
             a_h = [inputs]
+            z_h = [inputs]
         for layer in self.layers:
 
             # Activate the layer
-            tmp = layer.forward(tmp)
+            tmp, z = layer.forward(tmp)
 
             # If for whatever reason some kind of error occured, the output of forward() will be null
             if tmp is None:
@@ -103,13 +105,14 @@ class Model:
             
             # In training, keep track of hidden layer outputs
             if training and isinstance(layer, HiddenLayer):
+                z_h.append(z)
                 a_h.append(tmp)
         
         # Output of final layer = output of network
         if output_list:
             tmp = tmp[0] # Output as a list if the input was given as such
         if training:
-            return tmp, a_h
+            return tmp, a_h, z_h
         return tmp
 
     def fwd_mse(self, inputs: np.matrix, targets: np.matrix) -> float:
@@ -145,7 +148,7 @@ class Model:
             targs = targets[i]
 
             # Feed forward once to obtain outputs
-            outputs, a_h = self.feed_forward(ins, training=True)
+            outputs, a_h, z_h = self.feed_forward(ins, training=True)
 
             # Dimensionality check
             if outputs.shape != targs.shape or outputs.shape[1] != self.layers[len(self.layers) - 1].get_size():
@@ -156,7 +159,6 @@ class Model:
             # Going backwards from last to first layer
             prev_layer_err = outputs - targs
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
-
                 # Update layer
-                prev_layer_err = self.layers[j].backward(a_h[j], prev_layer_err, learning_rate, regularization)
+                prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
         

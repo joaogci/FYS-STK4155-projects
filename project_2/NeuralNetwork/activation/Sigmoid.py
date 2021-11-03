@@ -17,4 +17,4 @@ class Sigmoid(ActivationFunction):
         """
             Returns the derivative of the sigmoid f'(x)
         """
-        return self(x) * (1.0 - self(x))
+        return np.multiply(self(x), (1.0 - self(x)))
