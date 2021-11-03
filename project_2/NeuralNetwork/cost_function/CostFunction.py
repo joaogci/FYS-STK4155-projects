@@ -38,6 +38,14 @@ class CostFunction(ABC):
         """
         print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides grad_C()!')
         return None
+
+    @abstractmethod
+    def grad_C_nn(self, y_tilde: np.matrix) -> np.matrix:
+        """
+            Class the gradient of the cost function
+        """
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides grad_C_nn()!')
+        return None
     
     @abstractmethod
     def MSE(self, beta: np.matrix) -> np.matrix: 
