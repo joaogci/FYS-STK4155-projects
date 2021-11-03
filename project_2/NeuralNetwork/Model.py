@@ -4,6 +4,7 @@ from time import time
 
 from .Layer import Layer, HiddenLayer, OutputLayer
 
+
 class Model:
     
     def __init__(self, input_size: int, random_state: int = int(time())):
@@ -115,13 +116,14 @@ class Model:
 
 
 
-    def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1):
+    def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1, lmbda: float = 0):
         """
             Back-propagates once with a set of actual and desired outputs, so the next run will match the targets closer (hopefully)
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
                 learning_rate (float): Learning rate η to use to update the weights & biases
+                lmbda (float): Additional hyperparameter lambda to control rate of descent
         """
 
         # For now, each training set needs to be fed one by one
@@ -152,5 +154,5 @@ class Model:
             layer_in = a_h[i-1] if i > 0 else inputs
 
             # Update layer
-            prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate)
+            prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate, lmbda)
         
