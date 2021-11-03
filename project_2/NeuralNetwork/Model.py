@@ -3,6 +3,7 @@ import numpy as np
 from time import time
 
 from .Layer import Layer, HiddenLayer, OutputLayer
+from .cost_function import CostFunction
 
 
 class Model:
@@ -11,7 +12,7 @@ class Model:
         Can add layers to the network with add_layer
     """
     
-    def __init__(self, input_size: int, random_state: int = int(time())):
+    def __init__(self, input_size: int, cost_function: CostFunction, random_state: int = int(time())):
         """
             Artificial neural network class
             Parameters:
@@ -25,6 +26,7 @@ class Model:
         self.rng = np.random.default_rng(np.random.MT19937(seed=self.random_state))
         
         self.layers = list()
+        self.cost_function = cost_function
         self._has_output = False
         
     
@@ -157,7 +159,7 @@ class Model:
             
             # Compute errors & gradient descent for each layer
             # Going backwards from last to first layer
-            prev_layer_err = outputs - targs
+            prev_layer_err = self.cost_function.grad_C_nn(a_h[-1]) * self.layers[-1]._activationFn.d(z_h[-1])
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
