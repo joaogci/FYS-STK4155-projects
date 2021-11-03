@@ -6,6 +6,10 @@ from .Layer import Layer, HiddenLayer, OutputLayer
 
 
 class Model:
+    """
+        Feed-forward neural network instance
+        Can add layers to the network with add_layer
+    """
     
     def __init__(self, input_size: int, random_state: int = int(time())):
         """
@@ -27,33 +31,26 @@ class Model:
 
     def add_layer(self, layer: Layer):
         """
-            Adds a layer to the Model class. 
-            It has to have at least one HiddenLayer and only one OutputLayer.
-            The layers must be added by the order they act. 
+            Adds a layer to the Model class.
+            It has to have at least one OutputLayer.
+            The layers must be added by the order they act.
         """
 
         # Ensure no more than 1 output layer
         if self._has_output:
             print('\033[91mCannot add another layer after the network\'s output layer! Make sure layers are being added in the correct order.\033[0m')
             return
-        
-        # Ensure at least one hidden layer
-        if isinstance(layer, OutputLayer) and len(self.layers) <= 0:
-            print('\033[91mCannot add an output layer before adding at least one hidden layer! Make sure layers are being added in the correct order.\033[0m')
-            return
 
         # Compute number of inputs the layer will be receiving to init weights
         n_inputs = self._input_size
         if len(self.layers) > 0:
-            n_inputs = self.layers[len(self.layers) - 1].get_size()
+            n_inputs = self.layers[-1].get_size()
         layer.init_weights(n_inputs, self.rng)
         
         # Add layer
+        self.layers.append(layer)
         if isinstance(layer, OutputLayer):
-            self.layers.append(layer)
             self._has_output = True # Locks the layers array to prevent adding more after the output layer
-        else:
-            self.layers.append(layer)
 
     def is_ready(self) -> bool:
         """
@@ -93,19 +90,20 @@ class Model:
         # Process from layer to layer sequentially, passing the output of each layer into the next
         tmp = inputs
         if training:
-            a_h = []
+            a_h = [inputs]
         for layer in self.layers:
 
             # Activate the layer
             tmp = layer.forward(tmp)
 
+            # If for whatever reason some kind of error occured, the output of forward() will be null
             if tmp is None:
                 print('\033[91mLayer gave invalid results; see above for details regarding the error.\033[0m')
                 return None
             
             # In training, keep track of hidden layer outputs
             if training and isinstance(layer, HiddenLayer):
-                a_h.append(np.matrix(tmp))
+                a_h.append(tmp)
         
         # Output of final layer = output of network
         if output_list:
@@ -157,11 +155,8 @@ class Model:
             # Compute errors & gradient descent for each layer
             # Going backwards from last to first layer
             prev_layer_err = outputs - targs
-            for i in range(len(self.layers)-1, -1, -1):
-
-                # In the first layer, the input is just straight-up the data
-                layer_in = a_h[i-1] if i > 0 else ins
+            for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
 
                 # Update layer
-                prev_layer_err = self.layers[i].backward(layer_in, prev_layer_err, learning_rate, regularization)
+                prev_layer_err = self.layers[j].backward(a_h[j], prev_layer_err, learning_rate, regularization)
         

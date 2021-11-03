@@ -39,7 +39,7 @@ print('\nBefore training:')
 outputs = model.feed_forward(inputs)
 # To run with a single input set instead of several, the following is possible:
 # outputs = model.feed_forward([0, 0])
-print(outputs.round(1))
+print(outputs.round(5))
 
 # Train network
 print()
@@ -59,7 +59,7 @@ plt.title(fr'MSE as a function of backpropagation iterations, $\eta={learning_ra
 # Print final outputs
 print('\nAfter training:')
 results = model.feed_forward(inputs)
-print(results.round(8))
+print(results.round(5))
 print('\nTargets:')
 print(targets)
 

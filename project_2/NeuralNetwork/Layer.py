@@ -19,7 +19,7 @@ class Layer(ABC):
         self._size = size
         self._activationFn = activation_function
         self._weights = None
-        self._biases = np.ones((1, self._size)) * initial_bias
+        self._biases = np.ones((self._size, 1)) * initial_bias
 
     def get_size(self) -> int:
         """
@@ -29,15 +29,15 @@ class Layer(ABC):
         """
         return self._size
 
-    def init_weights(self, size: int, rng: np.random.Generator):
+    def init_weights(self, input_size: int, rng: np.random.Generator):
         """
             Initialises the weights array for the layer with stochastic noise
             The size corresponding to the number of nodes in the previous layer
             Parameters:
-                size (int): Number of inputs the layer will be receiving, i.e. number of nodes in the previous layer
+                input_size (int): Number of inputs the layer will be receiving, i.e. number of nodes in the previous layer
                 rng (np.random.Generator): Random number generator to use when selecting initial weights
         """
-        self._weights = rng.uniform(-1, 1, (self._size, size))
+        self._weights = rng.uniform(-1, 1, (self._size, input_size))
 
     def forward(self, inputs: np.matrix) -> np.matrix:
         """
@@ -48,8 +48,8 @@ class Layer(ABC):
                 (np.matrix): Outputs from the different nodes - size corresponds to size of the layer
         """
         
-        if self._weights is None or self._biases is None or len(self._weights) != self._biases.shape[1]:
-            print('\033[91mLayer hasn\'t been assigned weights and biases! Ensure init_weights_and_biases is called before starting.\033[0m')
+        if self._weights is None or self._biases is None or len(self._weights) != self._biases.shape[0]:
+            print('\033[91mLayer hasn\'t been assigned weights! Ensure init_weights is called before starting.\033[0m')
             return None
 
         if inputs.shape[1] != len(self._weights[0]):
@@ -57,16 +57,8 @@ class Layer(ABC):
             return None
         
         # Accumulate inputs for each node
-        outputs = np.zeros((inputs.shape[0], self._size))
-        sums = np.zeros((inputs.shape[0], self._size))
-        for input_idx in range(inputs.shape[0]):
-            for i in range(self._size):
-                # a'_i = σ( Σ_j( a_j * w_ij + b_ij ) )
-                for j in range(self._weights.shape[1]):
-                    sums[input_idx, i] += inputs[input_idx, j] * self._weights[i, j] + self._biases[0, i]
-        outputs = self._activationFn(sums)
-
-        return outputs
+        # Because of the way we structure the input, we need to transpose inputs and outputs :)
+        return self._activationFn(self._weights @ inputs.T + self._biases).T
 
     def backward(self, inputs: np.matrix, error: np.matrix, learning_rate: float, regularization: float) -> np.matrix:
         """
@@ -84,16 +76,15 @@ class Layer(ABC):
         weights_gradient = inputs.T @ error
         bias_gradient = np.sum(error, axis=0)
 
-        if regularization > 0.0:
-            weights_gradient += regularization * self._weights.T
+        # Add regularization term to weights gradient (might be 0)
+        weights_gradient += regularization * self._weights.T
 
         # Adjust weights and biases
         self._weights -= learning_rate * weights_gradient.T
-        self._biases -= learning_rate * bias_gradient
+        self._biases -= learning_rate * bias_gradient.T
 
         # Return the estimated error in inputs
-        weighted_err = np.matmul(error, self._weights)
-        return np.multiply(weighted_err, np.multiply(inputs, (1.0 - inputs)))
+        return np.multiply((error @ self._weights), np.multiply(inputs, (1.0 - inputs)))
 
 
 
