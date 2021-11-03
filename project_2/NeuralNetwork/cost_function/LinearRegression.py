@@ -20,7 +20,6 @@ class LinearRegression(CostFunction):
         self.y_test = y_test
         self.n = self.y.shape[0]
         self.n_features = self.X.shape[1]
-        self.calculated_grad = False
          
     def C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
