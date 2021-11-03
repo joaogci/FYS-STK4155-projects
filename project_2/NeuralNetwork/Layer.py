@@ -17,7 +17,7 @@ class Layer(ABC):
                 initial_bias (float): Initial value to initialize the bias to, typically zero or a small value (see https://cs231n.github.io/neural-networks-2/)
         """
         self._size = size
-        self._activationFn = activation_function
+        self._activation_fn = activation_function
         self._weights = None
         self._biases = np.ones((self._size, 1)) * initial_bias
 
@@ -60,7 +60,7 @@ class Layer(ABC):
         # Accumulate inputs for each node
         # Because of the way we structure the input, we need to transpose inputs and outputs :)
         z = (self._weights @ inputs.T + self._biases).T
-        return self._activationFn(z), z
+        return self._activation_fn(z), z
 
     def backward(self, activated_inputs: np.matrix, inputs: np.matrix, error: np.matrix, learning_rate: float, regularization: float) -> np.matrix:
         """
@@ -87,7 +87,7 @@ class Layer(ABC):
         self._biases -= learning_rate * bias_gradient.T
 
         # Return the estimated error in inputs
-        return np.multiply((error @ self._weights), self._activationFn.d(inputs))
+        return np.multiply((error @ self._weights), self._activation_fn.d(inputs))
 
 
 
