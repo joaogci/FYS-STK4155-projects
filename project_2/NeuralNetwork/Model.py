@@ -71,7 +71,7 @@ class Model:
                 inputs (np.matrix|list<float>): The set of inputs to give to the network
                 training (bool): If true, will return hidden layer activations alongside the actual outputs
             Returns:
-                (np.matrix|list<float>): Outputs obtained out of the output layer after running through all layers
+                (np.matrix|list<float>): Outputs obtained out of the output layer after running through all layers, returned only if `training` was `false`
                 (list<np.matrix>): Hidden layer activated outputs, returned only if `training` was `true`
                 (list<np.matrix>): Hidden layer outputs (no activation function), returned only if `training` was `true`
         """
@@ -117,7 +117,7 @@ class Model:
         if output_list:
             tmp = tmp[0] # Output as a list if the input was given as such
         if training:
-            return tmp, a_h, z_h
+            return a_h, z_h
         return tmp
 
     def fwd_mse(self, inputs: np.matrix, targets: np.matrix) -> float:
@@ -153,16 +153,16 @@ class Model:
             targs = targets[i]
 
             # Feed forward once to obtain outputs
-            outputs, a_h, z_h = self.feed_forward(ins, training=True)
+            a_h, z_h = self.feed_forward(ins, training=True)
 
             # Dimensionality check
-            if outputs.shape != targs.shape or outputs.shape[1] != self.layers[len(self.layers) - 1].get_size():
-                print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', outputs.shape, 'and', targs.shape, 'instead..\033[0m')
+            if a_h[-1].shape != targs.shape or a_h[-1].shape[1] != self.layers[len(self.layers) - 1].get_size():
+                print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', a_h[-1].shape, 'and', targs.shape, 'instead..\033[0m')
                 return
             
             # Compute errors & gradient descent for each layer
             # Going backwards from last to first layer
-            prev_layer_err = np.multiply(self.cost_function.grad_C_nn(targs, outputs), self.layers[-1]._activationFn.d(z_h[-1]))
+            prev_layer_err = np.multiply(self.cost_function.grad_C_nn(targs, a_h[-1]), self.layers[-1]._activationFn.d(z_h[-1]))
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
