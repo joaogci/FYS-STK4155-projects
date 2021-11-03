@@ -68,20 +68,24 @@ class Layer(ABC):
 
         return outputs
 
-    def backward(self, inputs: np.matrix, error: np.matrix, learning_rate: float) -> np.matrix:
+    def backward(self, inputs: np.matrix, error: np.matrix, learning_rate: float, lmbda: float) -> np.matrix:
         """
             Gradient descent to optimize the layer
             Parameters:
                 inputs (np.matrix): The inputs the layer receives
                 error (np.matrix): Computed error estimate for the layer
                 learning_rate (float): Learning rate η to use to update the weights & biases
+                lmbda (float): Hyperparameter to control the rate of descent
             Returns:
                 (np.matrix): Weighted error in inputs, to use to train the previous layer
         """
         # Compute gradients
-        # Simple gradient descent - @todo
+        # Simple gradient descent
         weights_gradient = inputs.T @ error
         bias_gradient = np.sum(error, axis=0)
+
+        if lmbda > 0.0:
+            weights_gradient += lmbda * self._weights.T
 
         # Adjust weights and biases
         self._weights -= learning_rate * weights_gradient.T

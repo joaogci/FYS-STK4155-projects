@@ -7,7 +7,7 @@ from sklearn.linear_model import SGDRegressor
 from time import time
 
 from NeuralNetwork.StochasticGradientDescent import StochasticGradientDescent
-from NeuralNetwork.cost_function.LinearRegression import  LinearRegression
+from NeuralNetwork.cost_function.LinearRegression import LinearRegression
 from NeuralNetwork.GradientDescent import GradientDescent
 
 # parameters
