@@ -11,11 +11,11 @@ class ReLU(ActivationFunction):
         """
             Returns f(x)
         """
-        return 0 if x < 0 else x
+        return np.maximum(x, 0)
 
     def d(self, x: float) -> float:
         """
             Returns f'(x)
             Technically the derivative at x = 0 is undefined, but we return 1 here
         """
-        return 0 if x < 0 else 1
+        return (x > 0) * 1
