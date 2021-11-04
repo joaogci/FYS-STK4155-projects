@@ -7,6 +7,7 @@ from NeuralNetwork.Layer import Layer, HiddenLayer, OutputLayer
 from NeuralNetwork.activation_function.Sigmoid import Sigmoid
 from NeuralNetwork.activation_function.Linear import Linear
 from NeuralNetwork.cost_function.LinearRegression import LinearRegression
+from NeuralNetwork.activation_function.ReLU import ReLU
 
 from functions import *
 
@@ -45,8 +46,10 @@ n_data_points = X_train.shape[0]
 
 # input shape = (n, 2)   |   output shape = (n, 1)
 neural_network = Model(2, random_state=seed, cost_function=LinearRegression(X_train, z_train, X_test, z_test))
-neural_network.add_layer(HiddenLayer(100, Sigmoid()))
-neural_network.add_layer(HiddenLayer(100, Sigmoid()))
+neural_network.add_layer(HiddenLayer(16, ReLU()))
+neural_network.add_layer(HiddenLayer(16, Sigmoid()))
+neural_network.add_layer(HiddenLayer(16, ReLU()))
+neural_network.add_layer(HiddenLayer(16, Sigmoid()))
 neural_network.add_layer(OutputLayer(1, Linear()))
 
 outputs = neural_network.feed_forward(X_train)
