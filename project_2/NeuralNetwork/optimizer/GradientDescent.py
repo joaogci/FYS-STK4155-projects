@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from .Optimizer import Optimizer
-from .cost_function.CostFunction import CostFunction
+from ..cost_function.CostFunction import CostFunction
 
 class GradientDescent(Optimizer):
     

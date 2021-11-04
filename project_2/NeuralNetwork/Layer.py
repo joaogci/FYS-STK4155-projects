@@ -1,7 +1,7 @@
 
 import numpy as np
 from abc import ABC
-from .activation.ActivationFunction import ActivationFunction
+from .activation_function.ActivationFunction import ActivationFunction
 
 class Layer(ABC):
     """

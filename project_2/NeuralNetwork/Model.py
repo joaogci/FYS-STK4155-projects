@@ -3,7 +3,7 @@ import numpy as np
 from time import time
 
 from .Layer import Layer, HiddenLayer, OutputLayer
-from .cost_function import CostFunction
+from .cost_function.CostFunction import CostFunction
 
 
 class Model:
