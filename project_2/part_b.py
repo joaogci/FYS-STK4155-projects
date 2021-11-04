@@ -5,11 +5,11 @@ from functions import *
 
 from NeuralNetwork.Model import Model
 from NeuralNetwork.Layer import *
-from NeuralNetwork.activation.Sigmoid import Sigmoid
+from NeuralNetwork.activation_function.Sigmoid import Sigmoid
 from NeuralNetwork.cost_function.LinearRegression import LinearRegression
-from NeuralNetwork.StochasticGradientDescent import StochasticGradientDescent
-from NeuralNetwork.GradientDescent import GradientDescent
-from NeuralNetwork.RMSprop import RMSprop
+from NeuralNetwork.optimizer.StochasticGradientDescent import StochasticGradientDescent
+from NeuralNetwork.optimizer.GradientDescent import GradientDescent
+from NeuralNetwork.optimizer.RMSprop import RMSprop
 
 from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import train_test_split

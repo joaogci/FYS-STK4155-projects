@@ -4,8 +4,8 @@ from sklearn import model_selection
 
 from NeuralNetwork.Model import Model
 from NeuralNetwork.Layer import Layer, HiddenLayer, OutputLayer
-from NeuralNetwork.activation.Sigmoid import Sigmoid
-from NeuralNetwork.activation.Linear import Linear
+from NeuralNetwork.activation_function.Sigmoid import Sigmoid
+from NeuralNetwork.activation_function.Linear import Linear
 from NeuralNetwork.cost_function.LinearRegression import LinearRegression
 
 from functions import *

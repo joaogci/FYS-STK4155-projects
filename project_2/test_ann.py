@@ -1,9 +1,9 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from NeuralNetwork.activation.Sigmoid import Sigmoid
-from NeuralNetwork.activation.Linear import Linear
-from NeuralNetwork.activation.Softmax import Softmax
+from NeuralNetwork.activation_function.Sigmoid import Sigmoid
+from NeuralNetwork.activation_function.Linear import Linear
+from NeuralNetwork.activation_function.Softmax import Softmax
 from NeuralNetwork.Layer import HiddenLayer, OutputLayer
 from NeuralNetwork.Model import Model
 from NeuralNetwork.cost_function.LinearRegression import LinearRegression
