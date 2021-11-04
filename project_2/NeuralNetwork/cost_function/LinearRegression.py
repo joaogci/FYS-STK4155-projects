@@ -1,6 +1,5 @@
 
 import numpy as np
-from numpy.core.fromnumeric import mean
 from .CostFunction import CostFunction
 
 class LinearRegression(CostFunction):
@@ -28,8 +27,8 @@ class LinearRegression(CostFunction):
                 beta (np.matrix): features vector
         """
         if indx.size == 0:
-            return np.power((self.X @ beta - self.y), 2) / self.n
-        return np.power((self.X[indx] @ beta - self.y[indx]), 2) / self.y[indx].shape[0]
+            return np.mean(np.power((self.X @ beta - self.y), 2))
+        return np.mean(np.power((self.X[indx] @ beta - self.y[indx]), 2))
 
     def grad_C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
