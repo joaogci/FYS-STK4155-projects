@@ -245,7 +245,7 @@ class Model:
         if verbose:
             print('100%')
     
-    def train_sgd_validation(self, inputs: np.matrix, targets: np.matrix, learning_schedule: Callable[[float], float], validation_set_size: float = 0.2, epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, epsilon: float = 0.025, verbose: bool = True):
+    def train_sgd_validation(self, inputs: np.matrix, targets: np.matrix, learning_schedule: Callable[[float], float], validation_set_size: float = 0.2, epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, epsilon: float = 0.025, verbose: bool = True) -> int:
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
@@ -258,6 +258,8 @@ class Model:
                 regularization (float): Regularization parameter λ to control rate of descent
                 epsilon (float): Allowed value by which the MSE can increase without exiting early
                 verbose (bool): Whether to output the completion percentage to stdout
+            Returns:
+                (int): Number of epochs after which the training stopped; which may be an early-out once the MSE starts going up
         """
 
         if not self.is_ready():
@@ -307,5 +309,5 @@ class Model:
             print('100%')
             print(i, 'epoch(s) out of', epochs)
         
-        return i # Return the actual number of epochs obtained
+        return i+1 # Return the actual number of epochs obtained
     
