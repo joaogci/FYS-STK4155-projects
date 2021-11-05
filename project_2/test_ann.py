@@ -43,19 +43,7 @@ outputs = model.feed_forward(inputs)
 print(outputs.round(5))
 
 # Train network
-print()
-mses = np.zeros(train_iterations-plot_from)
-for i in range(train_iterations):
-    print(int(i / train_iterations * 100), '%', end='\r')
-    model.back_prop(inputs, targets, learning_rate=learning_rate, regularization=lmbda)
-    if i >= plot_from:
-        mses[i-plot_from] = model.fwd_mse(inputs, targets)
-print('100%')
-
-plt.plot(range(plot_from, train_iterations), mses)
-plt.ylabel('MSE')
-plt.xlabel('backprop iterations')
-plt.title(fr'MSE as a function of backpropagation iterations, $\eta={learning_rate}$, $\lambda={lmbda}$')
+model.train(inputs, targets, epochs=train_iterations, learning_rate=learning_rate, regularization=lmbda)
 
 # Print final outputs
 print('\nAfter training:')
@@ -64,4 +52,4 @@ print(results.round(5))
 print('\nTargets:')
 print(targets)
 
-plt.show()
+print(model.fwd_mse(inputs, targets))

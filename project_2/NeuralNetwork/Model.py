@@ -167,12 +167,30 @@ class Model:
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
     
-    def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0):
+    def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0, verbose: bool = True):
         """
             Back-propagates over a series of epochs with a given learning rate and regularization hyperparameter
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
-                
+                epochs (int): Number of training epochs to train over
+                learning_rate (float): Learning rate η to use to update the weights & biases
+                regularization (float): Regularization parameter λ to control rate of descent
+                verbose (bool): Whether to output the completion percentage to stdout
         """
+
+        if not self.is_ready():
+            print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
+            return
         
+        v = 0
+        for i in range(epochs):
+
+            if verbose and int(i / epochs * 100) >= v:
+                v += 1
+                print(int(i / epochs * 100), '%', end='\r')
+
+            self.back_prop(inputs, targets, learning_rate=learning_rate, regularization=regularization)
+
+        if verbose:
+            print('100%')
