@@ -166,4 +166,13 @@ class Model:
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
+    
+    def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0):
+        """
+            Back-propagates over a series of epochs with a given learning rate and regularization hyperparameter
+            Parameters:
+                inputs (np.matrix): Inputs to train for
+                targets (np.matrix): Desired outcome values
+                
+        """
         
