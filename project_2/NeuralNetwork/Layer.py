@@ -76,12 +76,9 @@ class Layer(ABC):
         """
         # Compute gradients
         # Simple gradient descent
-        weights_gradient = activated_inputs.T @ error
-        bias_gradient = error
-
-        # Add regularization term to weights gradient (might be 0)
-        weights_gradient += regularization * self._weights.T
-
+        weights_gradient = (activated_inputs.T @ error) + regularization * self._weights.T
+        bias_gradient = error + regularization * self._biases.T
+        
         # Adjust weights and biases
         self._weights -= learning_rate * weights_gradient.T
         self._biases -= learning_rate * bias_gradient.T
