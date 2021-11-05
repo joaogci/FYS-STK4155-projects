@@ -2,6 +2,9 @@
 import numpy as np
 from .ActivationFunction import ActivationFunction
 
+# e^7; with a high precision
+EXP_7 = 1096.6331584284585992637202382881214324422191348336131437827392407
+
 class Softmax(ActivationFunction):
     """
         Softmax activation function
@@ -12,14 +15,17 @@ class Softmax(ActivationFunction):
         """
             Returns f(x)
         """
-        # ln(sum(a_i)) = ln(a_0) + ln(sum(a_i / a_0))
-        # ^ This might give better results without completely exploding, @todo try this
-        expTerm = np.exp(x)
-        return expTerm / np.sum(expTerm, axis=1, keepdims=True)
+        # The following explodes very quickly, so we compute the logarithm of Softmax instead
+        # expTerm = np.exp(x)
+        # return expTerm / np.sum(expTerm, axis=1, keepdims=True)
+
+        # ln(sum(a_i)) = n + ln(sum(a_i / e^n)) for any n; in particular we choose n=7 here since e^7 ~ 1100 which works nicely for most inputs
+        ln_softmax = x - 7 - np.log(np.sum(np.exp(x)/EXP_7, axis=1))
+        return np.exp(ln_softmax)
 
     def d(self, x: np.matrix) -> np.matrix:
         """
             Returns f'(x)
         """
-        print('\n-Unimplemented softmax derivative-\n')
-        return None
+        softmax_x = self(x)
+        return np.multiply((1.0 - softmax_x), softmax_x)

@@ -10,7 +10,7 @@ from NeuralNetwork.cost_function.LinearRegression import LinearRegression
 
 
 # Settings
-learning_rate = 0.5
+learning_rate = 0.1
 lmbda = 8e-4
 plot_from = 100 # Train iteration at which to start plotting MSEs
 train_iterations = 2000 # Max training iteration
@@ -44,6 +44,7 @@ print(outputs.round(5))
 
 # Train network
 model.train(inputs, targets, epochs=train_iterations, learning_rate=learning_rate, regularization=lmbda)
+# model.train_sgd(inputs, targets, lambda t: 5 / (t + 50), epochs=train_iterations, regularization=lmbda)
 
 # Print final outputs
 print('\nAfter training:')
