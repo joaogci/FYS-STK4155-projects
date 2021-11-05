@@ -168,7 +168,7 @@ class Model:
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
     
 
-    def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0, verbose: bool = True):
+    def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True):
         """
             Back-propagates over a series of epochs with a given learning rate and regularization hyperparameter
             Parameters:
@@ -177,6 +177,8 @@ class Model:
                 epochs (int): Number of training epochs to train over
                 learning_rate (float): Learning rate η to use to update the weights & biases
                 regularization (float): Regularization parameter λ to control rate of descent
+                testing_inputs (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
+                testing_targets (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
                 verbose (bool): Whether to output the completion percentage to stdout
         """
 
@@ -187,23 +189,30 @@ class Model:
         for epoch in range(1, epochs + 1):
 
             if verbose:
-                print(f"[ Epoch: {epoch}/{epochs}; Error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+                print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+                if testing_inputs is not None and testing_targets is not None:
+                    print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
 
             self.back_prop(inputs, targets, learning_rate=learning_rate, regularization=regularization)
 
         print()
-        print(f"[ Finished training with error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+        print(f"[ Finished training with " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+        if testing_inputs is not None and testing_targets is not None:
+            print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
 
-    def train_sgd(self, inputs: np.matrix, targets: np.matrix, learning_rate: float, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, verbose: bool = True):
+    def train_sgd(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True):
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
-                learning_rate (function): learning_rate
+                initial_learning_rate (float): Learning rate at epoch = 0
+                final_learning_rate (float): Learning rate at epoch = max_epochs; if passing None, will keep learning rate constant
                 epochs (int): Number of training epochs to train over
                 minibatch_size (int): Size of individual mini-batches
                 regularization (float): Regularization parameter λ to control rate of descent
+                testing_inputs (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
+                testing_targets (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
                 verbose (bool): Whether to output the completion percentage to stdout
         """
 
@@ -214,6 +223,14 @@ class Model:
         # number of mini-batches
         minibatch_count = int(inputs.shape[0] / minibatch_size)
 
+        # learning_schedule will be one 
+        learning_schedule = lambda epoch: initial_learning_rate
+        if final_learning_rate is not None and final_learning_rate != initial_learning_rate:
+            t0 = initial_learning_rate * final_learning_rate / (initial_learning_rate - final_learning_rate) * epochs
+            t1 = final_learning_rate / (initial_learning_rate - final_learning_rate) * epochs
+            learning_schedule = lambda epoch: t0 / (t1 + epoch)
+
+        # go over epochs
         for epoch in range(1, epochs + 1):
             
             # Permute data each epoch
@@ -227,72 +244,15 @@ class Model:
                 ins = inputs[idx : idx + minibatch_size]
                 targs = targets[idx : idx + minibatch_size]
                 
-                self.back_prop(ins, targs, learning_rate=learning_rate, regularization=regularization)
+                self.back_prop(ins, targs, learning_rate=learning_schedule(epoch-1), regularization=regularization)
             
             if verbose:
-                print(f"[ Epoch: {epoch}/{epochs}; Error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+                print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+                if testing_inputs is not None and testing_targets is not None:
+                    print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
 
         print()
-        print(f"[ Finished training with error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
-    
-    def train_sgd_validation(self, inputs: np.matrix, targets: np.matrix, learning_rate: float, validation_set_size: float = 0.2, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, epsilon: float = 0.025, verbose: bool = True) -> int:
-        """
-            Back-propagates over a series of epochs using stochastic gradient descent
-            Parameters:
-                inputs (np.matrix): Inputs to train for
-                targets (np.matrix): Desired outcome values
-                learning_rate (float): learning_rate 
-                validation_set_size (float): Size of the validation set to use to stop training early
-                epochs (int): Number of training epochs to train over
-                minibatch_size (int): Size of individual mini-batches
-                regularization (float): Regularization parameter λ to control rate of descent
-                epsilon (float): Allowed value by which the MSE can increase without exiting early
-                verbose (bool): Whether to output the completion percentage to stdout
-            Returns:
-                (int): Number of epochs after which the training stopped; which may be an early-out once the MSE starts going up
-        """
-
-        if not self.is_ready():
-            print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
-            return
-        
-        # split into training and validation sets
-        perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
-        inputs = inputs[perm, :]
-        targets = targets[perm, :]
-        inputs, in_validation, targets, out_validation = train_test_split(inputs, targets, test_size=validation_set_size)
-
-        # number of mini-batches
-        minibatch_count = int(inputs.shape[0] / minibatch_size)
-
-        prev_mse = None
-        for epoch in range(1, epochs + 1):
-
-            # Permute data each epoch
-            perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
-            inputs = inputs[perm, :]
-            targets = targets[perm, :]
-            
-            # Go through all minibatches in the input set
-            for m in range(minibatch_count):
-                idx = minibatch_size * int(self.rng.random() * minibatch_count)
-                ins = inputs[idx : idx + minibatch_size]
-                targs = targets[idx : idx + minibatch_size]
-
-                self.back_prop(ins, targs, learning_rate=learning_rate, regularization=regularization)
-
-            # Get validation set error
-            pred = self.feed_forward(in_validation)
-            mse = self.cost_function.error_nn(pred, out_validation)
-            if prev_mse is not None and mse - prev_mse > prev_mse + epsilon:
-                break # Stop early
-            prev_mse = mse
-            
-            if verbose:
-                print(f"[ Epoch: {epoch}/{epochs}; Error: {self.cost_function.error_nn(self.feed_forward(in_validation), out_validation)} ]")
-
-        print()
-        print(f"[ Finished training with error: {self.cost_function.error_nn(pred, out_validation)} ]")
-        
-        return epoch+1 # Return the actual number of epochs obtained
+        print(f"[ Finished training with " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+        if testing_inputs is not None and testing_targets is not None:
+            print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
     

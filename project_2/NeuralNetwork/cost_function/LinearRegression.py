@@ -60,3 +60,9 @@ class LinearRegression(CostFunction):
         """
         return np.mean(np.multiply(y_data - y_tilde, y_data - y_tilde))
     
+    def error_name(self) -> str:
+        """
+            Returns the string that should be associated with the error_nn values
+        """
+        return "Error"
+    

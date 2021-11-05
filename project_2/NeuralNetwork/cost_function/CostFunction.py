@@ -61,5 +61,12 @@ class CostFunction(ABC):
             Computes the error given predictions
         """
         print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides error_nn()!')
-        return None 
+        return None
+
+    @abstractmethod
+    def error_name(self) -> str:
+        """
+            Returns the string that should be associated with the error_nn values
+        """
+        return None
     

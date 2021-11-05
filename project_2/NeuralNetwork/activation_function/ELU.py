@@ -19,10 +19,10 @@ class ELU(ActivationFunction):
         """
             Returns f(x)
         """
-        return (x >= 0) * x + (x < 0) * (np.exp(x) - 1.0) * self._alpha
+        return np.multiply((x >= 0), x) + np.multiply((x < 0), (np.exp(x) - 1.0) * self._alpha)
 
     def d(self, x: float) -> float:
         """
             Returns f'(x)
         """
-        return (x >= 0) * 1 + (x < 0) * self._alpha * np.exp(x)
+        return (x >= 0) * 1 + np.multiply((x < 0), self._alpha * np.exp(x))

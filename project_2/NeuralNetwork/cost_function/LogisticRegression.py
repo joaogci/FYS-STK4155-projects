@@ -56,4 +56,11 @@ class LogisticRegression(CostFunction):
     def error_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
         return np.sum(y_tilde.round() == y_data.round()) / y_tilde.size
     
+    def error_name(self) -> str:
+        """
+            Returns the string that should be associated with the error_nn values
+        """
+        return "Accuracy"
+
+    
 
