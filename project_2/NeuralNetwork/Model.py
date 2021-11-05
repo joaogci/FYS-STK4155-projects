@@ -1,6 +1,7 @@
 
 import numpy as np
 from time import time
+from typing import Callable
 
 from .Layer import Layer, HiddenLayer, OutputLayer
 from .cost_function.CostFunction import CostFunction
@@ -167,6 +168,7 @@ class Model:
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
     
+
     def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0, verbose: bool = True):
         """
             Back-propagates over a series of epochs with a given learning rate and regularization hyperparameter
@@ -195,8 +197,7 @@ class Model:
         if verbose:
             print('100%')
 
-
-    def train_sgd(self, inputs: np.matrix, targets: np.matrix, learning_schedule, epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, verbose: bool = True):
+    def train_sgd(self, inputs: np.matrix, targets: np.matrix, learning_schedule: Callable[[float], float], epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, verbose: bool = True):
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
