@@ -18,4 +18,4 @@ class ReLU(ActivationFunction):
             Returns f'(x)
             Technically the derivative at x = 0 is undefined, but we return 1 here
         """
-        return (x > 0) * 1
+        return (x >= 0) * 1

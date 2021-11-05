@@ -19,10 +19,10 @@ class LeakyReLU(ActivationFunction):
         """
             Returns f(x)
         """
-        return self._alpha * x if x < 0 else x
+        return (x >= 0) * x + (x < 0) * x * self._alpha
 
     def d(self, x: float) -> float:
         """
             Returns f'(x)
         """
-        return self._alpha if x < 0 else 1
+        return (x >= 0) * 1 + (x < 0) * self._alpha
