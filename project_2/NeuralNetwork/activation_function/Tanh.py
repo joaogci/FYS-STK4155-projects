@@ -19,4 +19,4 @@ class Tanh(ActivationFunction):
             1 - tanh(x)**2
         """
         t = np.tanh(x)
-        return 1.0 - t*t
+        return 1.0 - np.multiply(t, t)
