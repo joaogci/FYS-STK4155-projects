@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 n = 100
 noise = 0
 seed = 1337
-iterations = 1000
+iterations = 100
 
 # rng 
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
@@ -52,7 +52,8 @@ neural_network.add_layer(HiddenLayer(16, ReLU()))
 neural_network.add_layer(HiddenLayer(16, Sigmoid()))
 neural_network.add_layer(OutputLayer(1, Linear()))
 
-neural_network.train(X_train, z_train, epochs=iterations, learning_rate=0.005)
+# neural_network.train(X_train, z_train, epochs=iterations, learning_rate=0.005)
+neural_network.train_sgd(X_train, z_train, lambda t: 1 / (t + 50), epochs=iterations, minibatch_size=5)
 
 # Print final outputs
 print('\nTrain MSE:', neural_network.fwd_mse(X_train, z_train))

@@ -194,3 +194,45 @@ class Model:
 
         if verbose:
             print('100%')
+
+
+    def train_sgd(self, inputs: np.matrix, targets: np.matrix, learning_schedule, epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, verbose: bool = True):
+        """
+            Back-propagates over a series of epochs using stochastic gradient descent
+            Parameters:
+                inputs (np.matrix): Inputs to train for
+                targets (np.matrix): Desired outcome values
+                learning_schedule (function): Function that determines the learning rate to use at a given epoch t
+                epochs (int): Number of training epochs to train over
+                minibatch_size (int): Size of individual mini-batches
+                regularization (float): Regularization parameter λ to control rate of descent
+                verbose (bool): Whether to output the completion percentage to stdout
+        """
+
+        if not self.is_ready():
+            print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
+            return
+
+        # number of mini-batches
+        minibatch_count = int(inputs.shape[0] / minibatch_size)
+
+        v = 0
+        for i in range(epochs):
+
+            if verbose and int(i / epochs * 100) >= v:
+                v += 1
+                print(int(i / epochs * 100), '%', end='\r')
+            
+            for m in range(minibatch_count):
+                idx = minibatch_size * int(self.rng.random() * minibatch_count)
+                ins = inputs[idx : idx + minibatch_size]
+                targs = targets[idx : idx + minibatch_size]
+
+                # Compute learning rate for this stage
+                learning_rate = learning_schedule(i * minibatch_count + m)
+
+                self.back_prop(ins, targs, learning_rate=learning_rate, regularization=regularization)
+
+        if verbose:
+            print('100%')
+        
