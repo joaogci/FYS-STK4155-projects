@@ -19,7 +19,7 @@ class LeakyReLU(ActivationFunction):
         """
             Returns f(x)
         """
-        return (x >= 0) * x + (x < 0) * x * self._alpha
+        return np.multiply((x >= 0), x) + np.multiply((x < 0), x * self._alpha)
 
     def d(self, x: float) -> float:
         """

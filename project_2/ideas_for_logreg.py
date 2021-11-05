@@ -5,6 +5,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_breast_cancer
 from sklearn.preprocessing import StandardScaler
 
+from NeuralNetwork.Model import Model
+from NeuralNetwork.Layer import HiddenLayer, OutputLayer
+from NeuralNetwork.activation_function.Sigmoid import Sigmoid
+from NeuralNetwork.activation_function.LeakyReLU import LeakyReLU
+from NeuralNetwork.activation_function.ReLU import ReLU
+from NeuralNetwork.activation_function.ELU import ELU
+from NeuralNetwork.cost_function.LogisticRegression import LogisticRegression
+
 def p(z):
     return 1/(1+np.exp(-z))
 
@@ -36,7 +44,6 @@ print(f"Accuracy of sklearn LogisticRegresison: {accuracy:.5g}")
 
 y_train = np.array([y_train]).reshape(-1, 1)
 y_test = np.array([y_test]).reshape(-1, 1)
-
 
 """ Gradient decent/Newton's method """
 
@@ -109,3 +116,37 @@ sk_pred_SGD = SGDLogReg.predict(X_test)
 # print(f"{np.sum(pred_SGD==sk_pred_SGD)}/{len(pred_SGD)}")
 pred_SGD_acc = np.sum(pred_SGD == y_test)
 print("Accuracy, own SGD logisitc regression:", pred_SGD_acc, "/", len(y_test))
+
+
+
+""" Neural net """
+def error_nn(y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
+    return np.sum(y_tilde.round() == y_data) / y_tilde.shape[0]
+
+nn_input_train = X_train_s
+nn_input_test = X_test_s
+nn_output_train, nn_output_test = np.matrix(y_train).T, np.matrix(y_test).T
+
+nn = Model(X_train.shape[1], cost_function=LogisticRegression(nn_input_train, nn_output_train, nn_input_test, nn_output_test))
+nn.add_layer(HiddenLayer(20, activation_function=LeakyReLU()))
+nn.add_layer(HiddenLayer(20, activation_function=ReLU()))
+nn.add_layer(OutputLayer(1, activation_function=Sigmoid()))
+
+# Output accuracy before training
+output_train = nn.feed_forward(nn_input_train)
+output_test = nn.feed_forward(nn_input_test)
+err_train = error_nn(nn_output_train, output_train)
+err_test = error_nn(nn_output_test, output_test)
+print('error training (before training):', err_train)
+print('error test (before training):', err_test)
+
+# Train network
+nn.train(nn_input_train, nn_output_train, epochs=1000, learning_rate=0.01, regularization=0)
+
+# Output accuracy after training
+output_train = nn.feed_forward(nn_input_train)
+output_test = nn.feed_forward(nn_input_test)
+err_train = error_nn(nn_output_train, output_train)
+err_test = error_nn(nn_output_test, output_test)
+print('error training:', err_train)
+print('error test:', err_test)
