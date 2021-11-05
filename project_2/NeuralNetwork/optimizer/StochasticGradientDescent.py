@@ -34,7 +34,7 @@ class StochasticGradientDescent(Optimizer):
         print("-- Stochastic Gradient Descent --")
         print()
         
-        for epoch in range(1, iter_max + 1):
+        for epoch in range(1, iter_max + 1):            
             for i in range(self.n_batches):
                 k = self.rng.integers(self.n_batches)
                 grad = self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))

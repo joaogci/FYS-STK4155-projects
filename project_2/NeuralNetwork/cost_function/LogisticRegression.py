@@ -54,6 +54,6 @@ class LogisticRegression(CostFunction):
         return - (y_data - self.sigmoid(y_tilde)) / self.n
     
     def error_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
-        return np.sum(y_tilde.round() == y_data) / y_tilde.shape[0]
+        return np.sum(y_tilde.round() == y_data.round()) / y_tilde.size
     
 
