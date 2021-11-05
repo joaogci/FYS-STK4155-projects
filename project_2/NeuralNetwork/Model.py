@@ -6,6 +6,8 @@ from typing import Callable
 from .Layer import Layer, HiddenLayer, OutputLayer
 from .cost_function.CostFunction import CostFunction
 
+from sklearn.model_selection import train_test_split
+
 
 class Model:
     """
@@ -242,4 +244,68 @@ class Model:
 
         if verbose:
             print('100%')
+    
+    def train_sgd_validation(self, inputs: np.matrix, targets: np.matrix, learning_schedule: Callable[[float], float], validation_set_size: float = 0.2, epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, epsilon: float = 0.025, verbose: bool = True):
+        """
+            Back-propagates over a series of epochs using stochastic gradient descent
+            Parameters:
+                inputs (np.matrix): Inputs to train for
+                targets (np.matrix): Desired outcome values
+                learning_schedule (function): Function that determines the learning rate to use at a given epoch t
+                validation_set_size (float): Size of the validation set to use to stop training early
+                epochs (int): Number of training epochs to train over
+                minibatch_size (int): Size of individual mini-batches
+                regularization (float): Regularization parameter λ to control rate of descent
+                epsilon (float): Allowed value by which the MSE can increase without exiting early
+                verbose (bool): Whether to output the completion percentage to stdout
+        """
+
+        if not self.is_ready():
+            print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
+            return
         
+        # split into training and validation sets
+        perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
+        inputs = inputs[perm, :]
+        targets = targets[perm, :]
+        inputs, in_validation, targets, out_validation = train_test_split(inputs, targets, test_size=validation_set_size)
+
+        # number of mini-batches
+        minibatch_count = int(inputs.shape[0] / minibatch_size)
+
+        v = 0
+        prev_mse = None
+        for i in range(epochs):
+
+            if verbose and int(i / epochs * 100) >= v:
+                v += 1
+                print(int(i / epochs * 100), '%', end='\r')
+            
+            # Permute data each epoch
+            perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
+            inputs = inputs[perm, :]
+            targets = targets[perm, :]
+
+            # Go through all minibatches in the input set
+            for m in range(minibatch_count):
+                idx = minibatch_size * int(self.rng.random() * minibatch_count)
+                ins = inputs[idx : idx + minibatch_size]
+                targs = targets[idx : idx + minibatch_size]
+
+                # Compute learning rate for this stage
+                learning_rate = learning_schedule(i * minibatch_count + m)
+
+                self.back_prop(ins, targs, learning_rate=learning_rate, regularization=regularization)
+
+            # Get validation set error
+            mse = self.fwd_mse(in_validation, out_validation)
+            if prev_mse is not None and mse > prev_mse + epsilon:
+                break # Stop early
+            prev_mse = mse
+
+        if verbose:
+            print('100%')
+            print(i, 'epoch(s) out of', epochs)
+        
+        return i # Return the actual number of epochs obtained
+    

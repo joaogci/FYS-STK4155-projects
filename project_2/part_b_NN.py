@@ -53,7 +53,7 @@ neural_network.add_layer(HiddenLayer(16, Sigmoid()))
 neural_network.add_layer(OutputLayer(1, Linear()))
 
 # neural_network.train(X_train, z_train, epochs=iterations, learning_rate=0.005)
-neural_network.train_sgd(X_train, z_train, lambda t: 1 / (t + 50), epochs=iterations, minibatch_size=5)
+neural_network.train_sgd_validation(X_train, z_train, lambda t: 1 / (t + 50), epochs=iterations, minibatch_size=5)
 
 # Print final outputs
 print('\nTrain MSE:', neural_network.fwd_mse(X_train, z_train))
