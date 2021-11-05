@@ -224,6 +224,12 @@ class Model:
                 v += 1
                 print(int(i / epochs * 100), '%', end='\r')
             
+            # Permute data each epoch
+            perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
+            inputs = inputs[perm, :]
+            targets = targets[perm, :]
+
+            # Go through all minibatches in the input set
             for m in range(minibatch_count):
                 idx = minibatch_size * int(self.rng.random() * minibatch_count)
                 ins = inputs[idx : idx + minibatch_size]
