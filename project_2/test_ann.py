@@ -7,6 +7,7 @@ from NeuralNetwork.activation_function.Softmax import Softmax
 from NeuralNetwork.Layer import HiddenLayer, OutputLayer
 from NeuralNetwork.Model import Model
 from NeuralNetwork.cost_function.LinearRegression import LinearRegression
+from NeuralNetwork.cost_function.LogisticRegression import LogisticRegression
 
 
 # Settings
@@ -44,7 +45,7 @@ print(outputs.round(5))
 
 # Train network
 model.train(inputs, targets, epochs=train_iterations, learning_rate=learning_rate, regularization=lmbda)
-# model.train_sgd(inputs, targets, lambda t: 5 / (t + 50), epochs=train_iterations, regularization=lmbda)
+#model.train_sgd(inputs, targets, learning_rate=learning_rate, epochs=train_iterations, regularization=lmbda)
 
 # Print final outputs
 print('\nAfter training:')
@@ -53,4 +54,3 @@ print(results.round(5))
 print('\nTargets:')
 print(targets)
 
-print(model.fwd_mse(inputs, targets))
