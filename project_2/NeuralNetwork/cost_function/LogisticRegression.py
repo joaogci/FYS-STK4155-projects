@@ -30,9 +30,9 @@ class LogisticRegression(CostFunction):
         """
         if indx.size == 0:
             z = self.X @ beta
-            return np.mean(- self.y * np.log(self.sigmoid(z)) - (1 - self.y) * np.log(self.sigmoid(1 - z)))
+            return - np.mean(- self.y * np.log(self.sigmoid(z)) - (1 - self.y) * np.log(self.sigmoid(1 - z)))
         z = self.X[indx] @ beta
-        return np.mean(- self.y[indx] * np.log(self.sigmoid(z)) - (1 - self.y[indx]) * np.log(self.sigmoid(1 - z)))
+        return - np.mean(- self.y[indx] * np.log(self.sigmoid(z)) - (1 - self.y[indx]) * np.log(self.sigmoid(1 - z)))
 
     def grad_C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
@@ -43,18 +43,17 @@ class LogisticRegression(CostFunction):
         """
         if indx.size == 0:
             z = self.X @ beta
-            return (self.X.T @ (self.y - self.sigmoid(z))) / self.n
+            return - (self.X.T @ (self.y - self.sigmoid(z))) / self.n
         z = self.X[indx] @ beta
-        return (self.X[indx].T @ (self.y[indx] - self.sigmoid(z))) / self.y[indx].shape[0]
+        return - (self.X[indx].T @ (self.y[indx] - self.sigmoid(z))) / self.y[indx].shape[0]
+
+    def error(self, beta: np.matrix) -> np.matrix:
+        return np.sum((self.sigmoid(self.X_test @ beta)).round() == self.y_test) / self.y_test.shape[0]
 
     def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
-        return (self.X.T @ (y_data - y_tilde)) / self.n
+        return - (y_data - self.sigmoid(y_tilde)) / self.n
     
-    def MSE(self, beta: np.matrix) -> np.matrix:
-        """
-            Computes the MSE for the test data given the beta values.
-            Parameters:
-                beta (np.matrix): features vector
-        """
-        return np.mean((self.y_test - self.X_test @ beta)**2)
+    def error_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
+        return np.sum(y_tilde.round() == y_data) / y_tilde.shape[0]
+    
 

@@ -25,18 +25,10 @@ sigmoid = lambda z: 1 / (1 + np.exp(- z))
 
 log_reg = LogisticRegression(X_train_s, y_train, X_test_s, y_test)
 optimizer = StochasticGradientDescent(log_reg, size_minibatches=5, rng=rng)
-theta_SGD = optimizer.optimize(iter_max=int(1e4), eta=-0.00025)
+theta_SGD = optimizer.optimize(iter_max=int(1e4), eta=0.000025)
 
-print(theta_SGD)
 pred = sigmoid(X_test_s.dot(theta_SGD)).round()
 print(np.sum(pred == y_test),"/", len(y_test))
-
-
-
-
-
-
-
-
+print(f"accuracy: {np.sum(pred == y_test)/len(y_test)}")
 
 

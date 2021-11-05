@@ -24,21 +24,24 @@ class GradientDescent(Optimizer):
                 iter_max (int): maximum number of iterations
         """
         theta = np.zeros(self.n_features)
-        self.MSE = list()
         self.eta = eta
         
+        print()
+        print("-- Gradient Descent --")
+        print()        
+        
         for epoch in range(1, iter_max + 1):
-            dif = - self.eta * self.cost_function.grad_C(theta)
-            if np.linalg.norm(dif) <= tol:
+            grad = self.cost_function.grad_C(theta)
+            if np.linalg.norm(grad) <= tol:
                 print()
-                self.plot_MSE()
+                print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                 break
             
-            theta = theta + dif
-            self.MSE.append(self.cost_function.MSE(theta))
-            print(epoch, end='\r')
+            theta = theta - self.eta * grad
+            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
         
-        self.plot_MSE()
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta
     
     def plot_MSE(self):

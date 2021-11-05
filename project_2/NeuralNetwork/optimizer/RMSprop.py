@@ -24,33 +24,34 @@ class RMSprop(Optimizer):
                 tol (float): tolerance
                 iter_max (int): maximum number of iterations
         """
-        theta = np.zeros(self.n_features)
-        self.MSE = list()
+        theta = np.ones(self.n_features)
         self.eta = eta
         
         beta = 0.9
         epsilon = 1e-8
         s = 0
         
+        print()
+        print("-- RMSprop --")
+        print()
+        
         for epoch in range(1, iter_max + 1):
             g = self.cost_function.grad_C(theta)
             s = beta * s + (1 - beta) * g**2 
             
-            dif = - eta * g / (np.sqrt(s + epsilon))
+            grad = g / (np.sqrt(s + epsilon))
             
-            if np.linalg.norm(dif, ord=np.inf) <= tol:
+            if np.linalg.norm(grad) <= tol:
                 print()
-                self.plot_MSE()
+                print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                 return theta
 
-            theta = theta + dif
+            theta = theta - eta *  grad
 
-            self.MSE.append(self.cost_function.MSE(theta))
-            print(epoch, end='\r')
+            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
         
-        self.plot_MSE()
-        
-        print("Need to increase iter_max to achieve desired tol.")
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta
     
     def plot_MSE(self):

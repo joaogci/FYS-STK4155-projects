@@ -28,27 +28,28 @@ class StochasticGradientDescent(Optimizer):
                 iter_max (int): maximum number of iterations
         """
         theta = np.zeros(self.n_features)
-        self.MSE = list()
         self.eta = eta
+       
+        print()
+        print("-- Stochastic Gradient Descent --")
+        print()
         
         for epoch in range(1, iter_max + 1):
             for i in range(self.n_batches):
                 k = self.rng.integers(self.n_batches)
-                dif = - self.eta * self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
+                grad = self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
 
-                if np.linalg.norm(dif, ord=np.inf) <= tol:
+                if np.linalg.norm(grad) <= tol:
                     print()
-                    self.plot_MSE()
+                    print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                     return theta
 
-                theta = theta + dif
+                theta = theta - self.eta * grad
 
-            self.MSE.append(self.cost_function.MSE(theta))
-            print(epoch, end='\r')
+            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
         
-        self.plot_MSE()
-        
-        print("Need to increase iter_max to achieve desired tol.")
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta
     
     def optimize_eta_function(self, t0: float, t1: float, tol: float = 1e-7, iter_max: int = int(1e5)) -> np.matrix:
@@ -60,10 +61,13 @@ class StochasticGradientDescent(Optimizer):
                 iter_max (int): maximum number of iterations
         """
         theta = np.zeros(self.n_features)
-        self.MSE = list()
         self.eta = "function"
         self.eta_f = lambda t: t0 / (t + t1)
-        
+       
+        print()
+        print("-- Stochastic Gradient Descent --")
+        print()
+            
         for epoch in range(1, iter_max + 1):
             for i in range(self.n_batches):
                 k = self.rng.integers(self.n_batches)
@@ -71,17 +75,15 @@ class StochasticGradientDescent(Optimizer):
 
                 if np.linalg.norm(dif, ord=np.inf) <= tol:
                     print()
-                    self.plot_MSE()
+                    print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                     return theta
 
                 theta = theta + dif
 
-            self.MSE.append(self.cost_function.MSE(theta))
-            print(epoch, end='\r')
+            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
         
-        self.plot_MSE()
-        
-        print("Need to increase iter_max to achieve desired tol.")
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta
     
     def plot_MSE(self):

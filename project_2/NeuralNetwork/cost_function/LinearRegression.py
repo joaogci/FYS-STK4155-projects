@@ -41,13 +41,22 @@ class LinearRegression(CostFunction):
             return (2 / self.n) * self.X.T @ (self.X @ beta - self.y) 
         return (2 / self.y[indx].shape[0]) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx])
 
-    def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
-        return (2 / y_tilde.shape[0]) * (y_tilde - y_data)
-    
-    def MSE(self, beta: np.matrix) -> np.matrix:
+    def error(self, beta: np.matrix) -> np.matrix:
         """
             Computes the MSE for the test data given the beta values.
             Parameters:
                 beta (np.matrix): features vector
         """
         return np.mean((self.y_test - self.X_test @ beta)**2)
+
+    def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
+        return (2 / y_tilde.shape[0]) * (y_tilde - y_data)
+    
+    def error_nn(self, y_data:np.matrix, y_tilde: np.matrix) -> np.matrix:
+        """
+            Computes the MSE for the test data given the beta values.
+            Parameters:
+                beta (np.matrix): features vector
+        """
+        return np.mean((y_data - y_tilde)**2)
+    

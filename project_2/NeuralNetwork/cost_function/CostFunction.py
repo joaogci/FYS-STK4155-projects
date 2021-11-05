@@ -48,10 +48,18 @@ class CostFunction(ABC):
         return None
     
     @abstractmethod
-    def MSE(self, beta: np.matrix) -> np.matrix: 
+    def error(self, beta: np.matrix) -> np.matrix: 
         """
-            Computes the Mean Squared Error
+            Computes the error given betas
         """
-        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides MSE()!')
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides error()!')
+        return None 
+    
+    @abstractmethod
+    def error_nn(self, y_data:np.matrix, y_tilde: np.matrix) -> np.matrix:
+        """
+            Computes the error given predictions
+        """
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides error_nn()!')
         return None 
     
