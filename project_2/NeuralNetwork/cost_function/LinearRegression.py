@@ -58,5 +58,5 @@ class LinearRegression(CostFunction):
             Parameters:
                 beta (np.matrix): features vector
         """
-        return np.mean((y_data - y_tilde)**2)
+        return np.mean(np.multiply(y_data - y_tilde, y_data - y_tilde))
     

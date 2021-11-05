@@ -65,8 +65,6 @@ class Model:
         """
         return self._has_output
 
-
-
     def feed_forward(self, inputs: np.matrix, training: bool = False) -> tuple:
         """
             Runs through the network once with a given list of inputs and returns the obtained outputs
@@ -123,7 +121,7 @@ class Model:
             return a_h, z_h
         return tmp
 
-    def fwd_mse(self, inputs: np.matrix, targets: np.matrix) -> float:
+    def error(self, inputs: np.matrix, targets: np.matrix) -> float:
         """
             Feeds forward once, then returns the mean squared error between targets and outputs
             Parameters:
@@ -132,8 +130,7 @@ class Model:
             Returns:
                 (float): Mean squared error after prediction
         """
-        diff = targets - self.feed_forward(inputs)
-        return np.mean(np.multiply(diff, diff))
+        return self.cost_function.error_nn(targets, self.feed_forward(inputs))
 
 
     def back_prop(self, inputs: np.matrix, targets: np.matrix, learning_rate: float = 0.1, regularization: float = 0):
@@ -187,25 +184,23 @@ class Model:
             print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
             return
         
-        v = 0
-        for i in range(epochs):
+        for epoch in range(1, epochs + 1):
 
-            if verbose and int(i / epochs * 100) >= v:
-                v += 1
-                print(int(i / epochs * 100), '%', end='\r')
+            if verbose:
+                print(f"[ Epoch: {epoch}/{epochs}; Error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
 
             self.back_prop(inputs, targets, learning_rate=learning_rate, regularization=regularization)
 
-        if verbose:
-            print('100%')
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
 
-    def train_sgd(self, inputs: np.matrix, targets: np.matrix, learning_schedule: Callable[[float], float], epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, verbose: bool = True):
+    def train_sgd(self, inputs: np.matrix, targets: np.matrix, learning_rate: float, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, verbose: bool = True):
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
-                learning_schedule (function): Function that determines the learning rate to use at a given epoch t
+                learning_rate (function): learning_rate
                 epochs (int): Number of training epochs to train over
                 minibatch_size (int): Size of individual mini-batches
                 regularization (float): Regularization parameter λ to control rate of descent
@@ -219,12 +214,7 @@ class Model:
         # number of mini-batches
         minibatch_count = int(inputs.shape[0] / minibatch_size)
 
-        v = 0
-        for i in range(epochs):
-
-            if verbose and int(i / epochs * 100) >= v:
-                v += 1
-                print(int(i / epochs * 100), '%', end='\r')
+        for epoch in range(1, epochs + 1):
             
             # Permute data each epoch
             perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
@@ -236,22 +226,22 @@ class Model:
                 idx = minibatch_size * int(self.rng.random() * minibatch_count)
                 ins = inputs[idx : idx + minibatch_size]
                 targs = targets[idx : idx + minibatch_size]
-
-                # Compute learning rate for this stage
-                learning_rate = learning_schedule(i * minibatch_count + m)
-
+                
                 self.back_prop(ins, targs, learning_rate=learning_rate, regularization=regularization)
+            
+            if verbose:
+                print(f"[ Epoch: {epoch}/{epochs}; Error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
 
-        if verbose:
-            print('100%')
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
     
-    def train_sgd_validation(self, inputs: np.matrix, targets: np.matrix, learning_schedule: Callable[[float], float], validation_set_size: float = 0.2, epochs: int = 1000, minibatch_size: int = 10, regularization: float = 0, epsilon: float = 0.025, verbose: bool = True) -> int:
+    def train_sgd_validation(self, inputs: np.matrix, targets: np.matrix, learning_rate: float, validation_set_size: float = 0.2, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, epsilon: float = 0.025, verbose: bool = True) -> int:
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
-                learning_schedule (function): Function that determines the learning rate to use at a given epoch t
+                learning_rate (float): learning_rate 
                 validation_set_size (float): Size of the validation set to use to stop training early
                 epochs (int): Number of training epochs to train over
                 minibatch_size (int): Size of individual mini-batches
@@ -275,39 +265,34 @@ class Model:
         # number of mini-batches
         minibatch_count = int(inputs.shape[0] / minibatch_size)
 
-        v = 0
         prev_mse = None
-        for i in range(epochs):
+        for epoch in range(1, epochs + 1):
 
-            if verbose and int(i / epochs * 100) >= v:
-                v += 1
-                print(int(i / epochs * 100), '%', end='\r')
-            
             # Permute data each epoch
             perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
             inputs = inputs[perm, :]
             targets = targets[perm, :]
-
+            
             # Go through all minibatches in the input set
             for m in range(minibatch_count):
                 idx = minibatch_size * int(self.rng.random() * minibatch_count)
                 ins = inputs[idx : idx + minibatch_size]
                 targs = targets[idx : idx + minibatch_size]
 
-                # Compute learning rate for this stage
-                learning_rate = learning_schedule(i * minibatch_count + m)
-
                 self.back_prop(ins, targs, learning_rate=learning_rate, regularization=regularization)
 
             # Get validation set error
-            mse = self.fwd_mse(in_validation, out_validation)
-            if prev_mse is not None and mse > prev_mse + epsilon:
+            pred = self.feed_forward(in_validation)
+            mse = self.cost_function.error_nn(pred, out_validation)
+            if prev_mse is not None and mse - prev_mse > prev_mse + epsilon:
                 break # Stop early
             prev_mse = mse
+            
+            if verbose:
+                print(f"[ Epoch: {epoch}/{epochs}; Error: {self.cost_function.error_nn(self.feed_forward(in_validation), out_validation)} ]")
 
-        if verbose:
-            print('100%')
-            print(i, 'epoch(s) out of', epochs)
+        print()
+        print(f"[ Finished training with error: {self.cost_function.error_nn(pred, out_validation)} ]")
         
-        return i+1 # Return the actual number of epochs obtained
+        return epoch+1 # Return the actual number of epochs obtained
     
