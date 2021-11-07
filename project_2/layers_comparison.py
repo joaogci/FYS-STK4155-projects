@@ -77,4 +77,5 @@ plt.figure()
 plt.plot(range(1, max_n_layers+1), mses)
 plt.xlabel('number of hidden layers')
 plt.ylabel('MSE')
-plt.show()
+if __name__ == "__main__":
+    plt.show()
