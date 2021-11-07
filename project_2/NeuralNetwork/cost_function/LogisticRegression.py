@@ -70,5 +70,11 @@ class LogisticRegression(CostFunction):
         """
         return "Accuracy"
 
-    
+    def perm_data(self, rng: np.random.Generator):
+        """
+            Permutes data for SDG
+        """
+        perm = rng.permuted(np.arange(0, self.n))
+        self.X = self.X[perm, :]
+        self.y = self.y[perm, :]  
 

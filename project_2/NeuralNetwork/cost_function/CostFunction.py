@@ -78,3 +78,11 @@ class CostFunction(ABC):
         """
         return None
     
+    @abstractmethod
+    def perm_data(self, rng: np.random.Generator):
+        """
+            Permutes the data for Stochastic Gradient Descent
+        """
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides error_nn()!')
+        return None
+    
