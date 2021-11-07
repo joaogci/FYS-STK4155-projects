@@ -40,9 +40,6 @@ X_test_s = scaler.fit_transform(X_test)
 
 
 """ Neural net """
-def error_nn(y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
-    return np.sum(y_tilde.round() == y_data) / y_tilde.shape[0]
-
 nn_input_train = X_train_s
 nn_input_test = X_test_s
 nn_output_train, nn_output_test = np.matrix(y_train).T, np.matrix(y_test).T
@@ -55,7 +52,7 @@ nn.add_layer(OutputLayer(1, activation_function=Sigmoid()))
 # Train network
 nn.train_sgd(nn_input_train, nn_output_train, epochs=1000, initial_learning_rate=0.5, final_learning_rate=0.01, regularization=0, testing_inputs=nn_input_test, testing_targets=nn_output_test)
 
-exit()
+
 
 
 
