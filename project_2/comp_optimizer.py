@@ -43,7 +43,7 @@ X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.25, random
 theta_ols = ols(X_train, z_train)
 
 # parameters for simulations
-tol = 1e-8
+tol = 1e-7
 iter_max = int(1e10)
 # eta_vals = np.power(10.0, [-5, -4, -3, -2, -1])
 eta_vals = np.array([0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1])
@@ -73,6 +73,10 @@ epochs["newton"].append(newton_out[1])
 
 # Gradient methods
 for i, eta in enumerate(eta_vals):
+
+    print()
+    print(f" -- ETA: {eta} --")
+    print()
 
     lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
     optimizer_GD = GradientDescent(lin_reg)
