@@ -14,6 +14,9 @@ class LeakyReLU(ActivationFunction):
                 alpha (float): Should be fairly small; typically in 1e-3..1e-2
         """
         self._alpha = alpha
+    
+    def name(self) -> str:
+        return 'LeakyReLU'
 
     def __call__(self, x: float) -> float:
         """

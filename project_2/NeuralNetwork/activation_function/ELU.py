@@ -14,6 +14,9 @@ class ELU(ActivationFunction):
                 alpha (float): Should be fairly small
         """
         self._alpha = alpha
+    
+    def name(self) -> str:
+        return 'ELU'
 
     def __call__(self, x: float) -> float:
         """

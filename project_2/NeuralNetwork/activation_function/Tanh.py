@@ -6,6 +6,9 @@ class Tanh(ActivationFunction):
     """
         tanh activation function
     """
+    
+    def name(self) -> str:
+        return 'Tanh'
 
     def __call__(self, x: float) -> float:
         """
