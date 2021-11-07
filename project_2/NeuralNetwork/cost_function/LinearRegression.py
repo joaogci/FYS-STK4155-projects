@@ -40,6 +40,12 @@ class LinearRegression(CostFunction):
         if indx.size == 0:
             return (2 / self.n) * self.X.T @ (self.X @ beta - self.y) 
         return (2 / self.y[indx].shape[0]) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx])
+    
+    def hess_C(self, beta: np.matrix) -> np.matrix:
+        """
+            Hessian for the cost function
+        """
+        return self.X.T @ self.X
 
     def error(self, beta: np.matrix) -> np.matrix:
         """
@@ -66,3 +72,10 @@ class LinearRegression(CostFunction):
         """
         return "Error"
     
+    def perm_data(self, rng: np.random.Generator):
+        """
+            Permutes data for SDG
+        """
+        perm = rng.permuted(np.arange(0, self.n))
+        self.X = self.X[perm, :]
+        self.y = self.y[perm]  

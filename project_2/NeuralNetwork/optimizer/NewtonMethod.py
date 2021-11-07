@@ -1,24 +1,22 @@
 
-from math import e
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.linalg import eig
+from scipy.sparse.construct import rand
 from .Optimizer import Optimizer
 from ..cost_function.CostFunction import CostFunction
 
-class StochasticGradientDescent(Optimizer):
+class NewtonMethod(Optimizer):
     
-    def __init__(self, cost_function: CostFunction, size_minibatches: int):
+    def __init__(self, cost_function: CostFunction):
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
-            If there is no analytical expression for the gradient, it uses autograd. 
             Parameters:
                 cost_function (CostFunction): cost function to minimize
         """
         self.cost_function = cost_function
         self.n_features = cost_function.n_features
-        self.n_batches = cost_function.n // size_minibatches
-        self.size_minibatches = size_minibatches
-    
+        
     def optimize(self, eta: float, random_state: int, tol: float = 1e-7, iter_max: int = int(1e5), verbose: bool = False) -> np.matrix:
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
@@ -29,23 +27,18 @@ class StochasticGradientDescent(Optimizer):
         """
         self.rng = np.random.default_rng(np.random.MT19937(seed=random_state))
         theta = self.rng.random(self.n_features)
-        self.eta = eta
         error_list = list()
-       
-        print()
-        print("-- Stochastic Gradient Descent --")
-        print()
         
-        error_list.append(self.cost_function.error(theta)) 
-       
+        print()
+        print("-- Newton's Method --")
+        print()        
+        
+        error_list.append(self.cost_function.error(theta))
+        
         for epoch in range(1, iter_max + 1):
-            self.cost_function.perm_data(self.rng)
+            grad = self.cost_function.grad_C(theta)
+            theta = theta - np.linalg.pinv(self.cost_function.hess_C(theta)) @ grad
             
-            for i in range(self.n_batches):
-                # k = self.rng.integers(self.n_batches)
-                grad = self.cost_function.grad_C(theta, indx=np.arange(i*self.size_minibatches, (i+1)*self.size_minibatches, 1))
-                theta = theta - self.eta * grad
-                
             error = self.cost_function.error(theta)
             error_list.append(error)
             print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]", end='\r')
@@ -56,24 +49,21 @@ class StochasticGradientDescent(Optimizer):
                 if verbose:
                     return theta, epoch, np.array(error_list)
                 return theta
-        
+                
         print()
         print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         if verbose:
             return theta, epoch, np.array(error_list)
         return theta
-        
+    
     def plot_MSE(self):
         """
             Plots MSE as a function of epochs
         """
-        plt.figure("MSE vs epochs - SGD") 
+        plt.figure("MSE vs epochs - GD") 
         
         plt.plot(range(1, len(self.MSE)+1), self.MSE, label=f"eta={self.eta}")
         plt.xlabel("epochs")
         plt.ylabel("MSE")
         plt.legend()
         # plt.show()
-        
-        
-        

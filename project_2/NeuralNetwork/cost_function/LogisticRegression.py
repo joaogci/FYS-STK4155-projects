@@ -46,6 +46,14 @@ class LogisticRegression(CostFunction):
             return - (self.X.T @ (self.y - self.sigmoid(z))) / self.n
         z = self.X[indx] @ beta
         return - (self.X[indx].T @ (self.y[indx] - self.sigmoid(z))) / self.y[indx].shape[0]
+    
+    def hess_C(self, beta: np.matrix) -> np.matrix:
+        """
+            Hessian for the cost function
+        """
+        z = self.X @ beta
+        W = np.diag( (self.sigmoid(z)*(1-self.sigmoid(z))).reshape(-1) )
+        return self.X.T @ W @ self.X
 
     def error(self, beta: np.matrix) -> np.matrix:
         return np.sum((self.sigmoid(self.X_test @ beta)).round() == self.y_test) / self.y_test.shape[0]
@@ -62,5 +70,11 @@ class LogisticRegression(CostFunction):
         """
         return "Accuracy"
 
-    
+    def perm_data(self, rng: np.random.Generator):
+        """
+            Permutes data for SDG
+        """
+        perm = rng.permuted(np.arange(0, self.n))
+        self.X = self.X[perm, :]
+        self.y = self.y[perm]  
 

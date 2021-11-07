@@ -38,6 +38,14 @@ class CostFunction(ABC):
         """
         print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides grad_C()!')
         return None
+    
+    @abstractmethod
+    def hess_C(self, beta: np.matrix) -> np.matrix:
+        """
+            Hessian for the cost function
+        """
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides hess_C()!')
+        return None 
 
     @abstractmethod
     def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
@@ -68,5 +76,13 @@ class CostFunction(ABC):
         """
             Returns the string that should be associated with the error_nn values
         """
+        return None
+    
+    @abstractmethod
+    def perm_data(self, rng: np.random.Generator):
+        """
+            Permutes the data for Stochastic Gradient Descent
+        """
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides error_nn()!')
         return None
     
