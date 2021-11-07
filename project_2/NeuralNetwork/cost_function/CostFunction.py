@@ -38,6 +38,14 @@ class CostFunction(ABC):
         """
         print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides grad_C()!')
         return None
+    
+    @abstractmethod
+    def hess_C(self, beta: np.matrix) -> np.matrix:
+        """
+            Hessian for the cost function
+        """
+        print('Error: cannot instantiate/use the default CostFunction class - use a base class that overrides hess_C()!')
+        return None 
 
     @abstractmethod
     def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
