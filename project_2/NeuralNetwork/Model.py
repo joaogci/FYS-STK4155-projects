@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
-from typing import Callable
 import pickle
 
 from .Layer import Layer, HiddenLayer, OutputLayer
