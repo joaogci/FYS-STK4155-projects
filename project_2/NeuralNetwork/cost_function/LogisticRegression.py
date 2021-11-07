@@ -76,5 +76,5 @@ class LogisticRegression(CostFunction):
         """
         perm = rng.permuted(np.arange(0, self.n))
         self.X = self.X[perm, :]
-        self.y = self.y[perm, :]  
+        self.y = self.y[perm]  
 
