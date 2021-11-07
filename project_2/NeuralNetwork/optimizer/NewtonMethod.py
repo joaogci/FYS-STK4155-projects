@@ -25,6 +25,7 @@ class NewtonMethod(Optimizer):
                 iter_max (int): maximum number of iterations
         """
         theta = np.zeros(self.n_features)
+        prev_error = 1000000
         
         print()
         print("-- Newton's Method --")
@@ -32,14 +33,17 @@ class NewtonMethod(Optimizer):
         
         for epoch in range(1, iter_max + 1):
             grad = self.cost_function.grad_C(theta)
-            if np.linalg.norm(grad) <= tol:
+            theta = theta - np.linalg.pinv(self.cost_function.hess_C(theta)) @ grad
+            
+            error = self.cost_function.error(theta)
+            print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]")
+            
+            if np.abs(prev_error - error) <= tol:
                 print()
                 print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
-                break
-            
-            theta = theta - np.linalg.pinv(self.cost_function.hess_C(theta)) @ grad
-            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
-        
+                return theta
+            prev_error = error
+                
         print()
         print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta

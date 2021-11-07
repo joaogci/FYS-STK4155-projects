@@ -26,6 +26,7 @@ class RMSprop(Optimizer):
         """
         theta = np.ones(self.n_features)
         self.eta = eta
+        prev_error = 1000000
         
         beta = 0.9
         epsilon = 1e-8
@@ -40,15 +41,16 @@ class RMSprop(Optimizer):
             s = beta * s + (1 - beta) * g**2 
             
             grad = g / (np.sqrt(s + epsilon))
+            theta = theta - eta *  grad
+                        
+            error = self.cost_function.error(theta)
+            print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]")
             
-            if np.linalg.norm(grad) <= tol:
+            if np.abs(prev_error - error) <= tol:
                 print()
                 print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                 return theta
-
-            theta = theta - eta *  grad
-
-            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
+            prev_error = error
         
         print()
         print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")

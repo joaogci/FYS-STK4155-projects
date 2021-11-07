@@ -63,24 +63,29 @@ class StochasticGradientDescent(Optimizer):
         theta = np.zeros(self.n_features)
         self.eta = "function"
         self.eta_f = lambda t: t0 / (t + t1)
+        prev_error = 1000000
        
         print()
         print("-- Stochastic Gradient Descent --")
         print()
             
         for epoch in range(1, iter_max + 1):
+            self.cost_function.perm_data(self.rng)
+            
             for i in range(self.n_batches):
                 k = self.rng.integers(self.n_batches)
                 dif = - self.eta_f(epoch * self.n_batches + i) * self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
-
-                if np.linalg.norm(dif, ord=np.inf) <= tol:
-                    print()
-                    print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
-                    return theta
-
                 theta = theta + dif
-
-            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
+            
+            error = self.cost_function.error(theta)
+            print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]")
+            
+            if np.abs(prev_error - error) <= tol:
+                print()
+                print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
+                return theta
+            prev_error = error
+            
         
         print()
         print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")

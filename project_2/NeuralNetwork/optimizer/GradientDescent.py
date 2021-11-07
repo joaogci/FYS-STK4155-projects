@@ -25,6 +25,7 @@ class GradientDescent(Optimizer):
         """
         theta = np.zeros(self.n_features)
         self.eta = eta
+        prev_error = 1000000
         
         print()
         print("-- Gradient Descent --")
@@ -32,14 +33,17 @@ class GradientDescent(Optimizer):
         
         for epoch in range(1, iter_max + 1):
             grad = self.cost_function.grad_C(theta)
-            if np.linalg.norm(grad) <= tol:
+            theta = theta - self.eta * grad
+            
+            error = self.cost_function.error(theta)
+            print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]")
+            
+            if np.abs(prev_error - error) <= tol:
                 print()
                 print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
-                break
-            
-            theta = theta - self.eta * grad
-            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
-        
+                return theta
+            prev_error = error
+                    
         print()
         print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta
