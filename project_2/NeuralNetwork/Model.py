@@ -1,7 +1,9 @@
 
 import numpy as np
+import matplotlib.pyplot as plt
 from time import time
 from typing import Callable
+import pickle
 
 from .Layer import Layer, HiddenLayer, OutputLayer
 from .cost_function.CostFunction import CostFunction
@@ -64,6 +66,20 @@ class Model:
                 (bool): Whether the network is ready, i.e. has been given all its layers
         """
         return self._has_output
+
+    def reset(self, reset_rng: bool = True):
+        """
+            Resets all weights and biases in the network, to be able to train again from scratch with different parameters
+            Parameters:
+                reset_rng (bool): Whether to reset the random number generator, useful if using SGD to train several times in order to get the same results
+        """
+
+        if reset_rng:
+            self.rng = np.random.default_rng(np.random.MT19937(seed=self.random_state))
+        
+        for layer in self.layers:
+            layer.reset(self.rng)
+
 
     def feed_forward(self, inputs: np.matrix, training: bool = False) -> tuple:
         """
@@ -200,7 +216,7 @@ class Model:
         if testing_inputs is not None and testing_targets is not None:
             print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
 
-    def train_sgd(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True):
+    def train_sgd(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float = 0.1, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True) -> tuple:
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
@@ -214,6 +230,9 @@ class Model:
                 testing_inputs (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
                 testing_targets (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
                 verbose (bool): Whether to output the completion percentage to stdout
+            Returns:
+                (float): Final training error obtained by the network after the last training iteration
+                (float): Final testing error obtained by the network after the last training iteration; only returned if testing_inputs and testing_targets are passed
         """
 
         if not self.is_ready():
@@ -252,7 +271,97 @@ class Model:
                     print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
 
         print()
-        print(f"[ Finished training with " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+        train_error = self.error(inputs, targets)
+        print(f"[ Finished training with " + self.cost_function.error_name() + f": {train_error} ]")
         if testing_inputs is not None and testing_targets is not None:
-            print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
+            test_error = self.error(testing_inputs, testing_targets)
+            print(f"\t\tTesting " + self.cost_function.error_name() + f": {test_error}")
+            return train_error, test_error
+        return train_error
     
+
+    def grid_train_sgd(self, train_inputs: np.matrix, train_targets: np.matrix, test_inputs: np.matrix, test_targets: np.matrix, filename: str = None, plot: bool = True, initial_learning_rate: float = 0.1, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, reset_rng: bool = True, verbose: bool = False):
+        """
+            Grid searches amongst 2 parameters by repeatedly training and resetting the network
+            Parameters:
+                train_inputs (np.matrix): Training input data
+                train_targets (np.matrix): Training output data
+                test_inputs (np.matrix): Testing input data
+                test_targets (np.matrix): Testing output data
+                filename (str | None): Filename to save results to; if passing None, will not write results out at all
+                plot (bool): Whether to plot the errors/accuracy scores in a contour plot
+                initial_learning_rate (float | list): If passing as a list, will create a grid search around the parameter
+                final_learning_rate (float | list): If passing as a list, will create a grid search around the parameter
+                epochs (int | list): If passing as a list, will create a grid search around the parameter
+                minibatch_size (int | list): If passing as a list, will create a grid search around the parameter
+                regularization (float | list): If passing as a list, will create a grid search around the parameter
+                reset_rng (bool): Whether to reset the random number generator with the same seed between each iteration; if True, the same weights & biases will be used every time
+                verbose (bool): Whether to print information about training as it occurs
+        """
+
+        # List all parameters that are ranges
+        range_params = []
+        const_params = []
+        add_p = lambda name, val: range_params.append({'name':name, 'range':val}) if (isinstance(val, list) or isinstance(val, np.ndarray)) else const_params.append({'name':name, 'value':val})
+        add_p('initial_learning_rate', initial_learning_rate)
+        add_p('final_learning_rate', final_learning_rate)
+        add_p('epochs', epochs)
+        add_p('minibatch_size', minibatch_size)
+        add_p('regularization', regularization)
+
+        if len(range_params) > 2:
+            print('\033[91mGrid training with more than 2 range parameters isn\'t supported right now! Please pass at most 2 range parameters.\033[0m')
+            return
+        if len(range_params) < 2:
+            print('\033[91mGrid training with less than 2 range parameters isn\'t supported right now! Please pass at least 2 range parameters.\033[0m')
+            return
+
+        # Extract which parameters should be ranges
+        param1 = range_params[0]['name']
+        param2 = range_params[1]['name']
+        param1_range = range_params[0]['range']
+        param2_range = range_params[1]['range']
+        params = dict()
+        for param in const_params:
+            params[param['name']] = param['value']
+
+        # Run through grid search
+        results = []
+        results_mat = np.zeros((len(param1_range), len(param2_range)))
+        for i, param1_val in enumerate(param1_range):
+            for j, param2_val in enumerate(param2_range):
+
+                # Set up parameters to use for this iteration
+                params[param1] = param1_val
+                params[param2] = param2_val
+
+                # Reset and train
+                self.reset(reset_rng=reset_rng)
+                train_result, test_result = self.train_sgd(train_inputs, train_targets, verbose=verbose, testing_inputs=test_inputs, testing_targets=test_targets, **params)
+
+                # Save results
+                results_mat[i, j] = test_result
+                results.append({
+                    param1: param1_val,
+                    param2: param2_val,
+                    'train_err': train_result,
+                    'test_err': test_result
+                })
+
+        # Save results to file
+        if filename is not None:
+            with open('results/' + filename + '.pickle', 'wb') as handle:
+                d = {'date': time(), 'seed': self.random_state}
+                for param in const_params:
+                    d[param['name']] = param['value']
+                d['results'] = results
+                pickle.dump(d, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+        # Plot results
+        if plot:
+            plt.figure()
+            plt.contourf(param1_range, param2_range, results_mat)
+            plt.xlabel(param1)
+            plt.ylabel(param2)
+            plt.colorbar()
+            plt.show()

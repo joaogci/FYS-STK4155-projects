@@ -19,6 +19,7 @@ class Layer(ABC):
         self._size = size
         self._activation_fn = activation_function
         self._weights = None
+        self._initial_bias = initial_bias
         self._biases = np.ones((self._size, 1)) * initial_bias
 
     def get_size(self) -> int:
@@ -38,6 +39,16 @@ class Layer(ABC):
                 rng (np.random.Generator): Random number generator to use when selecting initial weights
         """
         self._weights = rng.uniform(-1, 1, (self._size, input_size))
+    
+    def reset(self, rng: np.random.Generator):
+        """
+            Resets the weights and biases to default
+            This method should not be called before init_weights is called at least once!
+            Parameters:
+                rng (np.random.Generator): Random number generator to use when selecting initial weights
+        """
+        self._biases = np.ones((self._size, 1)) * self._initial_bias
+        self.init_weights(self._weights.shape[1], rng)
 
     def forward(self, inputs: np.matrix) -> tuple:
         """

@@ -1,0 +1,4 @@
+
+# For now, we don't want anything in this dir to be committed except for the gitignore itself
+*
+!.gitignore
