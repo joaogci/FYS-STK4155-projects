@@ -6,6 +6,9 @@ class ReLU(ActivationFunction):
     """
         ReLU activation function
     """
+    
+    def name(self) -> str:
+        return 'ReLU'
 
     def __call__(self, x: float) -> float:
         """

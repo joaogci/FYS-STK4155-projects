@@ -10,6 +10,9 @@ class Softmax(ActivationFunction):
         Softmax activation function
         Note: since Softmax needs ALL of the layer's weighted sums at once instead of just a single float, the inputs to call and d MUST be matrices
     """
+    
+    def name(self) -> str:
+        return 'Softmax'
 
     def __call__(self, x: np.matrix) -> np.matrix:
         """

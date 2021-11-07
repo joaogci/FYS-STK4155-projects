@@ -6,6 +6,9 @@ class Sigmoid(ActivationFunction):
     """
         Sigmoid activation function
     """
+    
+    def name(self) -> str:
+        return 'Sigmoid'
 
     def __call__(self, x: float) -> float:
         """

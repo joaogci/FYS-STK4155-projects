@@ -9,6 +9,16 @@ class ActivationFunction(ABC):
     
 
     @abstractmethod
+    def name(self) -> str:
+        """
+            Returns the name of the activation function
+            Returns:
+                (str): The name of the activation function
+        """
+        print('\033[91mError: cannot instantiate/use the default ActivationFunction class - use a base class that overrides name()!\033[0m')
+        return None
+
+    @abstractmethod
     def __call__(self, x: float) -> float:
         """
             Returns the evaluation of the activation function at x values

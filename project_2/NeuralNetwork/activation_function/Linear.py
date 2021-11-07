@@ -7,6 +7,9 @@ class Linear(ActivationFunction):
         Linear (passthrough) activation function
         To be used as activation function for the output layer in regression problems
     """
+    
+    def name(self) -> str:
+        return 'Linear'
 
     def __call__(self, x: float) -> float:
         """

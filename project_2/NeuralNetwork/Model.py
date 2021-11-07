@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from time import time
-from typing import Callable
 import pickle
 
 from .Layer import Layer, HiddenLayer, OutputLayer
@@ -157,11 +156,13 @@ class Model:
                 targets (np.matrix): Desired outcome values
                 learning_rate (float): Learning rate η to use to update the weights & biases
                 regularization (float): Regularization parameter λ to control rate of descent
+            Returns:
+                (bool): Whether the back-propagation succeeded
         """
 
         if not self.is_ready():
             print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
-            return
+            return False
 
         # Iterate over list of inputs/targets if passing more than 1
         for i in range(inputs.shape[0]):
@@ -174,7 +175,7 @@ class Model:
             # Dimensionality check
             if a_h[-1].shape != targs.shape or a_h[-1].shape[1] != self.layers[len(self.layers) - 1].get_size():
                 print('\033[91mMismatching outputs/targets size; should be (x,', self.layers[len(self.layers) - 1].get_size(), '), got', a_h[-1].shape, 'and', targs.shape, 'instead..\033[0m')
-                return
+                return False
             
             # Compute errors & gradient descent for each layer
             # Going backwards from last to first layer
@@ -182,6 +183,7 @@ class Model:
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
                 # Update layer
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
+        return True
     
 
     def train(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float = 0.1, final_learning_rate: float = None, sgd: bool = True, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True) -> tuple:
@@ -237,14 +239,20 @@ class Model:
                     ins = inputs[idx : idx + minibatch_size]
                     targs = targets[idx : idx + minibatch_size]
                     
-                    self.back_prop(ins, targs, learning_rate=eta, regularization=regularization)
+                    if not self.back_prop(ins, targs, learning_rate=eta, regularization=regularization):
+                        return # An error occured
             else:
-                self.back_prop(inputs, targets, learning_rate=eta, regularization=regularization)
+                if not self.back_prop(inputs, targets, learning_rate=eta, regularization=regularization):
+                    return # An error occured
             
             if verbose:
-                print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
+                err = self.error(inputs, targets)
+                print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {err} ]")
                 if testing_inputs is not None and testing_targets is not None:
                     print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
+                if np.isnan(err):
+                    print('\033[91mEncountered a NaN value while training!\033[0m')
+                    return None
 
         print()
         train_error = self.error(inputs, targets)
