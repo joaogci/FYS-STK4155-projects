@@ -10,6 +10,7 @@ from NeuralNetwork.cost_function.LinearRegression import LinearRegression
 from NeuralNetwork.optimizer.StochasticGradientDescent import StochasticGradientDescent
 from NeuralNetwork.optimizer.GradientDescent import GradientDescent
 from NeuralNetwork.optimizer.RMSprop import RMSprop
+from NeuralNetwork.optimizer.NewtonMethod import NewtonMethod
 
 from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import train_test_split
@@ -48,15 +49,20 @@ theta_SGD = optimizer_SGD.optimize(iter_max=int(1e3), eta=0.01)
 optimizer_RMS = RMSprop(lin_reg)
 theta_RMS = optimizer_RMS.optimize(iter_max=int(1e3), eta=0.01)
 
+optimizer_newton = NewtonMethod(lin_reg)
+theta_newton = optimizer_newton.optimize(eta=0, iter_max=int(1e3))
+
 theta_ols = ols(X_train, z_train)
 
 print("theta_ols:", theta_ols)
 print("theta_SGD:", theta_SGD)
 print("theta_RMS:", theta_RMS)
+print("theta_newton:", theta_newton)
 
 print("MSE OLS:", mean_squared_error(z_test, X_test @ theta_ols))
 print("MSE SGD:", mean_squared_error(z_test, X_test @ theta_SGD))
 print("MSE RMS:", mean_squared_error(z_test, X_test @ theta_RMS))
+print("MSE newton:", mean_squared_error(z_test, X_test @ theta_newton))
 
-plot_prediction_3D(theta_SGD, 5)
+# plot_prediction_3D(theta_newton, 5)
 # plot_prediction_3D(theta_ols, 5)
