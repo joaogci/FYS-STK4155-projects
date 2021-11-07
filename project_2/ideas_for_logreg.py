@@ -50,7 +50,7 @@ nn.add_layer(HiddenLayer(20, activation_function=ELU()))
 nn.add_layer(OutputLayer(1, activation_function=Sigmoid()))
 
 # Train network with grid search
-nn.grid_train(nn_input_train, nn_output_train, nn_input_test, nn_output_test, filename='logreg_results', plot=True, initial_learning_rate=np.arange(0.05, 0.2, 0.05), final_learning_rate=None, regularization=np.arange(0, 0.01, 0.0025), epochs=100)
+nn.grid_train(nn_input_train, nn_output_train, nn_input_test, nn_output_test, filename='logreg_results', plot=True, sgd=True, initial_learning_rate=np.arange(0.05, 0.2, 0.05), final_learning_rate=None, regularization=np.arange(0, 0.01, 0.0025), epochs=100, verbose=False)
 
 # Obtaining results out of the file:
 # with open('results/logreg_results.pickle', 'rb') as handle:
