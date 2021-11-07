@@ -6,7 +6,7 @@ from ..cost_function.CostFunction import CostFunction
 
 class StochasticGradientDescent(Optimizer):
     
-    def __init__(self, cost_function: CostFunction, size_minibatches: int, rng: np.random.Generator):
+    def __init__(self, cost_function: CostFunction, size_minibatches: int):
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
             If there is no analytical expression for the gradient, it uses autograd. 
@@ -17,9 +17,8 @@ class StochasticGradientDescent(Optimizer):
         self.n_features = cost_function.n_features
         self.n_batches = cost_function.n // size_minibatches
         self.size_minibatches = size_minibatches
-        self.rng = rng
     
-    def optimize(self, eta: float, tol: float = 1e-7, iter_max: int = int(1e5)) -> np.matrix:
+    def optimize(self, eta: float, random_state: int, tol: float = 1e-7, iter_max: int = int(1e5)) -> np.matrix:
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
             Parameters:
@@ -27,56 +26,23 @@ class StochasticGradientDescent(Optimizer):
                 tol (float): tolerance
                 iter_max (int): maximum number of iterations
         """
-        theta = np.zeros(self.n_features)
+        self.rng = np.random.default_rng(np.random.MT19937(seed=random_state))
+        theta = self.rng.random(self.n_features)
         self.eta = eta
-       
-        print()
-        print("-- Stochastic Gradient Descent --")
-        print()
-        
-        for epoch in range(1, iter_max + 1):            
-            for i in range(self.n_batches):
-                k = self.rng.integers(self.n_batches)
-                grad = self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
-
-                if np.linalg.norm(grad) <= tol:
-                    print()
-                    print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
-                    return theta
-
-                theta = theta - self.eta * grad
-
-            print(f"[ Epoch: {epoch}/{iter_max}; Error: {self.cost_function.error(theta)} ]")
-        
-        print()
-        print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
-        return theta
-    
-    def optimize_eta_function(self, t0: float, t1: float, tol: float = 1e-7, iter_max: int = int(1e5)) -> np.matrix:
-        """
-            Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
-            Parameters:
-                eta (float): learning rate
-                tol (float): tolerance
-                iter_max (int): maximum number of iterations
-        """
-        theta = np.zeros(self.n_features)
-        self.eta = "function"
-        self.eta_f = lambda t: t0 / (t + t1)
         prev_error = 1000000
        
         print()
         print("-- Stochastic Gradient Descent --")
         print()
-            
+        
         for epoch in range(1, iter_max + 1):
             self.cost_function.perm_data(self.rng)
             
             for i in range(self.n_batches):
                 k = self.rng.integers(self.n_batches)
-                dif = - self.eta_f(epoch * self.n_batches + i) * self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
-                theta = theta + dif
-            
+                grad = self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
+                theta = theta - self.eta * grad
+                
             error = self.cost_function.error(theta)
             print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]")
             
@@ -85,12 +51,11 @@ class StochasticGradientDescent(Optimizer):
                 print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                 return theta
             prev_error = error
-            
         
         print()
         print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
         return theta
-    
+        
     def plot_MSE(self):
         """
             Plots MSE as a function of epochs

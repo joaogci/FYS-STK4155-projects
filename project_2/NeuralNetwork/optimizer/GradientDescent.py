@@ -15,7 +15,7 @@ class GradientDescent(Optimizer):
         self.cost_function = cost_function
         self.n_features = cost_function.n_features
         
-    def optimize(self, eta: float, tol: float = 1e-7, iter_max: int = int(1e5)) -> np.matrix:
+    def optimize(self, eta: float, random_state: int, tol: float = 1e-7, iter_max: int = int(1e5)) -> np.matrix:
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
             Parameters:
@@ -23,7 +23,8 @@ class GradientDescent(Optimizer):
                 tol (float): tolerance
                 iter_max (int): maximum number of iterations
         """
-        theta = np.zeros(self.n_features)
+        self.rng = np.random.default_rng(np.random.MT19937(seed=random_state))
+        theta = self.rng.random(self.n_features)
         self.eta = eta
         prev_error = 1000000
         
