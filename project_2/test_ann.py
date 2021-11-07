@@ -44,8 +44,7 @@ outputs = model.feed_forward(inputs)
 print(outputs.round(5))
 
 # Train network
-model.train(inputs, targets, epochs=train_iterations, learning_rate=learning_rate, regularization=lmbda)
-#model.train_sgd(inputs, targets, initial_learning_rate=learning_rate, epochs=train_iterations, regularization=lmbda)
+model.train(inputs, targets, epochs=train_iterations, sgd=False, learning_rate=learning_rate, regularization=lmbda)
 
 # Print final outputs
 print('\nAfter training:')

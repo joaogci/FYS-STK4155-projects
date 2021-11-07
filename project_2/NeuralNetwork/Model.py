@@ -184,39 +184,7 @@ class Model:
                 prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
     
 
-    def train(self, inputs: np.matrix, targets: np.matrix, epochs: int = 1000, learning_rate: float = 0.1, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True):
-        """
-            Back-propagates over a series of epochs with a given learning rate and regularization hyperparameter
-            Parameters:
-                inputs (np.matrix): Inputs to train for
-                targets (np.matrix): Desired outcome values
-                epochs (int): Number of training epochs to train over
-                learning_rate (float): Learning rate η to use to update the weights & biases
-                regularization (float): Regularization parameter λ to control rate of descent
-                testing_inputs (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
-                testing_targets (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
-                verbose (bool): Whether to output the completion percentage to stdout
-        """
-
-        if not self.is_ready():
-            print('\033[91mNetwork hasn\'t been given an output layer! Make sure the neural network is set-up with all layers before starting training\033[0m')
-            return
-        
-        for epoch in range(1, epochs + 1):
-
-            if verbose:
-                print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
-                if testing_inputs is not None and testing_targets is not None:
-                    print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
-
-            self.back_prop(inputs, targets, learning_rate=learning_rate, regularization=regularization)
-
-        print()
-        print(f"[ Finished training with " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
-        if testing_inputs is not None and testing_targets is not None:
-            print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
-
-    def train_sgd(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float = 0.1, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True) -> tuple:
+    def train(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float = 0.1, final_learning_rate: float = None, sgd: bool = True, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True) -> tuple:
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
@@ -224,6 +192,7 @@ class Model:
                 targets (np.matrix): Desired outcome values
                 initial_learning_rate (float): Learning rate at epoch = 0
                 final_learning_rate (float): Learning rate at epoch = max_epochs; if passing None, will keep learning rate constant
+                sgd (bool): Whether to use stochastic gradient descent or plain old gd
                 epochs (int): Number of training epochs to train over
                 minibatch_size (int): Size of individual mini-batches
                 regularization (float): Regularization parameter λ to control rate of descent
@@ -240,9 +209,10 @@ class Model:
             return
 
         # number of mini-batches
-        minibatch_count = int(inputs.shape[0] / minibatch_size)
+        if sgd:
+            minibatch_count = int(inputs.shape[0] / minibatch_size)
 
-        # learning_schedule will be one 
+        # learning_schedule will be either a constant or decay from initial_learning_rate to final_learning_rate over the course of the epochs
         learning_schedule = lambda epoch: initial_learning_rate
         if final_learning_rate is not None and final_learning_rate != initial_learning_rate:
             t0 = initial_learning_rate * final_learning_rate / (initial_learning_rate - final_learning_rate) * epochs
@@ -251,6 +221,9 @@ class Model:
 
         # go over epochs
         for epoch in range(1, epochs + 1):
+
+            # Eta will either always be the same, or go from initial_ to final_learning_rate over the epochs
+            eta = learning_schedule(epoch-1)
             
             # Permute data each epoch
             perm = self.rng.permuted(np.arange(0, inputs.shape[0]))
@@ -258,12 +231,15 @@ class Model:
             targets = targets[perm, :]
 
             # Go through all minibatches in the input set
-            for m in range(minibatch_count):
-                idx = minibatch_size * int(self.rng.random() * minibatch_count)
-                ins = inputs[idx : idx + minibatch_size]
-                targs = targets[idx : idx + minibatch_size]
-                
-                self.back_prop(ins, targs, learning_rate=learning_schedule(epoch-1), regularization=regularization)
+            if sgd:
+                for m in range(minibatch_count):
+                    idx = minibatch_size * int(self.rng.random() * minibatch_count)
+                    ins = inputs[idx : idx + minibatch_size]
+                    targs = targets[idx : idx + minibatch_size]
+                    
+                    self.back_prop(ins, targs, learning_rate=eta, regularization=regularization)
+            else:
+                self.back_prop(inputs, targets, learning_rate=eta, regularization=regularization)
             
             if verbose:
                 print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {self.cost_function.error_nn(self.feed_forward(inputs), targets)} ]")
@@ -280,7 +256,7 @@ class Model:
         return train_error
     
 
-    def grid_train_sgd(self, train_inputs: np.matrix, train_targets: np.matrix, test_inputs: np.matrix, test_targets: np.matrix, filename: str = None, plot: bool = True, initial_learning_rate: float = 0.1, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, reset_rng: bool = True, verbose: bool = False):
+    def grid_train(self, train_inputs: np.matrix, train_targets: np.matrix, test_inputs: np.matrix, test_targets: np.matrix, filename: str = None, plot: bool = True, sgd: bool = True, initial_learning_rate: float = 0.1, final_learning_rate: float = None, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, reset_rng: bool = True, verbose: bool = False):
         """
             Grid searches amongst 2 parameters by repeatedly training and resetting the network
             Parameters:
@@ -290,6 +266,7 @@ class Model:
                 test_targets (np.matrix): Testing output data
                 filename (str | None): Filename to save results to; if passing None, will not write results out at all
                 plot (bool): Whether to plot the errors/accuracy scores in a contour plot
+                sgd (bool): Whether to use stochastic gradient descent or gradient descent
                 initial_learning_rate (float | list): If passing as a list, will create a grid search around the parameter
                 final_learning_rate (float | list): If passing as a list, will create a grid search around the parameter
                 epochs (int | list): If passing as a list, will create a grid search around the parameter
@@ -337,7 +314,7 @@ class Model:
 
                 # Reset and train
                 self.reset(reset_rng=reset_rng)
-                train_result, test_result = self.train_sgd(train_inputs, train_targets, verbose=verbose, testing_inputs=test_inputs, testing_targets=test_targets, **params)
+                train_result, test_result = self.train(train_inputs, train_targets, verbose=verbose, testing_inputs=test_inputs, testing_targets=test_targets, sgd=sgd, **params)
 
                 # Save results
                 results_mat[i, j] = test_result
