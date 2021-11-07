@@ -43,8 +43,8 @@ X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.25, random
 theta_ols = ols(X_train, z_train)
 
 # parameters for simulations
-tol = 1e-7
-iter_max = int(1e10)
+tol = 1e-6
+iter_max = int(1e6)
 # eta_vals = np.power(10.0, [-5, -4, -3, -2, -1])
 eta_vals = np.array([0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1])
 n_eta = eta_vals.shape[0]
