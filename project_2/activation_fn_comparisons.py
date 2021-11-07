@@ -73,6 +73,6 @@ with open('results/layers_comparison.pickle', 'wb') as handle:
 # plot data
 plt.figure()
 plt.plot(range(0, len(activation_fns)), mses)
-plt.xlabel('Activation function')
+plt.xlabel('Activation function') # This is kind of a shit plot, we'd better actually display the name of these activation functions, but oh well - will do for now, and we can re-make this plot later from the results pickle later regardless
 plt.ylabel('MSE')
 plt.show()
