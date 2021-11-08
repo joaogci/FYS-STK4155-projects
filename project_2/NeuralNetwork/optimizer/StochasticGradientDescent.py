@@ -50,7 +50,7 @@ class StochasticGradientDescent(Optimizer):
             error_list.append(error)
             print(f"[ Epoch: {epoch}/{iter_max}; {self.cost_function.error_name()}: {error} ]", end='\r')
             
-            if epoch >= 5 and np.abs(np.mean(error_list[-5:]) - error) <= tol:
+            if epoch >= 5 and np.abs(np.mean(error_list[-5:] - error)) <= tol:
                 print()
                 print(f"[ Finished training with error: {self.cost_function.error(theta)} ]")
                 if verbose:
