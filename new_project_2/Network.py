@@ -46,39 +46,19 @@ class NeuralNetwork():
 
         grad_sigma_L = self.layers[-1].grad_sigma
         delta = np.multiply(grad_cost_function(target, a[-1]), grad_sigma_L(z[-1]))
-        grad_C_w.append(delta @ a[-2].T) # this might be wrong
+        grad_C_w.append(delta @ a[-2].T)
         grad_C_b.append(np.sum(delta, axis=1, keepdims=True))
-        # print("test:")
-        # print(np.max(grad_C_w[0]))
 
         for l in range(2,self.n_layers+1):
             grad_sigma_l = self.layers[- l].grad_sigma
             weights_next = self.layers[- l + 1].weights
             delta = np.multiply((weights_next.T @ delta), grad_sigma_l(z[- l]))
-            grad_C_w.append(delta @ a[- l - 1].T) # this might be wrong
+            grad_C_w.append(delta @ a[- l - 1].T)
             grad_C_b.append(np.sum(delta, axis=1, keepdims=True))
-
-        # print("test:")
-
-        # for l in range(self.n_layers - 1, - 1, - 1):
-        #     if l + 1 == self.n_layers:
-        #         grad_sigma_L = self.layers[-1].grad_sigma
-        #         delta = np.multiply(grad_cost_function(target, a[-1]), grad_sigma_L(z[-1]))
-        #     else:
-        #         grad_sigma_l = self.layers[l].grad_sigma
-        #         weights_next = self.layers[l + 1].weights
-        #         delta = np.multiply(weights_next.T @ delta, grad_sigma_l(z[l]))
-
-        #     grad_C_w.append(delta @ a[l - 1].T) # this might be wrong
-        #     grad_C_b.append(delta)
 
         grad_C_w.reverse()
         grad_C_b.reverse()
 
         for l, layer in enumerate(self.layers):
-            # print(f"layer: {l}")
-            # print(np.max(grad_C_b[l]))
-            # print(np.max(grad_C_w[l]))
-            # print()
             layer.biases = layer.biases - 0.1 * grad_C_b[l]
             layer.weights = layer.weights - 0.1 * grad_C_w[l]
