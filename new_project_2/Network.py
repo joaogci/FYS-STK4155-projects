@@ -98,7 +98,7 @@ class Layer():
     """
     
     def __init__(self, n_nodes: int, n_nodes_prev_layer: int, 
-                activation_function: tuple[Callable], rng: np.random.Generator):
+                activation_function, rng: np.random.Generator):
         """
         Initialises the layer with an activation function, weight 
         matrix, and bias vector.

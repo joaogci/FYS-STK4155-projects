@@ -14,14 +14,12 @@ from functions import *
 
 
 # params
-n = 100
-noise = 0.1
-seed = 0
-epochs = 100
-n_nodes = 60
-n_layers = 6
-activation_fns = [Sigmoid(), ReLU(), ELU(), LeakyReLU(), Tanh()]
-learning_rate = 0.00000005
+n = 1000
+noise = 0.25
+seed = 1337
+epochs = 250
+learning_rate = 1e-5
+activation_fns = [Sigmoid(), LeakyReLU(), ELU(), Tanh(), ReLU()]
 
 # init data
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
@@ -40,40 +38,42 @@ X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 z_train, z_test = np.matrix(z_train).T, np.matrix(z_test).T
 cost_fn = LinearRegression(X_train, z_train, X_test, z_test)
 
-# run neural network
-results = {'seed': seed, 'results': []}
-mses = np.ndarray(len(activation_fns))
-for j, activation_fn in enumerate(activation_fns):
-
+test_mses = []
+train_mses = []
+mse_lists = []
+results = {'seed': seed, 'n':n, 'noise':noise, 'epochs':epochs, 'learning_rate':learning_rate, 'results':[]}
+for i, activation_fn in enumerate(activation_fns):
     # Prepare network
     nn = Model(2, cost_function=cost_fn, random_state=seed)
-    for i in range(0, n_layers):
-        nn.add_layer(HiddenLayer(n_nodes, activation_function=activation_fn))
+    nn.add_layer(HiddenLayer(20, activation_function=Sigmoid()))
+    nn.add_layer(HiddenLayer(20, activation_function=activation_fn))
     nn.add_layer(OutputLayer(1, activation_function=Linear()))
 
     # Train network
     start = time()
-    train_mse, test_mse = nn.train(X_train, z_train, learning_rate, sgd=False, epochs=epochs, testing_inputs=X_test, testing_targets=z_test, verbose=False)
+    train_mse, test_mse, mses = nn.train(X_train, z_train, learning_rate, sgd=True, epochs=epochs, testing_inputs=X_test, testing_targets=z_test, verbose=False, minibatch_size=5, return_errs=True)
     time_taken = time() - start
-    
-    # Save results as we go
-    mses[j] = test_mse if not np.isnan(test_mse) else 0
+
+    # Write results
+    test_mses.append(test_mse)
+    train_mses.append(train_mse)
+    mse_lists.append(mses)
     results['results'].append({
         'activation_fn': activation_fn.name(),
         'time': time_taken,
+        'test_mse': test_mse,
         'train_mse': train_mse,
-        'test_mse': test_mse
+        'mse_by_epoch': mses
     })
 
-# save file
-with open('results/activation_fn_comparison.pickle', 'wb') as handle:
+# Save to file
+with open('results/activation_comparison.pickle', 'wb') as handle:
     pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print('\n\nDumped results:\n', results)
 
-# plot data
 plt.figure()
-plt.plot(range(len(activation_fns)), mses)
-plt.xlabel('Activation function') # This is kind of a shit plot, we'd better actually display the name of these activation functions, but oh well - will do for now, and we can re-make this plot later from the results pickle later regardless
-plt.ylabel('MSE')
-if __name__ == "__main__":
-    plt.show()
+styles = ['--', '-', '--.', '--', '--*']
+for i, mses in enumerate(mse_lists):
+    plt.plot(range(len(mses)), mses[0:len(mses)], styles[i], label=activation_fns[i].name())
+plt.legend()
+plt.show()

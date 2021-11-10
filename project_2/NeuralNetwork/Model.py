@@ -186,14 +186,14 @@ class Model:
         return True
     
 
-    def train(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float = 0.1, final_learning_rate: float = None, sgd: bool = True, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True) -> tuple:
+    def train(self, inputs: np.matrix, targets: np.matrix, initial_learning_rate: float = 0.1, final_learning_rate: float = None, sgd: bool = True, epochs: int = 1000, minibatch_size: int = 5, regularization: float = 0, testing_inputs: np.matrix = None, testing_targets: np.matrix = None, verbose: bool = True, return_errs: bool = False) -> tuple:
         """
             Back-propagates over a series of epochs using stochastic gradient descent
             Parameters:
                 inputs (np.matrix): Inputs to train for
                 targets (np.matrix): Desired outcome values
                 initial_learning_rate (float): Learning rate at epoch = 0
-                final_learning_rate (float): Learning rate at epoch = max_epochs; if passing None, will keep learning rate constant
+                final_learning_rate (float|None|bool): Learning rate at epoch = max_epochs; if passing None, will keep learning rate constant; if passing True, the learning rate will be /10 anytime a plateau is reached
                 sgd (bool): Whether to use stochastic gradient descent or plain old gd
                 epochs (int): Number of training epochs to train over
                 minibatch_size (int): Size of individual mini-batches
@@ -201,9 +201,11 @@ class Model:
                 testing_inputs (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
                 testing_targets (np.matrix): If not None, will compute the error/accuracy score for the test set at each epoch
                 verbose (bool): Whether to output the completion percentage to stdout
+                return_errs (bool): If true, returns a list of error values as a function of epoch
             Returns:
                 (float): Final training error obtained by the network after the last training iteration
                 (float): Final testing error obtained by the network after the last training iteration; only returned if testing_inputs and testing_targets are passed
+                (np.ndarray): List of training errors, only given if return_errs is given as True
         """
 
         if not self.is_ready():
@@ -216,13 +218,14 @@ class Model:
 
         # learning_schedule will be either a constant or decay from initial_learning_rate to final_learning_rate over the course of the epochs
         learning_schedule = lambda epoch: initial_learning_rate
-        if final_learning_rate is not None and final_learning_rate != initial_learning_rate:
+        if final_learning_rate is not None and final_learning_rate is not True and final_learning_rate != initial_learning_rate:
             t0 = initial_learning_rate * final_learning_rate / (initial_learning_rate - final_learning_rate) * epochs
             t1 = final_learning_rate / (initial_learning_rate - final_learning_rate) * epochs
             learning_schedule = lambda epoch: t0 / (t1 + epoch)
 
         # go over epochs
-        for epoch in range(1, epochs + 1):
+        errs = np.ndarray(epochs)
+        for i, epoch in enumerate(range(1, epochs + 1)):
 
             # Eta will either always be the same, or go from initial_ to final_learning_rate over the epochs
             eta = learning_schedule(epoch-1)
@@ -245,14 +248,26 @@ class Model:
                 if not self.back_prop(inputs, targets, learning_rate=eta, regularization=regularization):
                     return # An error occured
             
+            # Compute error/accuracy
+            err = self.error(inputs, targets)
+            errs[i] = err
             if verbose:
-                err = self.error(inputs, targets)
                 print(f"[ Epoch: {epoch}/{epochs}; " + self.cost_function.error_name() + f": {err} ]")
                 if testing_inputs is not None and testing_targets is not None:
                     print(f"\t\tTesting " + self.cost_function.error_name() + f": {self.error(testing_inputs, testing_targets)}")
                 if np.isnan(err):
                     print('\033[91mEncountered a NaN value while training!\033[0m')
                     return None
+            
+            # Adaptive learning rate if needed
+            if final_learning_rate == True and i > 10:
+                earlier = errs[i-10]
+                n = 0
+                for j in range(0, 9):
+                    if errs[i-j] > earlier:
+                        n += 1
+                if n > 4:
+                    initial_learning_rate /= 2
 
         print()
         train_error = self.error(inputs, targets)
@@ -260,7 +275,11 @@ class Model:
         if testing_inputs is not None and testing_targets is not None:
             test_error = self.error(testing_inputs, testing_targets)
             print(f"\t\tTesting " + self.cost_function.error_name() + f": {test_error}")
+            if return_errs:
+                return train_error, test_error, errs
             return train_error, test_error
+        if return_errs:
+            return train_error, errs
         return train_error
     
 
