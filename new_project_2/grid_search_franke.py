@@ -53,7 +53,7 @@ y_train = y_train.reshape(1, -1)
 y_test = y_test.reshape(1, -1)
 
 # params
-epochs = 1000
+epochs = 1
 size_batches = 5
 eta_vals = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
 reg_vals = [0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
@@ -84,5 +84,7 @@ sns.heatmap(mse, annot=True, ax=ax, cmap="viridis")
 ax.set_title("Training MSE")
 ax.set_ylabel("$\eta$")
 ax.set_xlabel("$\lambda$")
+ax.set_xticklabels(reg_vals)
+ax.set_yticklabels(eta_vals)
 plt.show()
 
