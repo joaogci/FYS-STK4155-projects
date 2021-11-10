@@ -1,6 +1,7 @@
 import numpy as np
 from time import time
 from typing import Callable
+# import matplotlib.pyplot as plt
 
 class NeuralNetwork():
 
@@ -61,7 +62,8 @@ class NeuralNetwork():
 
     def train(self, inputs: np.ndarray, target: np.ndarray, grad_C: Callable, 
               epochs: int, learning_rate: Callable, size_batches: int,
-              regularization: float = 0):
+              regularization: float = 0, input_test: np.ndarray = None, target_test: np.ndarray = None):
+        # mse = list()
         
         for epoch in range(1, epochs + 1):
             perm = self.rng.permutation(inputs.shape[1])
@@ -75,10 +77,18 @@ class NeuralNetwork():
                 grad_C_w, grad_C_b = self.back_propagation(a, z, target[:, index], grad_C)
                 
                 for l, layer in enumerate(self.layers):
-                    layer.biases = layer.biases - learning_rate(epoch) * (grad_C_b[l] + regularization * self.layers[l].biases)
-                    layer.weights = layer.weights - learning_rate(epoch) * (grad_C_w[l] + regularization * self.layers[l].weights)
-            
+                    layer.biases = layer.biases - learning_rate(epoch) * (grad_C_b[l] + regularization * layer.biases)
+                    layer.weights = layer.weights - learning_rate(epoch) * (grad_C_w[l] + regularization * layer.weights)
+                    
+            # mse.append(np.mean((self.predict(input_test) - target_test)**2))
             print(f" [ epoch: {epoch}/{epochs} ] ", end='\r')
+        
+        # print()
+        # print(np.array(mse[-50:]).round(5))
+        
+        # plt.figure(1)
+        # plt.plot(np.arange(1, epochs + 1), mse, '--r')
+        # plt.show()
         
 
 class Layer():
