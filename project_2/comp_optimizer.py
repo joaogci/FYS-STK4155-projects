@@ -110,19 +110,12 @@ for i in range(n_eta):
         for epoch in range(1, epochs["SGD"][i] + 2):
             mse_write = mse["SGD"][i][epoch - 1]
             file.write(f"{epoch} {mse_write} \n")
-                
-for i in range(n_eta):
-    with open(f"./results/comp_optimization/RMS/RMS_eta_{i}.txt", "w") as file:
-        for epoch in range(1, epochs["RMS"][i] + 2):
-            mse_write = mse["RMS"][i][epoch - 1]
-            file.write(f"{epoch} {mse_write} \n")
 
 with open(f"./results/comp_optimization/time.txt", "w") as file:
     for i, eta in enumerate(eta_vals):
         time_GD = time["GD"][i]
         time_SGD = time["SGD"][i]
-        time_RMS = time["RMS"][i]
-        file.write(f"{eta} {time_GD} {time_SGD} {time_RMS} \n")
+        file.write(f"{eta} {time_GD} {time_SGD} \n")
 
 with open(f"./results/comp_optimization/newton.txt", "w") as file:
     time_write = time["newton"][0]
