@@ -1,5 +1,6 @@
 
 from math import e
+from typing import Callable
 import numpy as np
 import matplotlib.pyplot as plt
 from .Optimizer import Optimizer
@@ -63,7 +64,7 @@ class StochasticGradientDescent(Optimizer):
             return theta, epoch, np.array(error_list)
         return theta
         
-    def optimize_learning_schedule(self, eta: function, random_state: int, tol: float = 1e-7, iter_max: int = int(1e5), verbose: bool = False) -> np.matrix:
+    def optimize_learning_schedule(self, eta: Callable, random_state: int, tol: float = 1e-7, iter_max: int = int(1e5), verbose: bool = False) -> np.matrix:
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
             Parameters:
