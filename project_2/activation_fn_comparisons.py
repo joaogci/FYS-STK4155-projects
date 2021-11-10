@@ -19,7 +19,7 @@ noise = 0.25
 seed = 1337
 epochs = 250
 learning_rate = 1e-5
-activation_fns = [Sigmoid(), LeakyReLU(), ELU(), Tanh(), ReLU()]
+activation_fns = [Sigmoid(), LeakyReLU(alpha=5e-2), ELU(alpha=5e-2), Tanh(), ReLU()]
 
 # init data
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
@@ -72,8 +72,8 @@ with open('results/activation_comparison.pickle', 'wb') as handle:
     print('\n\nDumped results:\n', results)
 
 plt.figure()
-styles = ['--', '-', '--.', '--', '--*']
+styles = ['--', '-', '--', '--', '.']
 for i, mses in enumerate(mse_lists):
-    plt.plot(range(len(mses)), mses[0:len(mses)], styles[i], label=activation_fns[i].name())
+    plt.plot(range(0, len(mses), 5), mses[::5], styles[i], label=activation_fns[i].name(), alpha=0.9)
 plt.legend()
 plt.show()
