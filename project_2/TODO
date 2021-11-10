@@ -57,13 +57,11 @@ Part f:
 Results to compute
 
 - [ ] use SGD and GD on ridge/ols
-- [ ] grid search for lambda/eta for Franke
+- [ ] grid search for lambda/eta for Franke (grid_search_eta_lambda_franke.py)
+- [ ] grid search for lambda/eta for Franke with different activation fn (grid_search_eta_lambda_franke.py)
 - [ ] different layer/node counts for Franke (layers_comparison.py)
 - [✓] different activation functions for Franke (activation_fn_comparisons.py)
 
 - [ ] grid search for lambda/eta for MNIST
-- [ ] different layer/node counts for MNIST
-- [ ] different activation functions for MNIST
+- [ ] cancer data covariance matrix
 - [ ] grid search for lambda/eta for cancer
-- [ ] different layer/node counts for cancer
-- [ ] different activation functions for cancer
