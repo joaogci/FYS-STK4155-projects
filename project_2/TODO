@@ -56,11 +56,16 @@ Part f:
 
 Results to compute
 
-- use SGD and GD on ridge/ols
-- comparison of NN with sklearn
-- grid search for lambda/eta for Franke
-- different layer/node counts for Franke
-- [✓] different activation functions for Franke
-- grid search for lambda/eta for cancer
-- different layer/node counts for cancer
-- different activation functions for cancer
+- [ ] use SGD and GD on ridge/ols
+- [ ] comparison of NN with sklearn
+- [ ] grid search for lambda/eta for Franke
+- [ ] different layer/node counts for Franke (layers_comparison.py)
+- [✓] different activation functions for Franke (activation_fn_comparisons.py)
+- [ ] different bias initialization for Franke (biases_init_comparison.py)
+
+- [ ] grid search for lambda/eta for MNIST
+- [ ] different layer/node counts for MNIST
+- [ ] different activation functions for MNIST
+- [ ] grid search for lambda/eta for cancer
+- [ ] different layer/node counts for cancer
+- [ ] different activation functions for cancer
