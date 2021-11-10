@@ -49,3 +49,18 @@ Part e:
 Part f:
     - Summarize various algorithms and evaluate pros and cons
     - Decide which algo is best for regression and which is best for classification
+
+
+
+---
+
+Results to compute
+
+- use SGD and GD on ridge/ols
+- comparison of NN with sklearn
+- grid search for lambda/eta for Franke
+- different layer/node counts for Franke
+- [✓] different activation functions for Franke
+- grid search for lambda/eta for cancer
+- different layer/node counts for cancer
+- different activation functions for cancer
