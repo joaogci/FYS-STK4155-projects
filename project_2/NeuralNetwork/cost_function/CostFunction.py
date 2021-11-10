@@ -11,7 +11,7 @@ class CostFunction(ABC):
     n = 0
     
     @abstractmethod
-    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix):
+    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix, regularization: float = 0):
         """
             Initiates the CostFunction class 
             Parameters

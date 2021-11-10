@@ -1,11 +1,12 @@
 
+import re
 import numpy as np
 
 from .CostFunction import CostFunction
 
 class LogisticRegression(CostFunction):
     
-    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix):
+    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix, regularization: float = 0):
         """
             Initiates the LinearRegression class 
             Parameters
@@ -21,6 +22,8 @@ class LogisticRegression(CostFunction):
         self.n = self.y.shape[0]
         self.n_features = self.X.shape[1]
         self.sigmoid = lambda z: 1 / (1 + np.exp(- z))
+        
+        self.reg = regularization
          
     def C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
@@ -30,9 +33,9 @@ class LogisticRegression(CostFunction):
         """
         if indx.size == 0:
             z = self.X @ beta
-            return - np.mean(- self.y * np.log(self.sigmoid(z)) - (1 - self.y) * np.log(self.sigmoid(1 - z)))
+            return - np.mean(- self.y * np.log(self.sigmoid(z)) - (1 - self.y) * np.log(self.sigmoid(1 - z))) + self.reg * np.linalg.norm(beta)
         z = self.X[indx] @ beta
-        return - np.mean(- self.y[indx] * np.log(self.sigmoid(z)) - (1 - self.y[indx]) * np.log(self.sigmoid(1 - z)))
+        return - np.mean(- self.y[indx] * np.log(self.sigmoid(z)) - (1 - self.y[indx]) * np.log(self.sigmoid(1 - z))) + self.reg * np.linalg.norm(beta)
 
     def grad_C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
@@ -43,9 +46,9 @@ class LogisticRegression(CostFunction):
         """
         if indx.size == 0:
             z = self.X @ beta
-            return - (self.X.T @ (self.y - self.sigmoid(z))) / self.n
+            return - (self.X.T @ (self.y - self.sigmoid(z))) / self.n + self.reg * beta
         z = self.X[indx] @ beta
-        return - (self.X[indx].T @ (self.y[indx] - self.sigmoid(z))) / self.y[indx].shape[0]
+        return - (self.X[indx].T @ (self.y[indx] - self.sigmoid(z))) / self.y[indx].shape[0] + self.reg * beta
     
     def hess_C(self, beta: np.matrix) -> np.matrix:
         """
