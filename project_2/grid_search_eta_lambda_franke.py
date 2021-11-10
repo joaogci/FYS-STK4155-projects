@@ -20,7 +20,6 @@ noise = 0.1
 seed = 0
 epochs = 500
 n_nodes = 30
-activation_fn = Sigmoid()
 learning_rate = 0.0005
 
 # init data
@@ -40,8 +39,14 @@ X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.2)
 z_train, z_test = np.matrix(z_train).T, np.matrix(z_test).T
 cost_fn = LinearRegression(X_train, z_train, X_test, z_test)
 
-# Train with grid search
+# Train with grid search - sigmoid
 nn = Model(2, cost_function=cost_fn, random_state=seed)
-nn.add_layer(HiddenLayer(n_nodes, activation_function=activation_fn))
+nn.add_layer(HiddenLayer(n_nodes, activation_function=Sigmoid()))
 nn.add_layer(OutputLayer(1, activation_function=Linear()))
-nn.grid_train(X_train, z_train, X_test, z_test, 'grid_search_eta_lambda_franke', plot=False, initial_learning_rate=np.logspace(-5, -1, 5), regularization=np.logspace(-4, 0, 5), epochs=epochs)
+nn.grid_train(X_train, z_train, X_test, z_test, 'sigmoid_grid_search_eta_lambda_franke', plot=False, initial_learning_rate=np.logspace(-5, -1, 5), regularization=np.logspace(-4, 0, 5), epochs=epochs)
+
+# Train with grid search - relu
+nn = Model(2, cost_function=cost_fn, random_state=seed)
+nn.add_layer(HiddenLayer(n_nodes, activation_function=ReLU()))
+nn.add_layer(OutputLayer(1, activation_function=Linear()))
+nn.grid_train(X_train, z_train, X_test, z_test, 'relu_grid_search_eta_lambda_franke', plot=False, initial_learning_rate=np.logspace(-5, -1, 5), regularization=np.logspace(-4, 0, 5), epochs=epochs)
