@@ -50,7 +50,7 @@ eta_vals = np.array([0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1])
 n_eta = eta_vals.shape[0]
 
 # arrays
-methods = ["GD", "SGD", "RMS", "newton"]
+methods = ["GD", "SGD", "newton"]
 time = dict()
 mse = dict()
 epochs = dict()
@@ -98,17 +98,6 @@ for i, eta in enumerate(eta_vals):
     mse["SGD"].append(SGD_out[2])
     epochs["SGD"].append(SGD_out[1])
 
-    lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
-    optimizer_RMS = RMSprop(lin_reg)
-    tmp = perf_counter()
-    RMS_out = optimizer_RMS.optimize(tol=tol, iter_max=iter_max, eta=eta, random_state=seed, verbose=True)
-    time_RMS = perf_counter() - tmp
-    
-    time["RMS"].append(time_RMS)
-    mse["RMS"].append(RMS_out[2])
-    epochs["RMS"].append(RMS_out[1])
-
-
 # write to file
 for i in range(n_eta):
     with open(f"./results/comp_optimization/GD/GD_eta_{i}.txt", "w") as file:
@@ -121,19 +110,12 @@ for i in range(n_eta):
         for epoch in range(1, epochs["SGD"][i] + 2):
             mse_write = mse["SGD"][i][epoch - 1]
             file.write(f"{epoch} {mse_write} \n")
-                
-for i in range(n_eta):
-    with open(f"./results/comp_optimization/RMS/RMS_eta_{i}.txt", "w") as file:
-        for epoch in range(1, epochs["RMS"][i] + 2):
-            mse_write = mse["RMS"][i][epoch - 1]
-            file.write(f"{epoch} {mse_write} \n")
 
 with open(f"./results/comp_optimization/time.txt", "w") as file:
     for i, eta in enumerate(eta_vals):
         time_GD = time["GD"][i]
         time_SGD = time["SGD"][i]
-        time_RMS = time["RMS"][i]
-        file.write(f"{eta} {time_GD} {time_SGD} {time_RMS} \n")
+        file.write(f"{eta} {time_GD} {time_SGD} \n")
 
 with open(f"./results/comp_optimization/newton.txt", "w") as file:
     time_write = time["newton"][0]

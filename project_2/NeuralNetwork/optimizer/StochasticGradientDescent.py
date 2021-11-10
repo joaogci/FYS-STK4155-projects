@@ -43,8 +43,8 @@ class StochasticGradientDescent(Optimizer):
             self.cost_function.perm_data(self.rng)
             
             for i in range(self.n_batches):
-                # k = self.rng.integers(self.n_batches)
-                grad = self.cost_function.grad_C(theta, indx=np.arange(i*self.size_minibatches, (i+1)*self.size_minibatches, 1))
+                k = self.rng.integers(self.n_batches)
+                grad = self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
                 theta = theta - self.eta * grad
                 
             error = self.cost_function.error(theta)
