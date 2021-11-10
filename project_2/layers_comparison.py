@@ -43,7 +43,7 @@ cost_fn = LinearRegression(X_train, z_train, X_test, z_test)
 # run neural network
 results = {'seed': seed, 'results': []}
 mses = np.ndarray(max_n_layers)
-for i, n_layers in enumerate(range(1, max_n_layers+1)):
+for j, n_layers in enumerate(range(1, max_n_layers+1)):
 
     # Prepare network
     n_nodes_per_layer = int(n_nodes / n_layers)
@@ -58,7 +58,7 @@ for i, n_layers in enumerate(range(1, max_n_layers+1)):
     time_taken = time() - start
     
     # Save results as we go
-    mses[i] = test_mse
+    mses[j] = test_mse
     results['results'].append({
         'n_layers': n_layers,
         'n_nodes_per_layer': n_nodes_per_layer,

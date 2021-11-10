@@ -14,14 +14,14 @@ from functions import *
 
 
 # params
-n = 1000
+n = 100
 noise = 0.1
 seed = 0
-epochs = 500
-n_nodes = 160
+epochs = 100
+n_nodes = 60
 n_layers = 6
 activation_fns = [Sigmoid(), ReLU(), ELU(), LeakyReLU(), Tanh()]
-learning_rate = 0.0005
+learning_rate = 0.00000005
 
 # init data
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
@@ -43,7 +43,7 @@ cost_fn = LinearRegression(X_train, z_train, X_test, z_test)
 # run neural network
 results = {'seed': seed, 'results': []}
 mses = np.ndarray(len(activation_fns))
-for i, activation_fn in enumerate(activation_fns):
+for j, activation_fn in enumerate(activation_fns):
 
     # Prepare network
     nn = Model(2, cost_function=cost_fn, random_state=seed)
@@ -57,7 +57,7 @@ for i, activation_fn in enumerate(activation_fns):
     time_taken = time() - start
     
     # Save results as we go
-    mses[i] = test_mse
+    mses[j] = test_mse if not np.isnan(test_mse) else 0
     results['results'].append({
         'activation_fn': activation_fn.name(),
         'time': time_taken,
@@ -66,13 +66,13 @@ for i, activation_fn in enumerate(activation_fns):
     })
 
 # save file
-with open('results/layers_comparison.pickle', 'wb') as handle:
+with open('results/activation_fn_comparison.pickle', 'wb') as handle:
     pickle.dump(results, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print('\n\nDumped results:\n', results)
 
 # plot data
 plt.figure()
-plt.plot(range(0, len(activation_fns)), mses)
+plt.plot(range(len(activation_fns)), mses)
 plt.xlabel('Activation function') # This is kind of a shit plot, we'd better actually display the name of these activation functions, but oh well - will do for now, and we can re-make this plot later from the results pickle later regardless
 plt.ylabel('MSE')
 if __name__ == "__main__":
