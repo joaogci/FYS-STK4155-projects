@@ -42,7 +42,7 @@ def main():
     #       with one bad and good case for each method
     #       all of this for OLS
     part_1(X_train, X_test, y_train, y_test, seed, epochs=200, 
-           eta_1=0.01, eta_2=0.001, size_batches=5)
+           eta_1=0.01, eta_2=0.001, batch_size=5)
 
     # 2) -> plot of MSE vs size of batches with constant eta
     part_2(X_train, X_test, y_train, y_test, seed, epochs=200,
