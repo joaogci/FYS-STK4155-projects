@@ -1,0 +1,3 @@
+
+# Ignore pickle results until they're ready to be pushed
+*.pickle
