@@ -51,11 +51,11 @@ neural_network.add_layer(20, sigmoid())
 neural_network.add_layer(20, sigmoid())
 neural_network.add_layer(1, linear())
 
-epochs = 1000
+epochs = 500
 size_batches = 5
-regularization = 0
-learning_rate = lambda x: 0.1
-neural_network.train(X_train, y_train, grad_mse, epochs, learning_rate, size_batches, regularization)
+regularization = 1e-2
+learning_rate = lambda x: 0.0001
+neural_network.train(X_train, y_train, grad_mse, epochs, learning_rate, size_batches, regularization, X_test, y_test)
 
 pred = neural_network.predict(X_test)
 
