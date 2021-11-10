@@ -8,7 +8,6 @@ from time import time
 
 from NeuralNetwork.optimizer.StochasticGradientDescent import StochasticGradientDescent
 from NeuralNetwork.cost_function.LinearRegression import LinearRegression
-from NeuralNetwork.optimizer.GradientDescent import GradientDescent
 
 # parameters
 n = 500

@@ -1,9 +1,6 @@
-from types import LambdaType
 import numpy as np
 import matplotlib.pyplot as plt
-from time import perf_counter, time
-
-from scipy.sparse.construct import random
+from time import perf_counter
 
 from NeuralNetwork.optimizer.GradientDescent import GradientDescent
 from NeuralNetwork.optimizer.StochasticGradientDescent import StochasticGradientDescent
@@ -43,60 +40,104 @@ X = create_X_2D(deg, x, y)
 
 X_train, X_test, z_train, z_test = train_test_split(X, z, test_size=0.25, random_state=seed)
 
-eta_vals = np.power(10.0, [-5, -4, -3, -2, -1])
-eta = 0.001
-
-lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
-time_GD = perf_counter()
-optimizer_GD = GradientDescent(lin_reg)
-GD_out = optimizer_GD.optimize(tol=1e-6, iter_max=int(1e6), eta=eta, random_state=seed, verbose=True)
-time_GD = perf_counter() - time_GD
-
-lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
-time_SGD = perf_counter()
-optimizer_SGD = StochasticGradientDescent(lin_reg, size_minibatches=20)
-SGD_out = optimizer_SGD.optimize(tol=1e-6, iter_max=int(1e6), eta=eta, random_state=seed, verbose=True)
-time_SGD = perf_counter() - time_SGD
-
-lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
-time_RMS = perf_counter()
-optimizer_RMS = RMSprop(lin_reg)
-RMS_out = optimizer_RMS.optimize(tol=1e-6, iter_max=int(1e6), eta=eta, random_state=seed, verbose=True)
-time_RMS = perf_counter() - time_RMS
-
-lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
-time_newton = perf_counter()
-optimizer_newton = NewtonMethod(lin_reg)
-newton_out = optimizer_newton.optimize(tol=1e-6, iter_max=int(1e6), eta=eta, random_state=seed, verbose=True)
-time_newton = perf_counter() - time_newton
-
 theta_ols = ols(X_train, z_train)
 
-print()
-print("epoch GD:", GD_out[1])
-print("epoch SGD:", SGD_out[1])
-print("epoch RMS:", RMS_out[1])
-print("epoch newton:", newton_out[1])
-print()
-print("MSE OLS:", mean_squared_error(z_test, X_test @ theta_ols))
-print("MSE GD:", mean_squared_error(z_test, X_test @ GD_out[0]), "; time:", time_GD)
-print("MSE SGD:", mean_squared_error(z_test, X_test @ SGD_out[0]), "; time:", time_SGD)
-print("MSE RMS:", mean_squared_error(z_test, X_test @ RMS_out[0]), "; time:", time_RMS)
-print("MSE newton:", mean_squared_error(z_test, X_test @ newton_out[0]), "; time:", time_newton)
+# parameters for simulations
+tol = 1e-6
+iter_max = int(1e6)
+# eta_vals = np.power(10.0, [-5, -4, -3, -2, -1])
+eta_vals = np.array([0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1])
+n_eta = eta_vals.shape[0]
 
-mse_ols = mean_squared_error(z_train, X_train @ theta_ols)
+# arrays
+methods = ["GD", "SGD", "RMS", "newton"]
+time = dict()
+mse = dict()
+epochs = dict()
 
-plt.figure("MSE vs epochs")
+for method in methods:
+    time[method] = list()
+    mse[method] = list()
+    epochs[method] = list()
 
-plt.loglog(np.arange(1, GD_out[1] + 2), GD_out[2], label=f'GD; eta={eta}')
-plt.loglog(np.arange(1, SGD_out[1] + 2), SGD_out[2], label=f'SGD; eta={eta}')
-plt.loglog(np.arange(1, RMS_out[1] + 2), RMS_out[2], label=f'RMSprop; eta={eta}')
-plt.loglog(np.arange(1, newton_out[1] + 2), newton_out[2], label='Newton\'s method')
-plt.loglog([1, RMS_out[1] + 2], [mse_ols, mse_ols], label='OLS')
+# Newton's method
+lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
+optimizer_newton = NewtonMethod(lin_reg)
+tmp = perf_counter()
+newton_out = optimizer_newton.optimize(tol=tol, iter_max=iter_max, eta=0, random_state=seed, verbose=True)
+time_newton = perf_counter() - tmp
 
-plt.legend()
+time["newton"].append(time_newton)
+mse["newton"].append(newton_out[2])
+epochs["newton"].append(newton_out[1])
+
+# Gradient methods
+for i, eta in enumerate(eta_vals):
+
+    print()
+    print(f" -- ETA: {eta} --")
+    print()
+
+    lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
+    optimizer_GD = GradientDescent(lin_reg)
+    tmp = perf_counter()    
+    GD_out = optimizer_GD.optimize(tol=tol, iter_max=iter_max, eta=eta, random_state=seed, verbose=True)
+    time_GD = perf_counter() - tmp
+    
+    time["GD"].append(time_GD)
+    mse["GD"].append(GD_out[2])
+    epochs["GD"].append(GD_out[1])
+
+    lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
+    optimizer_SGD = StochasticGradientDescent(lin_reg, size_minibatches=5)
+    tmp = perf_counter()
+    SGD_out = optimizer_SGD.optimize(tol=tol, iter_max=iter_max, eta=eta, random_state=seed, verbose=True)
+    time_SGD = perf_counter() - tmp
+    
+    time["SGD"].append(time_SGD)
+    mse["SGD"].append(SGD_out[2])
+    epochs["SGD"].append(SGD_out[1])
+
+    lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
+    optimizer_RMS = RMSprop(lin_reg)
+    tmp = perf_counter()
+    RMS_out = optimizer_RMS.optimize(tol=tol, iter_max=iter_max, eta=eta, random_state=seed, verbose=True)
+    time_RMS = perf_counter() - tmp
+    
+    time["RMS"].append(time_RMS)
+    mse["RMS"].append(RMS_out[2])
+    epochs["RMS"].append(RMS_out[1])
 
 
-plt.show()
+# write to file
+for i in range(n_eta):
+    with open(f"./results/comp_optimization/GD/GD_eta_{i}.txt", "w") as file:
+        for epoch in range(1, epochs["GD"][i] + 2):
+            mse_write = mse["GD"][i][epoch - 1]
+            file.write(f"{epoch} {mse_write} \n")
+                
+for i in range(n_eta):
+    with open(f"./results/comp_optimization/SGD/SGD_eta_{i}.txt", "w") as file:
+        for epoch in range(1, epochs["SGD"][i] + 2):
+            mse_write = mse["SGD"][i][epoch - 1]
+            file.write(f"{epoch} {mse_write} \n")
+                
+for i in range(n_eta):
+    with open(f"./results/comp_optimization/RMS/RMS_eta_{i}.txt", "w") as file:
+        for epoch in range(1, epochs["RMS"][i] + 2):
+            mse_write = mse["RMS"][i][epoch - 1]
+            file.write(f"{epoch} {mse_write} \n")
 
+with open(f"./results/comp_optimization/time.txt", "w") as file:
+    for i, eta in enumerate(eta_vals):
+        time_GD = time["GD"][i]
+        time_SGD = time["SGD"][i]
+        time_RMS = time["RMS"][i]
+        file.write(f"{eta} {time_GD} {time_SGD} {time_RMS} \n")
 
+with open(f"./results/comp_optimization/newton.txt", "w") as file:
+    time_write = time["newton"][0]
+    file.write(f"{time_write} \n")
+    for epoch in range(1, epochs["newton"][0] + 2):
+        mse_write = mse["newton"][0][epoch - 1]
+        file.write(f"{epoch} {mse_write} \n")
