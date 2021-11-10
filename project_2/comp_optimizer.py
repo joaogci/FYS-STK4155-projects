@@ -50,7 +50,7 @@ eta_vals = np.array([0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1])
 n_eta = eta_vals.shape[0]
 
 # arrays
-methods = ["GD", "SGD", "RMS", "newton"]
+methods = ["GD", "SGD", "newton"]
 time = dict()
 mse = dict()
 epochs = dict()
@@ -97,17 +97,6 @@ for i, eta in enumerate(eta_vals):
     time["SGD"].append(time_SGD)
     mse["SGD"].append(SGD_out[2])
     epochs["SGD"].append(SGD_out[1])
-
-    lin_reg = LinearRegression(X_train, z_train, X_test, z_test)
-    optimizer_RMS = RMSprop(lin_reg)
-    tmp = perf_counter()
-    RMS_out = optimizer_RMS.optimize(tol=tol, iter_max=iter_max, eta=eta, random_state=seed, verbose=True)
-    time_RMS = perf_counter() - tmp
-    
-    time["RMS"].append(time_RMS)
-    mse["RMS"].append(RMS_out[2])
-    epochs["RMS"].append(RMS_out[1])
-
 
 # write to file
 for i in range(n_eta):
