@@ -4,7 +4,7 @@ from .CostFunction import CostFunction
 
 class LinearRegression(CostFunction):
     
-    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix):
+    def __init__(self, X_train: np.matrix, y_train: np.matrix, X_test: np.matrix, y_test: np.matrix, regularization: float = 0):
         """
             Initiates the LinearRegression class 
             Parameters
@@ -19,6 +19,8 @@ class LinearRegression(CostFunction):
         self.y_test = y_test
         self.n = self.y.shape[0]
         self.n_features = self.X.shape[1]
+        
+        self.reg = regularization
          
     def C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
@@ -27,8 +29,8 @@ class LinearRegression(CostFunction):
                 beta (np.matrix): features vector
         """
         if indx.size == 0:
-            return np.mean(np.power((self.X @ beta - self.y), 2))
-        return np.mean(np.power((self.X[indx] @ beta - self.y[indx]), 2))
+            return np.mean(np.power((self.X @ beta - self.y), 2)) + self.reg * np.linalg.norm(beta)
+        return np.mean(np.power((self.X[indx] @ beta - self.y[indx]), 2)) + self.reg * np.linalg.norm(beta)
 
     def grad_C(self, beta: np.matrix, indx: np.matrix = np.matrix([])) -> np.matrix:
         """
@@ -38,8 +40,8 @@ class LinearRegression(CostFunction):
                 beta (np.matrix): features vector
         """
         if indx.size == 0:
-            return (2 / self.n) * self.X.T @ (self.X @ beta - self.y) 
-        return (2 / self.y[indx].shape[0]) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx])
+            return (2 / self.n) * self.X.T @ (self.X @ beta - self.y) + self.reg * beta
+        return (2 / self.y[indx].shape[0]) * self.X[indx].T @ (self.X[indx] @ beta - self.y[indx]) + self.reg * beta
     
     def hess_C(self, beta: np.matrix) -> np.matrix:
         """
