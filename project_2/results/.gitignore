@@ -1,3 +1,6 @@
 
 # Ignore pickle results until they're ready to be pushed
 *.pickle
+
+# Adding the comparison between activation functions (activation_fn_comparisons.py)
+!activation_comparison_results.pickle
