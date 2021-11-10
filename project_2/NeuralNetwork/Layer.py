@@ -8,18 +8,20 @@ class Layer(ABC):
         Abstract class that can be inherited to define two different types of Layers (hidden and output).
     """
 
-    def __init__(self, size: int, activation_function: ActivationFunction, initial_bias: float = 1e-3):
+    def __init__(self, size: int, activation_function: ActivationFunction, initial_bias: float = 1e-3, initial_weights: list = None):
         """
             Initialises the layer with a custom activation function
             Parameters:
                 size (int): Number of nodes in the hidden layer
                 activation_function (ActivationFunction): The activation function to use for the layer
                 initial_bias (float): Initial value to initialize the bias to, typically zero or a small value (see https://cs231n.github.io/neural-networks-2/)
+                initial_weights (list|None): The endpoints to use for the weights distribution; should be a list of size 2
         """
         self._size = size
         self._activation_fn = activation_function
         self._weights = None
         self._initial_bias = initial_bias
+        self._initial_weights = initial_weights if initial_weights is not None else [-1, 1]
         self._biases = np.ones((self._size, 1)) * initial_bias
 
     def get_size(self) -> int:
@@ -38,7 +40,7 @@ class Layer(ABC):
                 input_size (int): Number of inputs the layer will be receiving, i.e. number of nodes in the previous layer
                 rng (np.random.Generator): Random number generator to use when selecting initial weights
         """
-        self._weights = rng.uniform(-1, 1, (self._size, input_size))
+        self._weights = rng.uniform(self._initial_weights[0], self._initial_weights[1], (self._size, input_size))
     
     def reset(self, rng: np.random.Generator):
         """
