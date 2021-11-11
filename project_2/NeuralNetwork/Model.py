@@ -368,4 +368,3 @@ class Model:
             plt.xlabel(param1)
             plt.ylabel(param2)
             plt.colorbar()
-            plt.show()
