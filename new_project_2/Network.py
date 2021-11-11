@@ -81,6 +81,7 @@ class NeuralNetwork():
                     layer.weights = layer.weights - learning_rate(epoch) * (grad_C_w[l] + regularization * layer.weights)
                     
             # mse.append(np.mean((self.predict(input_test) - target_test)**2))
+            # mse.append(np.sum(self.predict(input_test).round() == target_test)/target_test.shape[1])
             print(f" [ epoch: {epoch}/{epochs} ] ", end='\r')
         
         # print()
@@ -116,7 +117,7 @@ class Layer():
         self.act_function = activation_function[0]
         self.d_act_function = activation_function[1]
         
-        self.weights = rng.normal(0, 1, size=(self.n_nodes, self.n_nodes_prev_layer))
+        self.weights = rng.normal(0, 1, size=(self.n_nodes, self.n_nodes_prev_layer)) / self.n_nodes
         self.biases = rng.uniform(0, 1, size=(self.n_nodes, 1)) * 1e-3 # need to change later
         
     def get_nodes(self):

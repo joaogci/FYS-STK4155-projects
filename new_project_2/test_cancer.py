@@ -30,15 +30,17 @@ X_train = scaler.transform(X_train).T
 X_test = scaler.transform(X_test).T
 
 neural_network = NeuralNetwork(30, random_state=seed)
-neural_network.add_layer(5, sigmoid())
-neural_network.add_layer(20, sigmoid())
+neural_network.add_layer(50, ReLU())
+neural_network.add_layer(50, leakyReLU(alpha=0.5))
+neural_network.add_layer(50, ReLU())
 neural_network.add_layer(1, sigmoid())
 
 epochs = 1000
 size_batches = 5
 regularization = 1e-2
 learning_rate = lambda x: 0.01
-neural_network.train(X_train, y_train, grad_cross_entropy, epochs, learning_rate, size_batches, regularization)
+neural_network.train(X_train, y_train, grad_cross_entropy, epochs, learning_rate, 
+                     size_batches, regularization, input_test=X_test, target_test=y_test)
 
 pred = neural_network.predict(X_test)
 pred = pred.round()
