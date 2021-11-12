@@ -75,13 +75,14 @@ class Layer(ABC):
         z = (self._weights @ inputs.T + self._biases).T
         return self._activation_fn(z), z
 
-    def backward(self, activated_inputs: np.matrix, inputs: np.matrix, error: np.matrix, learning_rate: float, regularization: float) -> np.matrix:
+    def backward(self, activated_inputs: np.matrix, inputs: np.matrix, error: np.matrix, prev_activation_fn: ActivationFunction, learning_rate: float, regularization: float) -> np.matrix:
         """
             Gradient descent to optimize the layer
             Parameters:
                 activated_inputs (np.matrix): The inputs the layer receives
                 inputs (np.matrix): The inputs the layer receives (no activation fn)
                 error (np.matrix): Computed error estimate for the layer
+                prev_activation_fn (ActivationFunction): Activation function of the previous layer (l-1)
                 learning_rate (float): Learning rate η to use to update the weights & biases
                 regularization (float): Regularization parameter λ to control the rate of descent
             Returns:
@@ -97,7 +98,7 @@ class Layer(ABC):
         self._biases -= learning_rate * bias_gradient.T
 
         # Return the estimated error in inputs
-        return np.multiply((error @ self._weights), self._activation_fn.d(inputs))
+        return np.multiply((error @ self._weights), prev_activation_fn.d(inputs))
 
 
 

@@ -182,7 +182,8 @@ class Model:
             prev_layer_err = np.multiply(self.cost_function.grad_C_nn(targs, a_h[-1]), self.layers[-1]._activation_fn.d(z_h[-1]))
             for j in range(len(self.layers)-1, -1, -1): # for (let i = len(self.layers) - 1; i >= 0; --i)       (python is fucking garbage)
                 # Update layer
-                prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, learning_rate, regularization)
+                prev_activation_fn = self.layers[j-1 if j > 0 else 0]._activation_fn
+                prev_layer_err = self.layers[j].backward(a_h[j], z_h[j], prev_layer_err, prev_activation_fn, learning_rate, regularization)
         return True
     
 
