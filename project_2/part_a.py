@@ -49,17 +49,17 @@ def main():
            eta=0.001, batch_vals=[1, 5, 10, 50, 100])
     
     # 3) -> for SGD and OLS perform grid search for eta and size of batches
-    for epochs in [100, 500, 1000, 5000, 10000]:
+    for epochs in [100, 500, 1000]:
         part_3(X_train, X_test, y_train, y_test, seed, epochs=epochs, 
-            eta_vals=[1e-1, 1e-2, 1e-3, 1e-4, 1e-5], 
+            eta_vals=[1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], 
             batch_vals=[1, 5, 10, 50, 100])
     
     # 4) -> for SGD and Ridge perform grid search for eta and lambda
     #       size of batches is 5
-    for epochs in [100, 500, 1000, 5000, 10000]:
+    for epochs in [100, 500, 1000]:
         part_4(X_train, X_test, y_train, y_test, seed, epochs=epochs, 
-            eta_vals=[1e-1, 1e-2, 1e-3, 1e-4, 1e-5], batch_size=5, 
-            reg_vals=[0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5])
+            eta_vals=[1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], batch_size=5, 
+            reg_vals=[1e2, 1e1, 0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5])
 
 
 def part_1(X_train, X_test, y_train, y_test, seed, epochs, eta_1, eta_2, batch_size):
@@ -114,7 +114,6 @@ def part_2(X_train, X_test, y_train, y_test, seed, epochs, eta, batch_vals):
     plt.savefig(f"./figs/part_a/2_mse_batch_size_epochs_{epochs}_eta_{eta}.pdf", dpi=400)
 
 def part_3(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_vals):
-
     mse = np.zeros((len(eta_vals), len(batch_vals)))
     
     for eta_i, eta in enumerate(eta_vals):
@@ -124,13 +123,15 @@ def part_3(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_vals)
             out_SGD = optimizer_SGD.optimize(iter_max=epochs, eta=eta, random_state=seed, tol=0, verbose=True)
             
             mse[eta_i, batch_i] = mean_squared_error(y_test, X_test @ out_SGD[0])
-     
+    
     sns.set()
     fig, ax = plt.subplots()
-    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis")
-    ax.set_title(f"Training MSE for SGD with {epochs} epochs")
+    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis", cbar_kws={'label': 'MSE'})
+    ax.set_title(f"Test MSE for SGD with {epochs} epochs")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("batch size")
+    ax.set_yticklabels(eta_vals)
+    ax.set_xticklabels(batch_vals)
     
     plt.savefig(f"./figs/part_a/3_mse_eta_size_batch_epochs_{epochs}.pdf", dpi=400)
     
@@ -147,10 +148,12 @@ def part_4(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_size,
      
     sns.set()
     fig, ax = plt.subplots()
-    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis")
-    ax.set_title(f"Training MSE for SGD with {epochs} epochs")
+    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis", cbar_kws={'label': 'MSE'})
+    ax.set_title(f"Test MSE for SGD with {epochs} epochs")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
+    ax.set_yticklabels(eta_vals)
+    ax.set_xticklabels(reg_vals)
     
     plt.savefig(f"./figs/part_a/4_mse_eta_reg_epochs_{epochs}.pdf", dpi=400)
 
