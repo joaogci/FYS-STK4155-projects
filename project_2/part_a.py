@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from time import perf_counter
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
@@ -61,6 +62,10 @@ def main():
             eta_vals=[1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], batch_size=5, 
             reg_vals=[1e2, 1e1, 0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5])
 
+    # 5) -> for SGD and GD compute time per epoch for the same two MSE values as part_1
+    #       size of batches is 5
+    part_5(X_train, X_test, y_train, y_test, seed, epochs=200, 
+           eta_1=0.01, eta_2=0.001, batch_size=5, n_runs=100)
 
 def part_1(X_train, X_test, y_train, y_test, seed, epochs, eta_1, eta_2, batch_size):
 
@@ -156,6 +161,43 @@ def part_4(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_size,
     ax.set_xticklabels(reg_vals)
     
     plt.savefig(f"./figs/part_a/4_mse_eta_reg_epochs_{epochs}.pdf", dpi=400)
+    
+def part_5(X_train, X_test, y_train, y_test, seed, epochs, eta_1, eta_2, batch_size, n_runs):
+    time_epoch = np.zeros((n_runs, 4))
+    
+    for run in range(n_runs):    
+        lin_reg = LinearRegression(X_train, y_train, X_test, y_test)
+        
+        optimizer_SGD = StochasticGradientDescent(lin_reg, size_minibatches=batch_size)
+        tmp = perf_counter()
+        out_SGD_1 = optimizer_SGD.optimize(iter_max=epochs, eta=eta_1, random_state=seed, tol=0, verbose=True)
+        time_1 = perf_counter() - tmp
+        
+        optimizer_SGD = StochasticGradientDescent(lin_reg, size_minibatches=batch_size)
+        tmp = perf_counter()
+        out_SGD_2 = optimizer_SGD.optimize(iter_max=epochs, eta=eta_2, random_state=seed, tol=0, verbose=True)
+        time_2 = perf_counter() - tmp
+        
+        time_epoch[run, 0] = time_1 / out_SGD_1[1]
+        time_epoch[run, 1] = time_2 / out_SGD_2[1]
+        
+        lin_reg = LinearRegression(X_train, y_train, X_test, y_test)
+        
+        optimizer_GD = GradientDescent(lin_reg)
+        tmp = perf_counter()
+        out_GD_1 = optimizer_GD.optimize(iter_max=epochs, eta=eta_1, random_state=seed, tol=0, verbose=True)
+        time_1 = perf_counter() - tmp
+        
+        optimizer_GD = GradientDescent(lin_reg)
+        tmp = perf_counter()
+        out_GD_2 = optimizer_GD.optimize(iter_max=epochs, eta=eta_2, random_state=seed, tol=0, verbose=True)
+        time_2 = perf_counter() - tmp
+
+        time_epoch[run, 2] = time_1 / out_GD_1[1]
+        time_epoch[run, 3] = time_2 / out_GD_2[1]
+    
+    print(np.mean(time_epoch, axis=0))
+        
 
 if __name__ == "__main__":
     main()
