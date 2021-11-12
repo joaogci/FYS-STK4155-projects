@@ -18,7 +18,7 @@ n = 1000
 noise = 0.1
 seed = 0
 epochs = 500
-n_nodes = 1000
+n_nodes = 400
 max_n_layers = 20 # 1 layer of 1000 nodes up to 20 layers of 50 nodes each
 activation_fn = Sigmoid()
 learning_rate = 0.0005
@@ -77,5 +77,6 @@ plt.figure()
 plt.plot(range(1, max_n_layers+1), mses)
 plt.xlabel('number of hidden layers')
 plt.ylabel('MSE')
-if __name__ == "__main__":
-    plt.show()
+plt.title(f"Testing MSE {epochs} epochs, {n_nodes} nodes")
+
+plt.savefig("./figs/part_c/3_mse_layers.pdf", dpi=400)

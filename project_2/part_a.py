@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from time import perf_counter
 import seaborn as sns
 
 from sklearn.model_selection import train_test_split
@@ -49,18 +50,22 @@ def main():
            eta=0.001, batch_vals=[1, 5, 10, 50, 100])
     
     # 3) -> for SGD and OLS perform grid search for eta and size of batches
-    for epochs in [100, 500, 1000, 5000, 10000]:
+    for epochs in [100, 500, 1000]:
         part_3(X_train, X_test, y_train, y_test, seed, epochs=epochs, 
-            eta_vals=[1e-1, 1e-2, 1e-3, 1e-4, 1e-5], 
+            eta_vals=[1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], 
             batch_vals=[1, 5, 10, 50, 100])
     
     # 4) -> for SGD and Ridge perform grid search for eta and lambda
     #       size of batches is 5
-    for epochs in [100, 500, 1000, 5000, 10000]:
+    for epochs in [100, 500, 1000]:
         part_4(X_train, X_test, y_train, y_test, seed, epochs=epochs, 
-            eta_vals=[1e-1, 1e-2, 1e-3, 1e-4, 1e-5], batch_size=5, 
-            reg_vals=[0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5])
+            eta_vals=[1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], batch_size=5, 
+            reg_vals=[1e2, 1e1, 0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5])
 
+    # 5) -> for SGD and GD compute time per epoch for the same two MSE values as part_1
+    #       size of batches is 5
+    part_5(X_train, X_test, y_train, y_test, seed, epochs=200, 
+           eta_1=0.01, eta_2=0.001, batch_size=5, n_runs=100)
 
 def part_1(X_train, X_test, y_train, y_test, seed, epochs, eta_1, eta_2, batch_size):
 
@@ -114,7 +119,6 @@ def part_2(X_train, X_test, y_train, y_test, seed, epochs, eta, batch_vals):
     plt.savefig(f"./figs/part_a/2_mse_batch_size_epochs_{epochs}_eta_{eta}.pdf", dpi=400)
 
 def part_3(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_vals):
-
     mse = np.zeros((len(eta_vals), len(batch_vals)))
     
     for eta_i, eta in enumerate(eta_vals):
@@ -124,13 +128,15 @@ def part_3(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_vals)
             out_SGD = optimizer_SGD.optimize(iter_max=epochs, eta=eta, random_state=seed, tol=0, verbose=True)
             
             mse[eta_i, batch_i] = mean_squared_error(y_test, X_test @ out_SGD[0])
-     
+    
     sns.set()
     fig, ax = plt.subplots()
-    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis")
-    ax.set_title(f"Training MSE for SGD with {epochs} epochs")
+    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis", cbar_kws={'label': 'MSE'})
+    ax.set_title(f"Test MSE for SGD with {epochs} epochs")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("batch size")
+    ax.set_yticklabels(eta_vals)
+    ax.set_xticklabels(batch_vals)
     
     plt.savefig(f"./figs/part_a/3_mse_eta_size_batch_epochs_{epochs}.pdf", dpi=400)
     
@@ -147,12 +153,51 @@ def part_4(X_train, X_test, y_train, y_test, seed, epochs, eta_vals, batch_size,
      
     sns.set()
     fig, ax = plt.subplots()
-    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis")
-    ax.set_title(f"Training MSE for SGD with {epochs} epochs")
+    sns.heatmap(mse, annot=True, ax=ax, cmap="viridis", cbar_kws={'label': 'MSE'})
+    ax.set_title(f"Test MSE for SGD with {epochs} epochs")
     ax.set_ylabel("$\eta$")
     ax.set_xlabel("$\lambda$")
+    ax.set_yticklabels(eta_vals)
+    ax.set_xticklabels(reg_vals)
     
     plt.savefig(f"./figs/part_a/4_mse_eta_reg_epochs_{epochs}.pdf", dpi=400)
+    
+def part_5(X_train, X_test, y_train, y_test, seed, epochs, eta_1, eta_2, batch_size, n_runs):
+    time_epoch = np.zeros((n_runs, 4))
+    
+    for run in range(n_runs):    
+        lin_reg = LinearRegression(X_train, y_train, X_test, y_test)
+        
+        optimizer_SGD = StochasticGradientDescent(lin_reg, size_minibatches=batch_size)
+        tmp = perf_counter()
+        out_SGD_1 = optimizer_SGD.optimize(iter_max=epochs, eta=eta_1, random_state=seed, tol=0, verbose=True)
+        time_1 = perf_counter() - tmp
+        
+        optimizer_SGD = StochasticGradientDescent(lin_reg, size_minibatches=batch_size)
+        tmp = perf_counter()
+        out_SGD_2 = optimizer_SGD.optimize(iter_max=epochs, eta=eta_2, random_state=seed, tol=0, verbose=True)
+        time_2 = perf_counter() - tmp
+        
+        time_epoch[run, 0] = time_1 / out_SGD_1[1]
+        time_epoch[run, 1] = time_2 / out_SGD_2[1]
+        
+        lin_reg = LinearRegression(X_train, y_train, X_test, y_test)
+        
+        optimizer_GD = GradientDescent(lin_reg)
+        tmp = perf_counter()
+        out_GD_1 = optimizer_GD.optimize(iter_max=epochs, eta=eta_1, random_state=seed, tol=0, verbose=True)
+        time_1 = perf_counter() - tmp
+        
+        optimizer_GD = GradientDescent(lin_reg)
+        tmp = perf_counter()
+        out_GD_2 = optimizer_GD.optimize(iter_max=epochs, eta=eta_2, random_state=seed, tol=0, verbose=True)
+        time_2 = perf_counter() - tmp
+
+        time_epoch[run, 2] = time_1 / out_GD_1[1]
+        time_epoch[run, 3] = time_2 / out_GD_2[1]
+    
+    print(np.mean(time_epoch, axis=0))
+        
 
 if __name__ == "__main__":
     main()
