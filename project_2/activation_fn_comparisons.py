@@ -51,7 +51,7 @@ for i, activation_fn in enumerate(activation_fns):
 
     # Train network
     start = time()
-    train_mse, test_mse, mses = nn.train(X_train, z_train, learning_rate, sgd=True, epochs=epochs, testing_inputs=X_test, testing_targets=z_test, verbose=False, minibatch_size=5, return_errs=True)
+    train_mse, test_mse, mses = nn.train(X_train, z_train, learning_rate, sgd=True, epochs=epochs, testing_inputs=X_test, testing_targets=z_test, verbose=True, minibatch_size=5, return_errs=True)
     time_taken = time() - start
 
     # Write results
@@ -74,6 +74,10 @@ with open('results/activation_comparison.pickle', 'wb') as handle:
 plt.figure()
 styles = ['--', '-', '--', '--', '.']
 for i, mses in enumerate(mse_lists):
-    plt.plot(range(0, len(mses), 5), mses[::5], styles[i], label=activation_fns[i].name(), alpha=0.9)
+    plt.plot(range(0, len(mses), 5), mses[::5], styles[i], label=activation_fns[i].name())
+plt.title("Testing MSE for different activation functions")
+plt.xlabel("epochs")
+plt.ylabel("MSE")
 plt.legend()
-plt.show()
+
+plt.savefig("./figs/part_c/1_mse_epochs_activ_funcs.pdf", dpi=400)
