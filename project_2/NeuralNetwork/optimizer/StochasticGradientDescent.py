@@ -20,7 +20,7 @@ class StochasticGradientDescent(Optimizer):
         self.n_batches = cost_function.n // size_minibatches
         self.size_minibatches = size_minibatches
     
-    def optimize(self, eta: float, random_state: int, tol: float = 1e-7, iter_max: int = int(1e5), verbose: bool = False) -> np.matrix:
+    def optimize(self, eta: float, random_state: int, regularization: float = 0, tol: float = 1e-7, iter_max: int = int(1e5), verbose: bool = False) -> np.matrix:
         """
             Finds the minimum of the inpute CostFunction using the analytical expression for the gradient.
             Parameters:
@@ -45,7 +45,7 @@ class StochasticGradientDescent(Optimizer):
             for i in range(self.n_batches):
                 k = self.rng.integers(self.n_batches)
                 grad = self.cost_function.grad_C(theta, indx=np.arange(k*self.size_minibatches, (k+1)*self.size_minibatches, 1))
-                theta = theta - self.eta * grad
+                theta = theta - self.eta * (grad + regularization * theta)
                 
             error = self.cost_function.error(theta)
             error_list.append(error)
