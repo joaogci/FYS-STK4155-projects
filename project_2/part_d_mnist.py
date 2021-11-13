@@ -33,10 +33,10 @@ X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
 # params
-epochs = 1000
+epochs = 500
 size_batches = 5
-eta_vals = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
-reg_vals = [0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+eta_vals = [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+reg_vals = [1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0]
 
 accuracy = np.zeros((len(eta_vals), len(reg_vals)))
 
