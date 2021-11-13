@@ -21,7 +21,7 @@ epochs = 500
 n_nodes = 400
 max_n_layers = 20 # 1 layer of 1000 nodes up to 20 layers of 50 nodes each
 activation_fn = Sigmoid()
-learning_rate = 0.0005
+learning_rate = 0.001
 
 # init data
 rng = np.random.default_rng(np.random.MT19937(seed=seed))
@@ -46,7 +46,7 @@ mses = np.ndarray(max_n_layers)
 for j, n_layers in enumerate(range(1, max_n_layers+1)):
 
     # Prepare network
-    n_nodes_per_layer = int(n_nodes / n_layers)
+    n_nodes_per_layer = 20
     nn = Model(2, cost_function=cost_fn, random_state=seed)
     for i in range(0, n_layers):
         nn.add_layer(HiddenLayer(n_nodes_per_layer, activation_function=activation_fn))
@@ -77,6 +77,6 @@ plt.figure()
 plt.plot(range(1, max_n_layers+1), mses)
 plt.xlabel('number of hidden layers')
 plt.ylabel('MSE')
-plt.title(f"Testing MSE {epochs} epochs, {n_nodes} nodes")
+plt.title(f"Testing MSE {epochs} epochs, 20 nodes per layer")
 
 plt.savefig("./figs/part_c/3_mse_layers.pdf", dpi=400)
