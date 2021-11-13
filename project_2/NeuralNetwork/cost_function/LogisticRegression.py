@@ -62,10 +62,10 @@ class LogisticRegression(CostFunction):
         return np.sum((self.sigmoid(self.X_test @ beta)).round() == self.y_test) / self.y_test.shape[0]
 
     def grad_C_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
-        return - (y_data - self.sigmoid(y_tilde)) / self.n
+        return - (y_data - y_tilde) / y_tilde.shape[1]
     
     def error_nn(self, y_data: np.matrix, y_tilde: np.matrix) -> np.matrix:
-        return np.sum(y_tilde.round() == y_data.round()) / y_tilde.size
+        return np.sum(y_tilde.round() == y_data.round()) /  y_tilde.size
     
     def error_name(self) -> str:
         """

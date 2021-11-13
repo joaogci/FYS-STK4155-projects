@@ -1,0 +1,59 @@
+from types import AsyncGeneratorType
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+
+seed = 1337
+
+cancer_data = load_breast_cancer()
+
+data = cancer_data.data
+target = cancer_data.target
+
+X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.25, random_state=seed)
+
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+
+# params
+epochs = 500
+size_batches = 5
+eta_vals = [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+reg_vals = [1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0]
+
+accuracy = np.zeros((len(eta_vals), len(reg_vals)))
+
+for eta_i, eta in enumerate(eta_vals):
+    for reg_i, regularization in enumerate(reg_vals):
+        print()
+        print(f"eta: {eta_i + 1}/{len(eta_vals)}; reg: {reg_i + 1}/{len(reg_vals)}")
+        
+        neural_network = MLPClassifier(hidden_layer_sizes=(20, 20), activation="logistic", 
+                                       solver="sgd", alpha=regularization, 
+                                       batch_size=size_batches, learning_rate_init=eta, 
+                                       learning_rate="constant", max_iter=epochs, random_state=seed,
+                                       tol=0, verbose=True)
+        neural_network.fit(X_train, y_train)
+
+        pred = neural_network.predict(X_test)
+        pred = pred.round()
+        accuracy[eta_i, reg_i] = np.sum(pred == y_test)/y_test.shape[0]
+
+sns.set()
+
+fig, ax = plt.subplots()
+sns.heatmap(accuracy, annot=True, ax=ax, cmap="viridis", cbar_kws={'label': 'Accuracy'})
+ax.set_title("Test Accuracy")
+ax.set_ylabel("$\eta$")
+ax.set_xlabel("$\lambda$")
+ax.set_xticklabels(reg_vals)
+ax.set_yticklabels(eta_vals)
+plt.savefig("./figs/part_d/2_grid_search_cancer.pdf", dpi=400)
+
