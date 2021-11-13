@@ -18,7 +18,7 @@ from functions import *
 # params
 n = 1000
 noise = 0.1
-seed = 0
+seed = 1337
 epochs = 1000
 n_nodes = 30
 learning_rates = np.array([1e1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5])
@@ -42,10 +42,10 @@ z_train, z_test = np.matrix(z_train).T, np.matrix(z_test).T
 cost_fn = LinearRegression(X_train, z_train, X_test, z_test)
 
 # params
-epochs = 500
+epochs = 1000
 size_batches = 5
 eta_vals = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
-reg_vals = [1e1, 0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
+reg_vals = [1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0]
 
 mse_sig = np.zeros((len(eta_vals), len(reg_vals)))
 mse_relu = np.zeros((len(eta_vals), len(reg_vals)))
