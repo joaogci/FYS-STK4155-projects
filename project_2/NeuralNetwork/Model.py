@@ -166,8 +166,8 @@ class Model:
 
         # Iterate over list of inputs/targets if passing more than 1
         for i in range(inputs.shape[0]):
-            ins = inputs[i]
-            targs = targets[i]
+            ins = np.matrix(inputs[i])
+            targs = np.matrix(targets[i])
 
             # Feed forward once to obtain outputs
             a_h, z_h = self.feed_forward(ins, training=True)
