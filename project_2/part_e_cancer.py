@@ -27,7 +27,7 @@ sigmoid = lambda z: 1 / (1 + np.exp(- z))
 epochs = 500
 size_batches = 5
 eta_vals = [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
-reg_vals = [1e2, 1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0]
+reg_vals = [1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0]
 
 accuracy = np.zeros((len(eta_vals), len(reg_vals)))
 

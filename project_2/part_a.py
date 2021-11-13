@@ -60,7 +60,7 @@ def main():
     for epochs in [100, 500, 1000]:
         part_4(X_train, X_test, y_train, y_test, seed, epochs=epochs, 
             eta_vals=[1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5], batch_size=5, 
-            reg_vals=[1e2, 1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0])
+            reg_vals=[1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0])
 
     # 5) -> for SGD and GD compute time per epoch for the same two MSE values as part_1
     #       size of batches is 5
