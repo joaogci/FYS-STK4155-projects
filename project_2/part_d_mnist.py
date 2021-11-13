@@ -18,14 +18,11 @@ digits = load_digits()
 data = digits.data
 target = digits.target
 
-X_train, X_test, y_train_wrong_dim, y_test_wrong_dim = train_test_split(data, target, test_size=0.25, random_state=seed)
+X_train, X_test, y_train_wrong_dim, y_test = train_test_split(data, target, test_size=0.25, random_state=seed)
 
 y_train = np.zeros((y_train_wrong_dim.shape[0],10))
 for i in range(len(y_train_wrong_dim)):
     y_train[ i, y_train_wrong_dim[i] ] = 1
-y_test = np.zeros((y_test_wrong_dim.shape[0],10))
-for i in range(len(y_test_wrong_dim)):
-    y_test[ i, y_test_wrong_dim[i] ] = 1
 
 scaler = StandardScaler()
 scaler.fit(X_train)
@@ -33,11 +30,13 @@ X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
 # params
-epochs = 250
+epochs = 30
 size_batches = 5
 eta_vals = [1, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5]
 reg_vals = [1e1, 1e0, 1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 0]
 
+eta_vals = [1e-2]
+reg_vals = [0]
 accuracy = np.zeros((len(eta_vals), len(reg_vals)))
 
 for eta_i, eta in enumerate(eta_vals):
@@ -53,7 +52,7 @@ for eta_i, eta in enumerate(eta_vals):
         neural_network.train(X_train, y_train, eta, epochs=epochs, minibatch_size=size_batches, regularization=regularization)
 
         pred = neural_network.feed_forward(X_test)
-        pred = pred.round()
+        pred = np.argmax(pred, axis=1)
         accuracy[eta_i, reg_i] = np.sum(pred == y_test)/y_test.shape[0]
 
 sns.set()
