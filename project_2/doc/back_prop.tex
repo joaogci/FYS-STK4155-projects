@@ -1,0 +1,105 @@
+\section{Backpropagation}
+\label{sec:backprop}
+
+Define \(z^{(l)}=W^{(l})a^{(l-1)}+b^{(l)}\), i.e. the weighted sum of the activation of the previous layer, and \(a^{(l)}=\sigma^{(l)}(z^{(l)})\), where \(\sigma^{(l)}\) is the activation function of layer \(l\). Assume further that the cost fucntion can be written as
+\begin{align*}
+    &C(a^{(L)}_1(x_1),\ldots,a^{(L)}_1(x_n),a^{(L)}_2(x_1),\ldots,a^{(L)}_2(x_n),\ldots,a^{(L)}_{n_L}(x_n))=\sum_{i=1}^n\sum_{k_L}^{n_L}C_{i,k_L}(a^{(L)}_{k_L}(x_i)),
+\end{align*}
+where \(a^{(L)}_{k_L}(x_i)\) is the output of the activation of node \(a^{(L)}_{k_L}\) with respect to the datapoint \(x_i\), and \(C_{i,n_L}\) is the cost function using only the output \(a^{(L)}_{k_L}\). Denoting \(\delta^{(l)}_j:=\frac{\partial C}{\partial z^{(l)}_j}\), backpropagation consist of computing
+\begin{align}
+    \frac{\partial C}{\partial z^{(L)}_j} &= \frac{\partial C}{\partial a^{(L)}_j}\sigma^{(L)\;\prime}(z^{(L)}_i), \label{eq:backprop1}
+    \\
+    \frac{\partial C}{\partial z^{(l)}_j} &= \sigma^{(l)\;\prime}(z^{(l)}_j)\cdot\sum_{i=1}^{n_l}W^{(l+1)}_{ij}\delta^{(l+1)}_i, \label{eq:backprop2}
+    \\
+    \frac{\partial C}{\partial b^{(l)}_j} &= \delta^{(l)}_j, \label{eq:backprop3}
+    \\
+    \frac{\partial C}{\partial W^{(l)}_{jk}} &= a^{(l-1)}_k\delta^{(l)}_j. \label{eq:backprop4}
+\end{align}
+We derive these equations for a single data point. It is from this easy to generalize to the full cost function. Let \(n_l\) denote the number of nodes in layer \(l\), \(\sigma^{(l)}\) be the activation function of layer \(l\), \(a^{(l)}_i\) be the activation \(\sigma^{(l)}(z^{(l)}_i)\) of node \(i\) in layer \(l\) (for \(l=0\) the activation will be the input), \(z^{(l)}_i=\sum_{j=1}^{n_l}W_{ij}^{(l)}a^{(l-1)}_j+b^{(l)}_i\) be the weighted sum of the inputs to node \(i\) in layer \(l\). We let \(z^{(l)}=(z^{(l)}_1,\ldots,z^{(l)}_{n_l})^T\), where \(\sigma^{(l)}(z^{(l)})=(\sigma^{(l)}(z^{(l)}_1),\ldots,\sigma^{(l)}(z^{(l)}_{n_l}))^T\), and \(a^{(l)}=(a^{(l)}_1,\ldots,a^{(l)}_{n_l})^T\). Denote the final layer by \(L\). Notice that we can write the cost function as \(C(a^{(L)})=\sum_{k_L=1}^{n_L}C_{k_L}(a^{(L)}_{k_L})\). We begin by computing
+\begin{align*}
+    \frac{\partial C}{\partial z^{(L)}_i}=\sum_{k_L=1}^{n_L}\frac{\partial}{\partial z^{(L)}_i}C_{k_L}(a^{(L)}_{k_L})=\sum_{k_L=1}^{n_L}\frac{\partial C_{k_L}}{\partial a^{(L)}_{k_L}}\frac{\partial a^{(L)}_{k_L}}{\partial z^{(L)}_i}&=\frac{\partial C_i}{\partial a^{(L)}_i}\sigma^{(L)\;\prime}(z^{(L)}_i)
+    \\
+    &=\sigma^{(L)\;\prime}(z^{(L)}_i)\sum_{k_L=1}^{n_L}\frac{\partial C_{k_L}}{\partial a^{(L)}_i}=\frac{\partial C}{\partial a^{(L)}_i}\sigma^{(L)\;\prime}(z^{(L)}_i):=\delta^{(L)}_i
+\end{align*}
+In general we will have
+\begin{equation*}
+    \frac{\partial z^{(l)}_i}{\partial z^{(l-1)}_j}
+    =\frac{\partial}{\partial z^{(l-1)}_j}\left(\sum_{k_{l-1}}^{n_{l-1}}W_{ik_{l-1}}^{(l)}\sigma^{(l-1)}(z^{(l-1)}_{k_{l-1}})+b^{(l)}_i\right)
+    =W_{ij}^{(l)}\sigma^{(l-1)\;\prime}(z^{(l-1)}_j).
+\end{equation*}
+To see how we get to the general case, we look at how we can compute \(\delta^{(L-1)}_i\) and \(\delta^{(L-2)}_i\). We get
+\begin{align*}
+    \frac{\partial C}{\partial z^{(L-1)}_i}
+    &=\sum_{k_L=1}^{n_L}\frac{\partial C_{k_L}(\sigma^{(L)}(z^{(L)}_{k_L}))}{\partial z^{(L-1)}_i}
+    =\sum_{k_L=1}^{n_L}\frac{\partial C_{k_L}(\sigma^{(L)}(z^{(L)}_{k_L}))}{\partial z^{(L)}_{k_L}}\frac{\partial z^{(L)}_{k_L}}{\partial z^{(L-1)}_i}
+    =\sum_{k_L=1}^{n_L}\overbrace{\frac{\partial C_{k_L}(a^{(L)}_{k_L})}{\partial z^{(L)}_{k_L}}}^{=\delta^{(L)}_{k_L}}\frac{\partial z^{(L)}_{k_L}}{\partial z^{(L-1)}_i}
+    \\
+    &=\sum_{k_L=1}^{n_L}\delta^{(L)}_{k_L}\frac{\partial}{\partial z^{(L-1)}_i}\left(\sum_{k_{L-1}}^{n_{L-1}}W_{k_Lk_{L-1}}^{(L)}\sigma^{(L-1)}(z^{(L-1)}_{k_{L-1}})+b^{(L)}_{k_L}\right)=\sum_{k_L}^{n_L}\delta^{(L)}_{k_L}W_{k_Li}^{(L)}\sigma^{(L-1)\;\prime}(z^{(L-1)}_i)
+    \\
+    &=\left((W^{(L)})^T\delta^{(L)}\right)_i\sigma^{(L-1)\;\prime}(z^{(L-1)}_i):=\delta^{(L-1)}_i.
+\end{align*}
+Next, we get
+\begin{align*}
+    \frac{\partial C}{\partial z^{(L-2)}_i}
+    &=\sum_{k_L=1}^{n_L}\frac{\partial}{\partial z^{(L-2)}_i}C_{k_L}\Bigg(\sigma^{(L)}\underbrace{\Big(\sum_{k_{L-1}}^{n_{L-1}}W_{k_Lk_{L-1}}^{(L)}\sigma^{(L-1)}\overbrace{\big(\sum_{k_{L-2}}^{n_{L-2}}W_{k_{L-1}k_{L-2}}^{(L-1)}\sigma^{(L-2)}(z^{(L-2)}_{k_{L-2}})+b^{(L-1)}_{k_{L-1}}\big)}^{=z^{(L-1)}_{k_{L-1}}}+b^{(L)}_{k_L}\Big)}_{=z^{(L)}_{k_L}}\Bigg)
+    \\
+    &=\sum_{k_L=1}^{n_L}\overbrace{\frac{\partial C_{k_L}}{\partial z^{(L)}_{k_L}}}^{=\delta^{(L)}_{k_L}}\frac{\partial z^{(L)}_{k_L}}{\partial z^{(L-2)}_i}
+    =\sum_{k_L=1}^{n_L}\delta^{(L)}_{k_L}\sum_{k_{L-1}}^{n_{L-1}}W^{(L)}_{k_Lk_{l-1}}\sigma^{(L-1)\;\prime}(z^{(L-1)}_{k_{L-1}})\frac{\partial z^{(L-1)}_{k_{L-1}}}{\partial z^{(L-2)}_i}
+    \\
+    &=\sum_{k_{L-1}}^{n_{L-1}}\frac{\partial z^{(L-1)}_{k_{L-1}}}{\partial z^{(L-2)}_i}\overbrace{\sum_{k_L=1}^{n_L}\delta^{(L)}_{k_L}W^{(L)}_{k_Lk_{l-1}}\sigma^{(L-1)\;\prime}(z^{(L-1)}_{k_{L-1}})}^{=\delta^{(L-1)}_{k_{L-1}}}
+    =\sum_{k_{L-1}}^{n_{L-1}}W^{(L-1)}_{k_{L-1}i}\sigma^{(L-2)\;\prime}(z^{(L-2)}_i)\delta^{(L-1)}_{k_{L-1}}
+    \\
+    &=\left((W^{(L-1)})^T\delta^{(L-1)}_{k_{L-1}}\right)_i\sigma^{(L-2)\;\prime}(z^{(L-2)}_i):=\delta^{(L-1)}_i.
+\end{align*}
+We now see the pattern: Applying the chain rule with \(z^k_i\) for all \(k=L,\ldots,l+1\) and all nodes \(i\) in the respective layer, we are able to find \(\delta^k_i\) after we change the order of summation. The mathematical derivation is
+\begin{small}
+\begin{align*}
+    &\frac{\partial C}{\partial z^{(l)}_i}=\sum_{k_L=1}^L\delta^{(L)}_{k_L}\sum_{k_{L-1}=1}^{n_{L-1}}W^{(L)}_{k_Lk_{L-1}}\sigma^{(L-1)\;\prime}(z^{(L-1)}_{k_{L-1}})\sum_{k_{L-2}=1}^{n_{L-2}}\ldots\sum_{k_{l+1}=1}^{n_{l+1}}W^{(l+1)}_{k_{l+2}k_{l+1}}\sigma^{(l+1)\;\prime}(z^{(l+1)}_{k_{l+1}})\frac{\partial z^{(l+1)}_{k_{l+1}}}{\partial z^{(l)}_i}
+    \\
+    &=\sum_{k_{l+1}=1}^{n_{l+1}}\underbrace{\ldots\overbrace{\sum_{k_{L-1}=1}^{n_{L-1}}\overbrace{\sum_{k_L=1}^{n_L}\delta^{(L)}_{k_L}W^{(L)}_{k_Lk_{L-1}}\sigma^{(L-1)\prime}(z^{(L-1)}_{k_{L-1}})}^{\delta^{(l+1)}_{k_{l+1}}}W^{(L-1)}_{k_{L-1}k_{L-2}}\sigma^{(L-2)\prime}(z^{(L-2)}_{k_{L-2}})}^{\delta^{(l+1)}_{k_{l+1}}}\ldots W^{(l+2)}_{k_{l+2}k_{l+1}}\sigma^{(l+1)\prime}(z^{(l+1)}_{k_{l+1}})}_{\delta^{(l+1)}_{k_{l+1}}}W^{(l+1)}_{k_{l+1}k_{l}}\sigma^{(l)\prime}(z^{(l)}_i)
+    \\
+    &=\sum_{k_{l+1}=1}^{n_{l+1}}\delta^{(l+1)}_{k_{l+1}}W^{(l+1)}_{k_{l+1}k_{l}}\sigma^{(l)\;\prime}(z^{(l)}_i)
+    =\left((W^{(l+1)})^T\delta^{(l+1)}\right)_i\sigma^{(l)\;\prime}(z^{(l)}_i):=\delta^{(l)}_i.
+\end{align*}
+\end{small}
+In the same fashion, we find
+\begin{align*}
+    \frac{\partial C}{\partial b^{(L)}_i}=\sum_{k_L=1}^L\frac{\partial C_{k_L}(a^{(L)}_{k_L})}{\partial z^{(L)}_{k_L}}\frac{\partial z^{(L)}_{k_L}}{\partial b^{(L)}_i}=\delta^{(L)}_i
+\end{align*}
+and
+\begin{align*}
+    \frac{\partial C}{\partial b^{(l)}_i}=\sum_{k_l=1}^{n_l}\delta^{(l)}_{k_l}\frac{\partial z^{(l)}_{k_l}}{\partial b^{(l)}_i}=\delta^{(l)}_i
+\end{align*}
+for the biases, and
+\begin{align*}
+    \frac{\partial C}{\partial W^{(L)}_{ij}}=\sum_{k_L=1}^L\frac{\partial C_{k_L}(a^{(L)}_{k_L})}{\partial z^{(L)}_{k_L}}\frac{\partial z^{(L)}_{k_L}}{\partial W^{(L)}_{ij}}=\delta^{(L)}_ia^{(L-1)}_j
+\end{align*}
+and
+\begin{align*}
+    \frac{\partial C}{\partial W^{(l)}_{ij}}=\sum_{k_l=1}^{n_l}\delta^{(l)}_{k_l}\frac{\partial z^{(l)}_{k_l}}{\partial W^{(l)}_{ij}}=\delta^{(l)}_ia^{(l-1)}_j
+\end{align*}
+for the weights. We have thus proven \cref{eq:backprop1,eq:backprop2,eq:backprop3,eq:backprop4}, and we can easily write them as vector and matrix equations as follows:
+\begin{align*}
+    \frac{\partial C}{\partial z^{(L)}} &= \frac{\partial C}{\partial a^{(L)}}\odot\sigma^{L\prime}(z^{(L)}),
+    \\
+    \frac{\partial C}{\partial z^{(l)}} &= \sigma^{(l)\;\prime}(z^{(l)})\odot((W^{(l+1)})^T\delta^{(l+1)}),
+    \\
+    \frac{\partial C}{\partial b^{(l)}} &= \delta^{(l)},
+    \\
+    \frac{\partial C}{\partial W^{(l)}} &= \delta^{(l)}(a^{(l-1)})^T,
+\end{align*}
+where \(\odot\) denotes the Hadamard/elementwise product. If we now have \(n\) data points, the cost function will sum over the cost of each data points. If we let
+\begin{align*}
+    \delta^{(l)}&=\begin{pmatrix}\delta^{(l)}_1(x_1) & \delta^{(l)}_1(x_2) & \ldots & \delta^{(l)}_1(x_n)\\\delta^{(l)}_2(x_1) & \delta^{(l)}_2(x_2) & \ldots & \delta^{(l)}_2(x_n)\\\vdots & \vdots & & \vdots \\\delta^{(l)}_{n_l}(x_1) & \delta^{(l)}_{n_l}(x_2) & \ldots & \delta^{(l)}_{n_l}(x_n)\\\end{pmatrix} = \begin{pmatrix} \delta^{(l)}(x_1) & \delta^{(l)}(x_2) & \ldots & \delta^{(l)}(x_n) \end{pmatrix}
+    \\
+    &\text{and}
+    \\
+    a^{(l)}&=\begin{pmatrix}a^{(l)}_1(x_1) & a^{(l)}_1(x_2) & \ldots & a^{(l)}_1(x_n)\\a^{(l)}_2(x_1) & a^{(l)}_2(x_2) & \ldots & a^{(l)}_2(x_n)\\\vdots & \vdots & & \vdots \\a^{(l)}_{n_l}(x_1) & a^{(l)}_{n_l}(x_2) & \ldots & a^{(l)}_{n_l}(x_n)\\\end{pmatrix},
+\end{align*}
+then
+\begin{equation*}
+    \frac{\partial C}{\partial b^{(l)}} = \sum_{i=1}^n\delta^{(l)}(x_i) 
+    \quad\text{and}\quad
+    \frac{\partial C}{\partial W^{(l)}} = \delta^{(l)}(a^{(l-1)})^T.
+\end{equation*}
+%https://towardsdatascience.com/a-10-line-proof-of-back-propagation-5a2cad1032c4
