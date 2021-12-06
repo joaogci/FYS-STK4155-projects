@@ -3,15 +3,31 @@ from time import time
 from typing import Callable
 
 class NeuralNetwork():
-
+    """
+        Neural Network Class
+    """    
+    
     def __init__(self, n_input_nodes: int, random_state: int = int(time())):
+        """
+            Initiates Neural Network. 
+            The number of input nodes has to be the number of features. Then an array can be passed contaning all of the datapoints for that feature.
+            Parameters:
+                n_input_nodes (int): number of input nodes
+                random_state (int): seed for rng
+        """
         self.random_state = random_state
         self.rng = np.random.default_rng(np.random.MT19937(seed=random_state))
 
         self.layers = list()
         self.n_input_nodes = n_input_nodes
 
-    def add_layer(self, n_nodes: int, activation_function: tuple):
+    def add_layer(self, n_nodes: int, activation_function: tuple[callable, callable]):
+        """
+            Adds a layer to the NeuralNetwork.
+            Parameters:
+                n_nodes (int): number of nodes for the given layer
+                activation_function (tuple[callable, callable]): tuple containing two Callable objects. The first is the activation function and the second its derivative.
+        """
         if len(self.layers) == 0:
             self.layers.append(Layer(n_nodes, self.n_input_nodes, activation_function, self.rng))
         else:
@@ -20,6 +36,11 @@ class NeuralNetwork():
         self.n_layers = len(self.layers)
 
     def predict(self, inputs: np.ndarray):
+        """
+            FeedForward the given inputs. Gives a prediction for the given weights and biases.
+            Parameters:
+                inputs (np.ndarray): inputs for the feedforward step.
+        """
         a_l = inputs
 
         for layer in self.layers:
@@ -29,6 +50,11 @@ class NeuralNetwork():
         return a_l
 
     def feed_forward(self, inputs: np.ndarray):
+        """
+            FeedForward for traning.
+            Parameters:
+                inputs (np.ndarray): inputs fot the feedforward step.
+        """
         a_l = list([inputs])
         z_l = list()
 
@@ -40,6 +66,14 @@ class NeuralNetwork():
 
     def back_propagation(self, a: np.ndarray, z: np.ndarray, target: np.ndarray, 
                          grad_C: Callable):
+        """
+            BackPropagation for the training of our neural network.
+            Parameters:
+                a (np.ndarray): output of the activation functions for every layer.
+                z (np.ndarray): input for the activation functions for every layer.
+                target (np.ndarray): target values for training.
+                grad_C (Callable): gradient of the CostFunction with respect to the data points. 
+        """
         grad_C_w = list()
         grad_C_b = list()
 
@@ -61,8 +95,18 @@ class NeuralNetwork():
 
     def train(self, inputs: np.ndarray, target: np.ndarray, grad_C: Callable, 
               epochs: int, learning_rate: Callable, size_batches: int,
-              regularization: float = 0, input_test: np.ndarray = None, target_test: np.ndarray = None):
-        
+              regularization: float = 0):
+        """
+            Training function for the NeuralNetwork. Trains the weights and biases with Stochastic Gradient Descent.
+            Parameters:
+                inputs (np.ndarray): inputs to the NeuralNetwork.
+                target (np.ndarray): targets for the NeuralNetwork.
+                grad_C (Callable): gradient of the CostFunction with respect to the data points.
+                epochs (int): epochs for the training process.
+                leraning_rate (Callable): learning rate for the SGD method. Can be a function of the epochs.
+                size_batches (int): size of the minibatches.
+                regularization (float): l2 regularization parameter.
+        """
         for epoch in range(1, epochs + 1):
             perm = self.rng.permutation(inputs.shape[1])
             inputs = inputs[:, perm]
@@ -82,22 +126,20 @@ class NeuralNetwork():
 
 class Layer():
     """
-    Layer class for keeping track of weights, biases and activation
-    function for layers in Feed Forward Neural Network.
+    Layer class for keeping track of weights, biases and activation function for layers in Feed Forward Neural Network.
     """
     
     def __init__(self, n_nodes: int, n_nodes_prev_layer: int, 
-                activation_function, rng: np.random.Generator):
+                activation_function: tuple[Callable, Callable], rng: np.random.Generator,
+                bias_init: float = 1e-3):
         """
-        Initialises the layer with an activation function, weight 
-        matrix, and bias vector.
+        Initialises the layer with an activation function, weight matrix, and bias vector.
         Parameters:
-            n_nodes (int): Number of wanted nodes in the layer
-            n_nodes_prev_layer (int): Number of nodes in previous layer
-            activation_function (tuple[Callable]): Tuple containing wanted 
-                                         activation function and it's
-                                         derivative.
-            rng (np.random.Generator): Psuedo random number generator
+            n_nodes (int): number of wanted nodes in the layer.
+            n_nodes_prev_layer (int): number of nodes in previous layer.
+            activation_function (tuple[Callable, Callable]): tuple containing wanted activation function and it's derivative.
+            rng (np.random.Generator): psuedo random number generator.
+            bias_init (float): value for the initialization of the bias.
         """
         self.n_nodes = n_nodes
         self.n_nodes_prev_layer = n_nodes_prev_layer
@@ -106,8 +148,11 @@ class Layer():
         self.d_act_function = activation_function[1]
         
         self.weights = rng.normal(0, 1, size=(self.n_nodes, self.n_nodes_prev_layer)) / self.n_nodes
-        self.biases = rng.uniform(0, 1, size=(self.n_nodes, 1)) * 1e-3 # need to change later
+        self.biases = rng.uniform(0, 1, size=(self.n_nodes, 1)) * bias_init
         
     def get_nodes(self):
+        """
+            Returns the number of nodes in the layer.
+        """
         return self.n_nodes
 
