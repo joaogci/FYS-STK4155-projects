@@ -1,4 +1,4 @@
-import numpy as np
+import autograd.numpy as np
 
 def sigmoid():
     func = lambda x: 1 / (1 + np.exp(-x))
