@@ -21,12 +21,12 @@ class NeuralNetwork():
         self.layers = list()
         self.n_input_nodes = n_input_nodes
 
-    def add_layer(self, n_nodes: int, activation_function: tuple[callable, callable]):
+    def add_layer(self, n_nodes: int, activation_function: tuple[Callable, Callable]):
         """
             Adds a layer to the NeuralNetwork.
             Parameters:
                 n_nodes (int): number of nodes for the given layer
-                activation_function (tuple[callable, callable]): tuple containing two Callable objects. The first is the activation function and the second its derivative.
+                activation_function (tuple[Callable, Callable]): tuple containing two Callable objects. The first is the activation function and the second its derivative.
         """
         if len(self.layers) == 0:
             self.layers.append(Layer(n_nodes, self.n_input_nodes, activation_function, self.rng))
