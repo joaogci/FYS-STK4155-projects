@@ -78,17 +78,25 @@ class NeuralODE():
     
     def set_ode(self, ode: Callable): 
         """
-            Sets the ODE to solve. 
+            Sets the ODE to solve. Sets the right side of the equation
             Parameters: 
                 ode (Callable): ode function.
         """
-        self.ode = ode
+        self.right = ode
+    
+    def set_left(self, left: Callable):
+        """
+            Sets the left side of the equation.
+            Parameters:
+                left (Callable): left side of the equation.
+        """
+        self.left = left
 
     def cost_function(self):
         """
             Returns the cost function for the Neural Network to optimize.
         """
-        return lambda x, params: np.mean((elementwise_grad(self.trial, 0)(x, params) - self.ode(x, params))**2)
+        return lambda x, params: np.mean((self.left(x, params) - self.right(x, params))**2)
 
     def train(self, x: np.ndarray, epochs: int, learning_rate: Callable):
         """
@@ -103,7 +111,7 @@ class NeuralODE():
         for epoch in range(1, epochs + 1):
             
             grad_C_params = grad_C(x, self.params)
-            
+
             for l in range(self.n_layers):
                 self.params[l] = self.params[l] - learning_rate(epoch) * grad_C_params[l]
                     
@@ -137,35 +145,46 @@ if __name__ == '__main__':
     
     seed = 1337
     
-    N = 10
+    N = 100
     x = np.linspace(0, 1, N)
     
     nn = NeuralODE(1, random_state=seed)
-    nn.add_layer(100, sigmoid()[0])
-    # nn.add_layer(50, sigmoid()[0])
-    # nn.add_layer(25, sigmoid()[0])
-    nn.add_layer(1, linear()[0])
+    nn.add_layer(50, sigmoid())
+    nn.add_layer(1, linear())
     
     ff = nn.feed_forward()
-    # alpha = 2
-    # A = 1
-    # f0 = 1.2
-    # euler = lambda x: alpha * x * (A - x)
-    # trial = lambda x, params: f0 + x * ff(x, params)
-    # ode = lambda x, params: alpha * trial(x, params) * (A - trial(x, params))
-    # analytical = lambda x: A * f0 / (f0 + (A - f0) * np.exp(- alpha * A * x))
     
+    # Exponential Decay
+    alpha = 2
+    A = 1
+    f0 = 1.2
+    euler = lambda x: alpha * x * (A - x)
+    trial = lambda x, params: f0 + x * ff(x, params)
+    ode = lambda x, params: alpha * trial(x, params) * (A - trial(x, params))
+    left = lambda x, params: elementwise_grad(trial, 0)(x, params) 
+    analytical = lambda x: A * f0 / (f0 + (A - f0) * np.exp(- alpha * A * x))
     
-    f0 = 1
-    euler = lambda x: - np.exp(x)
-    trial = lambda x, params: f0 - x * ff(x, params)
-    ode = lambda x, params: - np.exp(trial(x, params))
-    analytical = lambda x: - np.log(np.exp(- 1) + x)
+    # Harmonic Approxilator test
+    # f0 = 1
+    # w0 = 2
+    # trial = lambda x, params: w0 * np.sin(x) + x**2 * ff(x, params)
+    # left = lambda x, params: elementwise_grad(elementwise_grad(trial, 0), 0)(x, params)
+    # ode = lambda x, params: w0**2 * trial(x, params)
+    # analytical = lambda x: np.sin(w0 * x)
+        
+    # 1D Poisson equatino
+    # f0 = 0
+    # f1 = 1
+    # trial = lambda x, params: x * (1 - x) * ff(x, params)
+    # left = lambda x, params: elementwise_grad(elementwise_grad(trial, 0), 0)(x, params)
+    # ode = lambda x, params: - (3 * x + x**2) * np.exp(x)
+    # analytical = lambda x: x * (1 - x) * np.exp(x)
     
     nn.set_trial(trial)
     nn.set_ode(ode)
-    eta = lambda x: 1e-3
-    nn.train(x, 1000, learning_rate=eta)
+    nn.set_left(left)
+    eta = lambda x: 1e-4
+    nn.train(x, 5000, learning_rate=eta)
     
     nn_sol = nn.compute_solution(x)
     
