@@ -62,7 +62,6 @@ class DiffEqNet(tf.keras.Sequential):
 
 if __name__ == "__main__":
 
-
     class expsolvenet(DiffEqNet):
         def __init__(self, layers, gamma, f0, x, learning_rate = 0.001):
             super(expsolvenet, self).__init__(layers, learning_rate)
@@ -100,6 +99,7 @@ if __name__ == "__main__":
     u'(x) = -gamma*u(x)
     u(0) = 10, gamma = 2
     """
+    
     x = np.matrix(np.linspace(0, 1, 1000)).reshape(-1, 1)
     x = tf.cast(tf.convert_to_tensor(x), tf.float32)
 
@@ -117,14 +117,3 @@ if __name__ == "__main__":
     plt.plot(x, pred)
     plt.plot(x, analytical(x))
     plt.show()
-
-    '''
-    x_new = np.matrix(np.linspace(3, 5, 1000)).reshape(-1, 1)
-    x_new = tf.cast(tf.convert_to_tensor(x_new), tf.float32)
-
-    pred_new = u.predict(x_new)
-    plt.title("New x, different interval then trained\nThis fails miserably but nvm")
-    plt.plot(x_new, pred_new)
-    plt.plot(x_new, analytical(x_new))
-    plt.show()
-    '''
