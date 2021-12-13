@@ -20,5 +20,6 @@ plt.title("Stability region for finite differences")
 plt.contourf(dX, dT, region)
 plt.xlabel("$\Delta x$")
 plt.ylabel("$\Delta t$")
+plt.colorbar()
 
 plt.savefig("figs/stability_region.pdf")
