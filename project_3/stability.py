@@ -6,13 +6,13 @@ dx = np.linspace(0, 20, n)
 dt = np.linspace(0, 100, n)
 dX, dT = np.meshgrid(dx, dt)
 
-stability = 2 * dT / dX**2
+stability = dT / dX**2
 
 region = np.zeros_like(stability)
 
 for i in range(n):
     for j in range(n):
-        if stability[i, j] < 1:
+        if stability[i, j] < 1 / 2:
             region[i, j] = 1
 
 plt.figure("Stability Region")
