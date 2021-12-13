@@ -2,6 +2,8 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
+
 from NNSolver import DiffEqNet
 
 class heateq(DiffEqNet):
@@ -38,11 +40,12 @@ class heateq(DiffEqNet):
 
 layers = [2, 50, 10, 1]
 
-nx = 50
+nx = int(sys.argv[1])
+nt = int(sys.argv[2])
+
 npx = np.matrix(np.linspace(0, 1, nx)).reshape(-1, 1)
 x = tf.cast(tf.convert_to_tensor(npx), tf.float32)
 
-nt = 50
 npt = np.matrix(np.linspace(0, 1, nt)).reshape(-1, 1)
 t = tf.cast(tf.convert_to_tensor(npt), tf.float32)
 
@@ -52,36 +55,36 @@ T = tf.reshape(Ttf, [-1])
 
 u = heateq(layers, X, T, learning_rate=1e-3)
 
-u.train(5000)
+u.train(1000)
 
-pred = tf.reshape(u.predict([X, T]), [nx, nt])
+pred = tf.reshape(u.predict([X, T]), [nt, nx])
 
-x, t = np.meshgrid(np.linspace(0, 1, nx), np.linspace(0, 1, nt))
-
+X, T = np.meshgrid(np.linspace(0, 1, nx), np.linspace(0, 1, nt))
 def g(x, t):
     return np.exp(-t * np.pi**2) * np.sin(np.pi*x)
-
-analytical = g(x, t)
+analytical = g(X, T)
 
 abs_relativ_error = np.zeros_like(analytical)
 abs_relativ_error = np.abs(analytical - pred)
 
+print(f"Max error: {np.max(abs_relativ_error)}")
+
 plt.figure("Prediction")
-plt.contourf(Xtf, Ttf, pred)
+plt.contourf(X, T, pred)
 plt.xlabel("$x$")
 plt.ylabel("$t$")
 plt.title("Solution to the heat equation with NN")
 plt.colorbar()
 
 plt.figure("Analytical")
-plt.contourf(Xtf, Ttf, analytical)
+plt.contourf(X, T, analytical)
 plt.xlabel("$x$")
 plt.ylabel("$t$")
 plt.title("Analytical solution to the heat equation")
 plt.colorbar()
 
 plt.figure("Absolute Relative Error")
-plt.contourf(Xtf, Ttf, abs_relativ_error)
+plt.contourf(X, T, abs_relativ_error)
 plt.xlabel("$x$")
 plt.ylabel("$t$")
 plt.title("Absolute relative error of the NN compared with analytical solution")
