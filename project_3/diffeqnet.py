@@ -110,7 +110,7 @@ if __name__ == "__main__":
     u = expsolvenet(layers, gamma, u0, x)
 
     u.train(5000)
-    pred = u.predict(x)
+    pred = u.predict(tuple([x]))
     analytical = lambda x : u0*np.exp(-gamma*x)
 
     plt.title("Original x, same as trained interval")
