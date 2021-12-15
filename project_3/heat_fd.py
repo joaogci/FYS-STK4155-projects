@@ -49,7 +49,7 @@ if __name__ == '__main__':
     
     print(f"Max error: {np.max(abs_relativ_error)}.")
     
-    plt.figure("Finite Difference")
+    plt.figure("Finite Difference", figsize=(6,5))
     plt.contourf(X, T, u_fd)
     plt.xlabel("$x$")
     plt.ylabel("$t$")
@@ -57,14 +57,14 @@ if __name__ == '__main__':
     plt.colorbar()
     plt.savefig("figs/heat_fd_nx_50_nt_5000.pdf")
     
-    plt.figure("Analytical Solution")
+    plt.figure("Analytical Solution", figsize=(6,5))
     plt.contourf(X, T, u_anal)
     plt.xlabel("$x$")
     plt.ylabel("$t$")
     plt.title("Analytical solution to the heat equation")
     plt.colorbar()
     
-    plt.figure("Absolute Error")
+    plt.figure("Absolute Error", figsize=(6,5))
     plt.contourf(X, T, abs_relativ_error)
     plt.xlabel("$x$")
     plt.ylabel("$t$")
