@@ -28,7 +28,7 @@ def finite_difference(nx, nt):
     for i in range(nt - 1):
         for j in range(2, nx - 1):
             u[j, i + 1] = u[j, i] + dt / dx**2 * (u[j - 1, i] - 2 * u[j, i] + u[j + 1, i])
-        print(f" time iter: {i+1}/{nt}", end='\r')
+        print(f" time iter: {i+2}/{nt}", end='\r')
     print()
     
     X, T = np.meshgrid(x, t)
@@ -40,7 +40,6 @@ if __name__ == '__main__':
     nt = int(sys.argv[2])
     
     X, T, u_fd = finite_difference(nx, nt)
-    print(u_fd.shape)
 
     g = lambda x, t: np.exp(-t * np.pi**2) * np.sin(np.pi*x)
     u_anal = g(X, T)
@@ -56,6 +55,7 @@ if __name__ == '__main__':
     plt.ylabel("$t$")
     plt.title("Solution to the heat equation using Finite Difference")
     plt.colorbar()
+    plt.savefig("figs/heat_fd_nx_50_nt_5000.pdf")
     
     plt.figure("Analytical Solution")
     plt.contourf(X, T, u_anal)
@@ -64,12 +64,12 @@ if __name__ == '__main__':
     plt.title("Analytical solution to the heat equation")
     plt.colorbar()
     
-    plt.figure("Absolute Relative Error")
+    plt.figure("Absolute Error")
     plt.contourf(X, T, abs_relativ_error)
     plt.xlabel("$x$")
     plt.ylabel("$t$")
-    plt.title("Absolute relative error of the NN compared with analytical solution")
+    plt.title("Absolute error of the FD; max_error = 0.0639")
     plt.colorbar()
+    plt.savefig("figs/error_fd_nx_50_nt_5000.pdf")
     
-    plt.show()
     

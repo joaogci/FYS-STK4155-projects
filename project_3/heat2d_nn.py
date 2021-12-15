@@ -16,9 +16,8 @@ class heateq(DiffEqNet):
 
     @tf.function 
     def trial_func(self, x, t):
-        # return x*(1-x)*t*tf.squeeze(self(tf.stack([x, t], axis = 1), training = False))
-        # return tf.sin(np.pi*x) + t + x*(1-x)*t*tf.squeeze(self(tf.stack([x, t], axis = 1), training = False))
-        return tf.sin(np.pi*x)*(1-t) + x*(1-x)*t*tf.squeeze(self(tf.stack([x, t], axis = 1), training = False))
+        return tf.sin(np.pi*x) + t + x*(1-x)*t*tf.squeeze(self(tf.stack([x, t], axis = 1), training = False))
+        # return tf.sin(np.pi*x)*(1-t) + x*(1-x)*t*tf.squeeze(self(tf.stack([x, t], axis = 1), training = False))
 
     @tf.function
     def cost_function(self, x, t):
@@ -40,7 +39,7 @@ class heateq(DiffEqNet):
 
         return loss
 
-layers = [2, 50, 50, 1]
+layers = [2, 50, 10, 1]
 
 nx = int(sys.argv[1])
 nt = int(sys.argv[2])
@@ -59,12 +58,7 @@ u = heateq(layers, X, T, learning_rate=1e-3)
 
 u.train(1000)
 
-pred_tmp = u.predict([X, T])
-pred_tmp = np.array(pred_tmp)
-for i in range(len(pred_tmp)):
-    if pred_tmp[i] < 0:
-        pred_tmp[i] = 0
-pred = np.reshape(pred_tmp, [nt, nx])
+pred = tf.reshape(u.predict([X, T]), [nt, nx])
 
 X, T = np.meshgrid(np.linspace(0, 1, nx), np.linspace(0, 1, nt))
 def g(x, t):
@@ -82,7 +76,6 @@ plt.xlabel("$x$")
 plt.ylabel("$t$")
 plt.title("Solution to the heat equation with NN")
 plt.colorbar()
-plt.savefig("figs/heat_nx_50_nt_50.pdf")
 
 plt.figure("Analytical")
 plt.contourf(X, T, analytical)
@@ -90,14 +83,12 @@ plt.xlabel("$x$")
 plt.ylabel("$t$")
 plt.title("Analytical solution to the heat equation")
 plt.colorbar()
-plt.savefig("figs/analytical.pdf")
 
-plt.figure("Absolute Error")
+plt.figure("Absolute Relative Error")
 plt.contourf(X, T, abs_relativ_error)
 plt.xlabel("$x$")
 plt.ylabel("$t$")
-plt.title(f"Absolute error of the NN; max error = {np.max(abs_relativ_error)}")
+plt.title("Absolute relative error of the NN compared with analytical solution")
 plt.colorbar()
-plt.savefig("figs/error_nn_nx_50_nt_50.pdf")
 
-# plt.show()
+plt.show()
