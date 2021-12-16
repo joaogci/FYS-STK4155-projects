@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
 
 import sys
 
@@ -75,6 +77,15 @@ abs_relativ_error = np.zeros_like(analytical)
 abs_relativ_error = np.abs(analytical - pred)
 
 print(f"Max error: {np.max(abs_relativ_error)}")
+
+fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+surf = ax.plot_surface(X, T, pred, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+fig.colorbar(surf, shrink=0.5, aspect=5)
+ax.set_xlabel("$x$")
+ax.set_ylabel("$t$")
+ax.zaxis.set_major_formatter('{x:.02f}')
+plt.savefig("figs/3d_plot_heat_nn.pdf")
+
 
 plt.figure("Prediction", figsize=(6,5))
 plt.contourf(X, T, pred)
