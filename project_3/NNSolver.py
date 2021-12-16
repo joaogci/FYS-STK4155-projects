@@ -24,6 +24,8 @@ class DiffEqNet(tf.keras.Sequential):
         self.add(Dense(layers[-1], activation = 'linear'))
 
         self.optimizer = tf.keras.optimizers.Adam(learning_rate = learning_rate)
+        
+        self.error = list()
 
     @tf.function
     def gradient(self):
@@ -36,21 +38,24 @@ class DiffEqNet(tf.keras.Sequential):
         
         del tape
 
-        return grad
+        return loss, grad
 
     @tf.function
     def update(self):
-        grad = self.gradient()
+        loss, grad = self.gradient()
         self.optimizer.apply_gradients(zip(grad, self.trainable_variables))
+        return loss
 
     #@tf.function   # Doesnt work, stalls the program for some reason
     def train(self, epochs = 5000):
         for i in range(epochs):
             print(f"{i+1: 5d}/{epochs: 5d}", end = '\r')
             #self.gradient()
-            self.update()
+            loss = self.update()
+            self.error.append(tf.reduce_mean(loss).numpy())
 
         self.trained = True
+        
 
     @tf.function
     def predict(self, var):

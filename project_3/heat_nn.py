@@ -56,8 +56,8 @@ X = tf.reshape(Xtf, [-1])
 T = tf.reshape(Ttf, [-1])
 
 u = heateq(layers, X, T, learning_rate=1e-3)
-
-u.train(1000)
+epochs = 5000
+u.train(epochs)
 
 pred_tmp = u.predict([X, T])
 pred_tmp = np.array(pred_tmp)
@@ -99,5 +99,12 @@ plt.ylabel("$t$")
 plt.title(f"Absolute error of the NN; max error = {np.max(abs_relativ_error)}")
 plt.colorbar()
 plt.savefig("figs/error_nn_nx_50_nt_50.pdf")
+
+plt.figure("Error vs Epochs", figsize=(6,5 ))
+plt.title("MSE vs epochs")
+plt.plot(np.arange(0, epochs), u.error, '--k')
+plt.xlabel("epochs")
+plt.ylabel("$MSE$")
+plt.savefig("figs/error_epochs.pdf")
 
 # plt.show()
