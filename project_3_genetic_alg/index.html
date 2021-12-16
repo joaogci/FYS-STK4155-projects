@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genetic Algorithm Differential Equation Solver</title>
+    <style>
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -100;
+        }
+        input {
+            z-index: 100;
+        }
+        div {
+            z-index: 100;
+            padding: 20px;
+            font-size: 1.2em;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <input type="file" name="import" id="import">
+    <div id='results'>
+        Select a json file exported from one of the runs of the C++ executable to get started.
+    </div>
+    <script type="module">
+
+        import * as THREE from 'https://cdn.skypack.dev/three@0.133.1';
+
+        // init renderer
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            preserveDrawingBuffer: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        let width = 20;
+        let height = window.innerHeight / window.innerWidth * width;
+        document.body.append(renderer.domElement);
+
+        // display expression (either 2D (line) or 3D (surface))
+        function displayExpression (expr, colour) {
+
+            // iterate over points & sample function
+            let points = [];
+            for (let i = -width/2; i <= width/2; i += 0.025) {
+                let x = i;
+                let y = eval(expr) * 0.25;
+                points.push(new THREE.Vector3(x, y, -10));
+            }
+
+            // render
+            let geometry = (new THREE.BufferGeometry()).setFromPoints(points);
+            let line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: colour }));
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color('white');
+            scene.add(line);
+            const camera = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 1, 100);
+            renderer.render(scene, camera);
+
+            return () => {};
+        }
+        let angle3d = 0;
+        function displayExpression3d (expr) {
+
+            // in the [-2,2] x [-2,2] domain
+            let points = [];
+            let d = 0.1;
+            for (let xx = -2; xx < 2; xx += d) {
+                for (let yy = -2; yy < 2; yy += d) {
+                    let [x, y] = [xx, yy];
+                    let za = eval(expr) * 0.5;
+                    [x, y] = [xx+d, yy];
+                    let zb = eval(expr) * 0.5;
+                    [x, y] = [xx, yy+d];
+                    let zc = eval(expr) * 0.5;
+                    [x, y] = [xx+d, yy+d];
+                    let zd = eval(expr) * 0.5;
+                    //     A ____ C
+                    //      | \  |
+                    //      |__ \|
+                    //     B      D
+                    points.push(new THREE.Vector3(xx, za, yy)); // A
+                    points.push(new THREE.Vector3(xx+d, zd, yy+d)); // D
+                    points.push(new THREE.Vector3(xx+d, zb, yy)); // B
+                    points.push(new THREE.Vector3(xx, za, yy)); // A
+                    points.push(new THREE.Vector3(xx, zc, yy+d)); // C
+                    points.push(new THREE.Vector3(xx+d, zd, yy+d)); // D
+                }
+            }
+
+            // render
+            let geometry = (new THREE.BufferGeometry()).setFromPoints(points);
+            geometry.computeVertexNormals();
+            let mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 'grey' }));
+            let wire = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 'white', wireframe: true }));
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color('white');
+            scene.add(mesh);
+            scene.add(wire);
+            scene.add(new THREE.DirectionalLight());
+            const camera = new THREE.PerspectiveCamera(75, width/height, 1, 100);
+            camera.position.z = 4;
+            mesh.rotation.x = 0.8;
+            wire.rotation.x = 0.8;
+            let render;
+            let stop = false;
+            (render = () => {
+                if (stop) return;
+                mesh.rotation.y = wire.rotation.y = angle3d += 0.0025;
+                renderer.render(scene, camera);
+                requestAnimationFrame(render);
+            })();
+
+            return () => { stop = true; };
+        }
+
+        // animate expressions being found from generation to generation
+        let interrupt = displayExpression3d('Math.sin(x) + Math.sin(y)', 'grey');
+        function displaySearch (data) {
+            let gen = 0;
+            let next = () => {
+                ++gen;
+
+                // display the current expression
+                let d2 = true;
+                if (data.problem.startsWith('ODE') || data.problem.startsWith('NLODE')) {
+                    // display ODEs as a line graph
+                    interrupt = displayExpression(data.generations[gen].jsExpression, 'red');
+                } else {
+                    // display PDEs as a 3D surface
+                    d2 = false;
+                    interrupt = displayExpression3d(data.generations[gen].jsExpression);
+                }
+
+                document.getElementById('results').innerHTML =
+                        'Problem: ' + data.problem + ' (seed = ' + data.seed + ')<br>' +
+                        'Method: ' + (data.useTrees ? 'ours' : 'original') + '<br>' +
+                        'Population size: ' + data.populationSize + '<br>' +
+                        '---<br>' +
+                        'Generation: ' + data.generations[gen].generation + '<br>' +
+                        'Fitness: ' + data.generations[gen].fitness + (data.generations[gen].fitness == 0 ? ' (found analytical solution)' : '') + '<br>' +
+                        'Expression: ' + data.generations[gen].expression;
+
+                if (gen >= data.generations.length - 1) return;
+                setTimeout(() => {
+                    interrupt();
+                    next();
+                }, d2 ? 200 : 500);
+            };
+            next();
+        }
+
+        // import from json
+        document.getElementById('import').addEventListener('change', (e) => {
+            let input = event.target;
+
+            let reader = new FileReader();
+            reader.onload = () => {
+                let result = JSON.parse(reader.result);
+                if (result) {
+                    interrupt();
+                    displaySearch(result);
+                    console.log(result);
+                }
+            };
+            reader.readAsText(input.files[0]);
+        });
+
+    </script>
+</body>
+</html>
