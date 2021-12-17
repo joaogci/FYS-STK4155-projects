@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from tensorflow.keras.layers import Dense
 
+from sklearn.metrics import mean_squared_error as MSE, r2_score as R2
+
 class DiffEqNet(tf.keras.Sequential):
     """
     Use as parent class, the child class must contain the funtions:
@@ -54,6 +56,7 @@ class DiffEqNet(tf.keras.Sequential):
             loss = self.update()
             self.error.append(tf.reduce_mean(loss).numpy())
 
+        print('\n')
         self.trained = True
         
 
@@ -64,6 +67,23 @@ class DiffEqNet(tf.keras.Sequential):
         pred = self.trial_func(*var)
 
         return pred
+
+    def score(self):
+        prediction = np.array(self.predict(self.var))
+        np_var = []
+
+        for i in range(len(self.var)):
+            np_var.append(np.array(self.var[i]))
+
+        analytical = self.analytical_solution(*self.var)
+
+        max_err = np.max(np.abs(analytical - prediction))
+        mse = MSE(analytical, prediction)
+        r2 = R2(analytical, prediction)
+
+        return mse, r2, max_err
+        
+
 
 if __name__ == "__main__":
 
