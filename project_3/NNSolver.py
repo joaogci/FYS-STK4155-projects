@@ -64,7 +64,7 @@ class DiffEqNet(tf.keras.Sequential):
     def predict(self, var):
         if self.trained == False:
             print("Warning: Network not trained!")
-        pred = self.trial_func(*var)
+        pred = self.trial_func(*self.var)
 
         return pred
 
